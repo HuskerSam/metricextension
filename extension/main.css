@@ -372,6 +372,11 @@ body {
   background-color: #ffe0e0;
 }
 
+.history_display_container {
+  height: 85vh;
+  overflow: auto;
+}
+
 .history_entry {
   margin-bottom: var(--spacing-medium);
   padding: var(--spacing-medium);
@@ -406,6 +411,7 @@ body {
 .history_date {
   font-size: var(--font-size-small);
   color: var(--secondary-color);
+  margin-top: var(--spacing-small);
 }
 
 .url_display {
@@ -621,10 +627,6 @@ body {
   .history_header {
     flex-direction: column;
     gap: var(--spacing-small);
-  }
-
-  .history_date {
-    margin-top: var(--spacing-small);
   }
 
   .history_separator {

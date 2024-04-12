@@ -46,13 +46,15 @@ export class AnalyzerExtensionCommon {
     } else {
       console.log(promptResult);
     }
-    if (promptResult.assist.error) {
-      resultMessage = promptResult.assist.error.message;
-    } else if (promptResult.assist.assist.error) {
-      resultMessage = promptResult.assist.assist.error.message;
-    } else {
-      resultMessage = promptResult.assist.assist.choices["0"].message.content;
-      error = false;
+    if (promptResult.assist) {
+      if (promptResult.assist.error) {
+        resultMessage = promptResult.assist.error.message;
+      } else if (promptResult.assist.assist.error) {
+        resultMessage = promptResult.assist.assist.error.message;
+      } else {
+        resultMessage = promptResult.assist.assist.choices["0"].message.content;
+        error = false;
+      }
     }
     return {
       resultMessage,
@@ -179,6 +181,11 @@ export class AnalyzerExtensionCommon {
     });
     return historyEntry;
   }
+  /**
+   * 
+   * @param result 
+   * @returns 
+   */
   getHTMLforPromptResult(result: any) {
     const usageText = `<span class="token_usage_span">Token Usage: ${result.result.promptResult.ticketResults.usage_credits}</span>`;
     if (result.prompt.prompttype === 'text') {
@@ -395,7 +402,7 @@ this.query_source_tokens_length.innerHTML = tokenCount;
       this.query_source_action.addEventListener('click', async (e: Event) => {
         let index = this.query_source_action.selectedIndex;
         this.query_source_action.selectedIndex = 0;
-        await  this.querySourceTextFromDom(index);
+        await this.querySourceTextFromDom(index);
       });
     }
   }

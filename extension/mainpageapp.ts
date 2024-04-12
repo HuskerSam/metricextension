@@ -31,7 +31,10 @@ export default class MainPageApp {
     query_source_text = document.querySelector('.query_source_text') as HTMLTextAreaElement;
     run_analysis_btn = document.querySelector('.run_analysis_btn') as HTMLButtonElement;
     copy_to_clipboard_btn = document.querySelector('.copy_to_clipboard_btn') as HTMLButtonElement;
+    export_history = document.querySelector('.export_history') as HTMLButtonElement;
+    clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
     promptsTable: any;
+
     constructor() {
         this.extCommon.initCommonDom();
         
@@ -75,6 +78,27 @@ export default class MainPageApp {
                 await chrome.storage.local.clear();
                 location.reload();
             }
+        });
+
+        this.clear_history.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to clear all history?')) {
+                await chrome.storage.local.set({ history: [] });
+                this.renderHistoryDisplay();
+            }
+        });
+
+        this.export_history.addEventListener('click', async () => {
+            let history = await chrome.storage.local.get('history');
+            history = history.history || [];
+            let blob = new Blob([JSON.stringify(history)], { type: "application/json" });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            document.body.appendChild(a);
+            a.href = url;
+            a.download = 'history.json';
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
         });
 
         this.run_analysis_btn.addEventListener('click', async () => { 
@@ -333,6 +357,9 @@ export default class MainPageApp {
             let entryHtml = `
             <div class="history_entry">
               <div class="history_index">${i + 1}</div>
+            <div class="history_entry_header">
+              <button class="export_history_entry" data-index="${i}">Export</button>
+            </div>
               <div class="history_content">
                 <div class="history_header">
                   <span class="history_date">${this.showGmailStyleDate(entry.runDate)}</span>
@@ -361,7 +388,23 @@ export default class MainPageApp {
           `;
             historyHtml += entryHtml;
         }
-        (<any>document.querySelector('.history_display')).innerHTML = historyHtml;
+        const historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
+        historyDisplay.innerHTML = historyHtml;
+        historyDisplay.querySelectorAll('.export_history_entry').forEach((button: any) => {
+            button.addEventListener('click', async (e: any) => {
+                let index = e.target.dataset.index;
+                let entry = history[index];
+                let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                document.body.appendChild(a);
+                a.href = url;
+                a.download = `history_entry_${index}.json`;
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            });
+        });
     }
     truncateText(text: any, maxLength: any) {
         if (text.length <= maxLength) {

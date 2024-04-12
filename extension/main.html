@@ -53,10 +53,10 @@
   <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" id="config" role="tabpanel" aria-labelledby="config-tab">
       <div class="data_controls">
-        <button class="una_btn show_prompt_dialouge" id="add_prompt_btn" data-bs-toggle="modal"
+        <button class="show_prompt_dialouge" id="add_prompt_btn" data-bs-toggle="modal"
           data-bs-target="#promptWizard" type="button">Add Metric</button>
-        <button class="una_btn export_rows">Export</button>
-        <button class="una_btn import_rows">Import</button>
+        <button class="export_rows">Export</button>
+        <button class="import_rows">Import</button>
         <input type="file" id="file_input" accept=".json" style="display: none;">
       </div>
       <div class="library_container">
@@ -65,6 +65,7 @@
       <button style="visibility: hidden;" class="show_test_prompt_modal" data-bs-toggle="modal"
         data-bs-target="#testModal">Test
         Metric</button></button>
+        <span class="status_text">Running...</span>
     </div>
     <div class="tab-pane fade" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
       <div class="analysis_container">
@@ -103,7 +104,11 @@
     </div>
     <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
       <h5 class="category_header">Metric History</h5>
-      <div class="history_display"></div>
+      <div class="history_controls">
+        <button class="btn clear_history">Clear History</button>
+        <button class="btn export_history">Export</button>
+      </div>
+      <div class="history_display history_display_container"></div>
     </div>
   </div>
   <!-- test modal -->
