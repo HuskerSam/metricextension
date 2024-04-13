@@ -2,8 +2,14 @@
 import { AnalyzerExtensionCommon } from "./extensioncommon";
 declare const chrome: any;
 
-chrome.runtime.onInstalled.addListener(async () => {
-    chrome.tabs.create({ url: 'startpage.html' });
+chrome.runtime.onInstalled.addListener(async (reason: any) => {
+   if (reason.reason === 'install') {
+        chrome.tabs.create({
+          url: "https://unacog.com/clyde/"
+        });
+      }
+
+
     chrome.contextMenus.create({
         id: 'analyzeSelection',
         title: 'Analyze selection',
