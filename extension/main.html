@@ -53,7 +53,7 @@
   <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" id="config" role="tabpanel" aria-labelledby="config-tab">
       <div class="data_controls">
-        <button class="show_prompt_dialouge" id="add_prompt_btn" data-bs-toggle="modal"
+        <button class="add_prompt_modal" id="add_prompt_btn" data-bs-toggle="modal"
           data-bs-target="#promptWizard" type="button">Add Metric</button>
         <button class="export_rows">Export</button>
         <button class="import_rows">Import</button>
@@ -107,6 +107,16 @@
       <div class="history_controls">
         <button class="btn clear_history">Clear History</button>
         <button class="btn export_history">Export</button>
+        <select class="history_range_amount_select">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="100">100</option>
+          <option value="500">500</option>
+        </select>
       </div>
       <div class="history_display history_display_container"></div>
     </div>
@@ -196,7 +206,7 @@
         </div>
         <div class="modal-footer">
           <button class="generate_metric_prompt btn btn-primary">Generate</button>
-          <button class="add_to_library_button btn btn-secondary">Save</button>
+          <button class="save_to_library_button btn btn-secondary">Save</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>

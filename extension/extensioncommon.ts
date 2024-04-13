@@ -165,6 +165,8 @@ export class AnalyzerExtensionCommon {
 
     let results = await Promise.all(promises);
     let history = await this.chrome.storage.local.get('history');
+    let historyRangeLimit = await this.chrome.storage.local.get('historyRangeLimit');
+    historyRangeLimit = Number(historyRangeLimit.historyRangeLimit) || 10;
     history = history.history || [];
     let historyEntry = {
       text,
@@ -173,7 +175,7 @@ export class AnalyzerExtensionCommon {
       url
     };
     history.unshift(historyEntry);
-    history = history.slice(0, 10);
+    history = history.slice(0, historyRangeLimit);
     await this.chrome.storage.local.set({
       lastResult: results,
       running: false,

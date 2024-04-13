@@ -11,7 +11,7 @@ export default class MainPageApp {
     exportButton = document.querySelector('.export_rows') as HTMLButtonElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
-    show_prompt_dialouge = document.querySelector('.show_prompt_dialouge') as HTMLButtonElement;
+    add_prompt_modal = document.querySelector('.add_prompt_modal') as HTMLButtonElement;
     prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
     generate_metric_prompt = document.querySelector('.generate_metric_prompt') as HTMLButtonElement;
     show_test_prompt_modal = document.querySelector('.show_test_prompt_modal') as HTMLButtonElement;
@@ -25,7 +25,7 @@ export default class MainPageApp {
     prompt_type = document.querySelector('.prompt_type') as HTMLInputElement;
     prompt_template_text = document.querySelector('.prompt_template_text') as HTMLInputElement;
     user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
-    add_to_library_button = document.querySelector('.add_to_library_button') as HTMLButtonElement;
+    save_to_library_button = document.querySelector('.save_to_library_button') as HTMLButtonElement;
     prompt_setname_input = document.querySelector('.prompt_setname_input') as HTMLInputElement;
     input_datalist_prompt_list = document.querySelector('#input_datalist_prompt_list') as HTMLDataListElement;
     query_source_text = document.querySelector('.query_source_text') as HTMLTextAreaElement;
@@ -33,11 +33,13 @@ export default class MainPageApp {
     copy_to_clipboard_btn = document.querySelector('.copy_to_clipboard_btn') as HTMLButtonElement;
     export_history = document.querySelector('.export_history') as HTMLButtonElement;
     clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
+    history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
     promptsTable: any;
+    prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
 
     constructor() {
         this.extCommon.initCommonDom();
-        
+
         this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });
@@ -49,19 +51,26 @@ export default class MainPageApp {
         this.importButton.addEventListener('click', () => {
             document.getElementById('file_input')?.click();
         });
-        
+
         this.fileInput.addEventListener('change', async (e: any) => {
             let file = e.target.files[0];
             let reader = new FileReader();
             reader.onload = async (e: any) => {
                 let promptTemplateList = JSON.parse(e.target.result);
+                let existingPrompts = await this.promptsTable.getData();
+                promptTemplateList = existingPrompts.concat(promptTemplateList);
                 await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
                 this.hydrateAllPromptRows();
                 this.fileInput.value = ''; // Reset the file input value
             };
             reader.readAsText(file);
         });
-        
+
+        this.history_range_amount_select.addEventListener('click', async (e) => {
+            let amount = this.history_range_amount_select.value;
+            chrome.storage.local.set({ historyRangeLimit: amount });
+        });
+
         this.exportButton.addEventListener('click', async () => {
             let promptTemplateList = await this.promptsTable.getData();
             let blob = new Blob([JSON.stringify(promptTemplateList)], { type: "application/json" });
@@ -72,7 +81,7 @@ export default class MainPageApp {
             a.click();
             URL.revokeObjectURL(url);
         });
-       
+
         this.clearStorageButton.addEventListener('click', async () => {
             if (confirm('Are you sure you want to clear all data? This will clear your session key. If you have custom prompts, download first.')) {
                 await chrome.storage.local.clear();
@@ -101,7 +110,7 @@ export default class MainPageApp {
             URL.revokeObjectURL(url);
         });
 
-        this.run_analysis_btn.addEventListener('click', async () => { 
+        this.run_analysis_btn.addEventListener('click', async () => {
             let text = this.query_source_text.value;
             let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual');
             let html = '';
@@ -110,13 +119,13 @@ export default class MainPageApp {
             }
             this.status_text.innerHTML = html;
         });
-        
+
         this.copy_to_clipboard_btn.addEventListener('click', async () => {
             let text = this.query_source_text.value;
             navigator.clipboard.writeText(text);
         });
 
-        this.show_prompt_dialouge.addEventListener('click', async () => {
+        this.add_prompt_modal.addEventListener('click', async () => {
             this.prompt_setname_input.value = '';
             this.prompt_id_input.value = '';
             this.prompt_description.value = '';
@@ -127,7 +136,7 @@ export default class MainPageApp {
             this.prompt_id_input.focus();
             this.getAnalysisSetNameList();
         });
-        
+
         this.generate_metric_prompt.addEventListener('click', async () => {
             let text = this.wizard_input_prompt.value;
             this.prompt_template_text.value = `generating prompt...`;
@@ -137,14 +146,14 @@ export default class MainPageApp {
                 newPrompt = await this.extCommon.getMetricPromptForDescription(text);
             } else if (this.prompt_type.value === 'keywords') {
                 newPrompt = await this.extCommon.getKeywordPromptForDescription(text);
-            } else if (this.prompt_type.value === 'shortsummary') { 
+            } else if (this.prompt_type.value === 'shortsummary') {
                 newPrompt = await this.extCommon.getSummaryPromptForDescription(text);
                 console.log('shortSummary', newPrompt);
             };
             this.prompt_template_text.value = newPrompt;
         });
-        
-        this.add_to_library_button.addEventListener('click', async (e) => {
+
+        this.save_to_library_button.addEventListener('click', async (e) => {
             let promptId = this.prompt_id_input.value.trim();
             let promptDescription = this.prompt_description.value.trim();
             let promptSuggestion = this.wizard_input_prompt.value.trim();
@@ -178,7 +187,7 @@ export default class MainPageApp {
             modal.hide();
         });
 
-    
+
         this.initPromptTable();
         this.hydrateAllPromptRows();
 
@@ -198,7 +207,7 @@ export default class MainPageApp {
             groupBy: "setName",
             //            groupStartOpen: [false],
             groupHeader: (value: any, count: number, data: any, group: any) => {
-                return value + "<span style='margin-left:10px;'>(" + count + " item)</span>";
+                return value + `<span style='margin-left:10px;'>(" + ${count} + " item})</span> <button class='export_metric_set' data-setname='${value}'>Export</button>`;
             },
             columns: [
                 { title: "Id", field: "id", headerSort: false, width: 100 },
@@ -207,7 +216,17 @@ export default class MainPageApp {
                     field: "delete",
                     headerSort: false,
                     formatter: () => {
-                        return `<i class="material-icons">delete</i>`;
+                        return `<i class="material-icons-outlined">delete</i>`;
+                    },
+                    hozAlign: "center",
+                    width: 30,
+                },
+                {
+                    title: "",
+                    field: "clone",
+                    headerSort: false,
+                    formatter: () => {
+                        return `<i class="material-icons-outlined">copy_content</i>`;
                     },
                     hozAlign: "center",
                     width: 30,
@@ -217,7 +236,7 @@ export default class MainPageApp {
                     field: "edit",
                     headerSort: false,
                     formatter: () => {
-                        return `<i class="material-icons">edit</i>`;
+                        return `<i class="material-icons-outlined">edit</i>`;
                     },
                     hozAlign: "center",
                     width: 30,
@@ -227,7 +246,7 @@ export default class MainPageApp {
                     field: "testone",
                     headerSort: false,
                     formatter: () => {
-                        return `<i class="material-icons">bolt</i>`;
+                        return `<i class="material-icons-outlined">bolt</i>`;
                     },
                     hozAlign: "center",
                     width: 30,
@@ -236,10 +255,29 @@ export default class MainPageApp {
                     title: "Type", field: "prompttype",
                     headerSort: false,
                 },
-         //       { title: "Description", field: "description", headerSort: false, width: 100 },
+                //       { title: "Description", field: "description", headerSort: false, width: 100 },
                 { title: "Prompt", field: "prompt", headerSort: false, width: 100 },
 
             ],
+        });
+        this.promptsTable.on("renderComplete", () => {
+            this.prompt_list_editor.querySelectorAll('.export_metric_set').forEach((button: any) => {
+                if (!button.headerConfigured) {
+                    button.headerConfigured = true;
+                    button.addEventListener('click', async (e: any) => {
+                        let setName = e.target.dataset.setname;
+                        let promptTemplateList = await this.promptsTable.getData();
+                        let setPrompts = promptTemplateList.filter((prompt: any) => prompt.setName === setName);
+                        let blob = new Blob([JSON.stringify(setPrompts)], { type: "application/json" });
+                        let url = URL.createObjectURL(blob);
+                        let a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${setName}_prompts.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                }
+            });
         });
         this.promptsTable.on("cellClick", async (e: Event, cell: any) => {
             if (cell.getColumn().getField() === "delete") {
@@ -254,7 +292,7 @@ export default class MainPageApp {
             }
             if (cell.getColumn().getField() === "testone") {
                 const row = cell.getRow();
-                const prompt  = row.getData();
+                const prompt = row.getData();
                 let text = this.query_source_text.value;
                 let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual', prompt);
                 let promptResult = result.results[0];
@@ -278,22 +316,30 @@ export default class MainPageApp {
                 this.show_test_prompt_modal.click();
             }
             if (cell.getColumn().getField() === "edit") {
-                    const row = cell.getRow();
-                    const prompt = row.getData();
-                    this.show_prompt_dialouge.click();
-                    this.prompt_id_input.value = prompt.id;
-                    this.prompt_description.value = prompt.description;
-                    this.prompt_type.value = prompt.prompttype;
-                    this.prompt_template_text.value = prompt.prompt;
-                    this.prompt_setname_input.value = prompt.setName;
-                    this.wizard_input_prompt.value = prompt.suggestion;
-                    let rowIndex = row.getPosition(true);
-                    this.prompt_row_index.value = rowIndex;
-                    this.getAnalysisSetNameList();
+                const row = cell.getRow();
+                const prompt = row.getData();
+                this.add_prompt_modal.click();
+                this.prompt_id_input.value = prompt.id;
+                this.prompt_description.value = prompt.description;
+                this.prompt_type.value = prompt.prompttype;
+                this.prompt_template_text.value = prompt.prompt;
+                this.prompt_setname_input.value = prompt.setName;
+                this.wizard_input_prompt.value = prompt.promptSuggestion;
+                let rowIndex = row.getPosition(true);
+                this.prompt_row_index.value = rowIndex;
+                this.getAnalysisSetNameList();
+            }
+            if (cell.getColumn().getField() === "clone") {
+                const row = cell.getRow();
+                const prompt = row.getData();
+                let promptTemplateList = await this.promptsTable.getData();
+                promptTemplateList.push(prompt);
+                await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
+                this.hydrateAllPromptRows();
             }
         });
 
-        this.promptsTable.on("rowMoved", async (cell:any) => {
+        this.promptsTable.on("rowMoved", async (cell: any) => {
             this.savePromptTableData();
         });
     }
@@ -339,6 +385,10 @@ export default class MainPageApp {
         this.api_token_input.value = apiToken;
     }
     async renderHistoryDisplay() {
+        let historyRangeLimit = await chrome.storage.local.get('historyRangeLimit');
+        historyRangeLimit = historyRangeLimit.historyRangeLimit || 10;
+        this.history_range_amount_select.value = historyRangeLimit;
+
         let history = await chrome.storage.local.get('history');
         history = history.history || [];
         let historyHtml = '';
