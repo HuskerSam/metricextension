@@ -50,29 +50,27 @@
         started.</span>
     </div>
   </div>
-  <div class="tab-content" id="myTabContent">
+  <div class="tab-content" id="myTabContent" style="flex:1;display:flex;overflow:hidden;">
     <div class="tab-pane fade show active" id="config" role="tabpanel" aria-labelledby="config-tab">
       <div class="data_controls">
-        <button class="add_prompt_modal" id="add_prompt_btn" data-bs-toggle="modal"
-          data-bs-target="#promptWizard" type="button">Add Metric</button>
-        <button class="export_rows">Export</button>
-        <button class="import_rows">Import</button>
+        <button class="add_prompt_modal btn" id="add_prompt_btn" data-bs-toggle="modal" data-bs-target="#promptWizard"
+          type="button">Add Metric</button>
+        <button class="export_rows btn">Export</button>
+        <button class="import_rows btn">Import</button>
         <input type="file" id="file_input" accept=".json" style="display: none;">
       </div>
-      <div class="library_container">
-        <div class="prompt_list_editor"></div>
-      </div>
+      <div class="prompt_list_editor"></div>
       <button style="visibility: hidden;" class="show_test_prompt_modal" data-bs-toggle="modal"
         data-bs-target="#testModal">Test
         Metric</button></button>
-        <span class="status_text">Running...</span>
+      <span class="status_text">Running...</span>
     </div>
     <div class="tab-pane fade" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
       <div class="analysis_container">
         <div class="analysis_menu">
           <div class="analysis_sets_configuration">
             <label class="positioned_label">Select Metrics for analysis</label>
-            <select class="analysis_set_select"  multiple>
+            <select class="analysis_set_select" multiple>
             </select>
           </div>
           <div class="analysis_actions">
@@ -90,9 +88,9 @@
               <textarea class="query_source_text" id="floatingQueryTextarea"
                 placeholder="Analyze text to return a subjective rating, keywords, summary..."></textarea>
               <div class="query_text_description">
-                  <div class="query_source_text_length"></div>
-                  <div class="query_source_tokens_length">&nbsp;</div>
-                </div>
+                <div class="query_source_text_length"></div>
+                <div class="query_source_tokens_length">&nbsp;</div>
+              </div>
             </div>
           </div>
           <div class="analysis_output">
@@ -205,9 +203,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="generate_metric_prompt btn btn-primary">Generate</button>
-          <button class="save_to_library_button btn btn-secondary">Save</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="generate_metric_prompt btn">Generate</button>
+          <button class="save_to_library_button btn">Save</button>
+          <button type="button" class="btn data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -237,7 +235,7 @@
               <label class="session_anchor_label"></label>
               <a class="session_anchor" href="" target="_blank"></a>
             </div>
-            <button class="una_sharp_btn reset_chrome_storage">Clear Storage</button>
+            <button class="btn reset_chrome_storage">Clear Storage</button>
           </div>
         </div>
         <div class="modal-footer">
