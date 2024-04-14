@@ -360,7 +360,6 @@ this.query_source_tokens_length.innerHTML = tokenCount;
     }
   }
   async initCommonDom() {
-    this.analysis_set_select = document.querySelector('.analysis_set_select');
     this.query_source_text = document.querySelector(".query_source_text");
     this.query_source_text_length = document.querySelector('.query_source_text_length');
     this.query_source_tokens_length = document.querySelector('.query_source_tokens_length');

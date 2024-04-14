@@ -43,7 +43,7 @@
         "description": "",
         "id": "us centric",
         "prompt": "Rate the following content 0-100, regarding its foreign policy relevance for a US citizen. \n\nGuideline for foreign policy metrics: Evaluate the extent to which the content addresses international relations, global affairs, or interactions between the United States and other countries. Consider the significance of the topic in relation to US national interests, security, economic relations, or diplomatic engagements. Assess the depth of analysis provided on foreign policy issues, including the historical context, potential consequences, and implications for US citizens. Examine the diversity of perspectives presented on the matter, the level of impartiality or bias, and the potential for generating discussion or controversy. Take into account the potential impact on US foreign policy decisions and the degree of relevance to current international events. \n    Please respond with json and only json in this format:\n    {\n      \"contentRating\": 0\n    }\n    \n    Here is the content to analyze:\n    {{query}}",
-        "promptSuggestion": "is this a foreign policy issue or domestic policy issue considering the view of a US citizen, with 0 being domestic and 100 being foreign policy.",
+        "promptSuggestion": "is this a foreign policy issue or domestic policy issue considering the view of a US citizen.",
         "prompttype": "metric",
         "setName": "Politics"
     },
