@@ -75,13 +75,10 @@ export class AnalyzerExtensionCommon {
     }
   }
   async getDefaultAnalysisPrompts() {
-    const defaultPromptList = [
-      "Moderation",
-      "Message",
-      "Summary",
-    ];
+    const promptListFile = await fetch("/defaults/promptDefaultsList.json");
+    const defaultPromptList = await promptListFile.json();
     const promises: any[] = [];
-    defaultPromptList.forEach((url) => {
+    defaultPromptList.forEach((url: string) => {
       promises.push((async (url) => {
         let promptQuery = await fetch("/defaults/" + url + ".json");
         let defaultPrompts = await promptQuery.json();
