@@ -149,9 +149,8 @@ export default class BulkPageApp {
 
       urlResult.results.forEach((metricResult: any) => {
         const fieldName = metricResult.prompt.setName + "_" + metricResult.prompt.id;
-        if (metricResult.prompt.prompttype === "text") {
-          compactResult[fieldName] = metricResult.result.resultMessage;
-        } else if (metricResult.prompt.prompttype === "metric") {
+        console.log(fieldName, metricResult.result);
+      if (metricResult.prompt.prompttype === "metric") {
           let metric = 0;
           try {
             let json = JSON.parse(metricResult.result.resultMessage);
@@ -160,7 +159,10 @@ export default class BulkPageApp {
             metric = -1;
           }
           compactResult[fieldName] = metric;
+        } else {
+          compactResult[fieldName] = metricResult.result.resultMessage;
         }
+        
       });
       compactData.push(compactResult);
     });
