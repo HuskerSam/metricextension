@@ -457,6 +457,7 @@ export default class MainPageApp {
         });
     }
     truncateText(text: any, maxLength: any) {
+        if (!text) return '';
         if (text.length <= maxLength) {
             return text;
         }
