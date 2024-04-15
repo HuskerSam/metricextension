@@ -75,17 +75,17 @@ export default class BulkPageApp {
       url: "https://unacog.com/clyde/"
     });
 
-    await chrome.storage.local.set({ activeTabReadToScrape: true });
-    await chrome.storage.local.set({ activeTabId: tab.id });
-
+    function getDom() {
+      return document.body.innerText;
+    }
     setTimeout(async () => {
-      let rawData = await chrome.storage.local.get('activeTabScrapeResult');
-      if (rawData && rawData.activeTabScrapeResult) {
-        console.log("sotrage result", rawData);
-      }
-      console.log("DONDDOND");
-    }, 5000);
 
+      let scrapes = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: getDom,
+      });
+      console.log("scrapes", scrapes);
+    }, 5000);
   }
 
   async paintData() {
