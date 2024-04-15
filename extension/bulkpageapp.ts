@@ -11,13 +11,15 @@ export default class BulkPageApp {
   bulk_url_list_tabulator: TabulatorFull;
   add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLButtonElement;
   run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
+  download_full_json = document.querySelector('.download_full_json') as HTMLButtonElement;
+  download_compact_csv = document.querySelector('.download_compact_csv') as HTMLButtonElement;
   runId = '';
-  lastRunFullData: any[] = [];
-  lastRunCompactData: any[] = [];
+  lastRunFullData: any[] | null = null;
+  lastRunCompactData: any[] | null = null;
 
   constructor() {
     this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
-      layout: "fitColumns",
+      layout:"fitDataTable",
       columns: [
         { title: "URL", field: "url", width: 500, editor: "input" },
         { title: "Options", field: "analysis_set", width: 200 },
@@ -37,7 +39,39 @@ export default class BulkPageApp {
       await this.runBulkAnalysis();
     });
 
+    this.download_full_json.addEventListener('click', async () => {
+      if (this.lastRunFullData === null) {
+        alert("No data to download");
+        return;
+      }
 
+      const fileName = this.runId + ".json";
+      let fullRunData = await this.extCommon.writeCloudDataUsingUnacogAPI(fileName, this.lastRunFullData);
+      let anchor = document.createElement('a');
+      anchor.href = fullRunData.publicStorageUrlPath;
+      anchor.download = fileName;
+      anchor.target = '_blank';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    });
+    this.download_compact_csv.addEventListener('click', async () => {
+      if (this.lastRunCompactData === null) {
+        alert("No data to download");
+        return;
+      }
+
+      const fileName = this.runId + "compact.json";
+      let compactData = await this.extCommon.writeCloudDataUsingUnacogAPI(fileName, this.lastRunCompactData);
+      let anchor = document.createElement('a');
+      anchor.href = compactData.publicStorageUrlPath;
+      anchor.download = fileName;
+      console.log(anchor.download);
+      anchor.target = '_blank';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    });
 
     this.bulkSelected = new SlimSelect({
       select: '.bulk_analysis_sets_select',
@@ -74,30 +108,57 @@ export default class BulkPageApp {
   }
 
   async runBulkAnalysis() {
+    document.body.classList.add("bulk_analysis_running");
     this.runId = new Date().toISOString();
     let rows = this.bulk_url_list_tabulator.getData();
     let urls: string[] = [];
     rows.forEach((row: any) => {
       urls.push(row.url);
     });
-    urls = urls.splice(0, 1);
+    urls = urls.slice(0, 2);
     let promises: any[] = [];
     urls.forEach((url) => {
-      promises.push(this.scrapeTabPages(url));
+      promises.push(this.scrapeTabPage(url));
     });
     let results = await Promise.all(promises);
     let analysisPromises: any[] = [];
     results.forEach((result: any, index: number) => {
-      analysisPromises.push(this.extCommon.runAnalysisPrompts(result[0].result, urls[index], null, "selectedBulkAnalysisSets"));
-      console.log("result", result);
+      console.log(result);
+      analysisPromises.push(this.extCommon.runAnalysisPrompts(result[0].result, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
     });
     let analysisResults = await Promise.all(analysisPromises);
     this.lastRunFullData = analysisResults;
-    let stuff = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + ".json", this.lastRunFullData);
-    console.log("stuff", stuff);
+    await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + ".json", this.lastRunFullData);
+
+    let compactData: any[] = [];
+    analysisResults.forEach((urlResult: any) => {
+      let compactResult: any = {};
+      compactResult.url = urlResult.url;
+      compactResult.title = urlResult.title;
+
+      urlResult.results.forEach((metricResult: any) => {
+        const fieldName = metricResult.prompt.setName + "_" + metricResult.prompt.id;
+        if (metricResult.prompt.prompttype === "text") {
+          compactResult[fieldName] = metricResult.result.resultMessage;
+        } else if (metricResult.prompt.prompttype === "metric") {
+          let metric = 0;
+          try {
+            let json = JSON.parse(metricResult.result.resultMessage);
+            metric = json.contentRating;
+          } catch (e) {
+            metric = -1;
+          }
+          compactResult[fieldName] = metric;
+        }
+      });
+      compactData.push(compactResult);
+    });    
+    this.lastRunCompactData = compactData;
+    await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + "compact.json", compactData);
+    document.body.classList.remove("bulk_analysis_running");
   }
 
-  async scrapeTabPages(url: any) {
+  async scrapeTabPage(url: any) {
     return new Promise(async (resolve, reject) => {
       let tab = await chrome.tabs.create({
         url
@@ -112,7 +173,10 @@ export default class BulkPageApp {
           target: { tabId: tab.id },
           func: getDom,
         });
-        console.log("scrapes", scrapes);
+        console.log(tab, tab.title);
+        const updatedTab = await chrome.tabs.get(tab.id);
+        scrapes.title = updatedTab.title;
+        await chrome.tabs.remove(tab.id);
         resolve(scrapes);
       }, 5000);
     });

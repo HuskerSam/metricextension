@@ -45,7 +45,6 @@ export class AnalyzerExtensionCommon {
       console.log("error", promptResult);
       resultMessage = promptResult.errorMessage;
     } else {
-      console.log(promptResult);
     }
     if (promptResult.assist) {
       if (promptResult.assist.error) {
@@ -89,11 +88,10 @@ export class AnalyzerExtensionCommon {
     if (!cloudWriteResult.success) {
       return cloudWriteResult;
     }
-    console.log('cloudWriteResult,', cloudWriteResult);
 
     const encodedFragment = encodeURIComponent(cloudWriteResult.storagePath);
     const publicStorageUrlPath = `https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/${encodedFragment}?alt=media`;
-    
+
     return {
       success: true,
       publicStorageUrlPath,
@@ -155,17 +153,21 @@ export class AnalyzerExtensionCommon {
 
     return Object.keys(analysisSets);
   }
-  async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets") {
+  async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
     const runDate = new Date().toISOString();
-    let running = await this.chrome.storage.local.get('running');
-    if (running && running.running) {
-      return;
+    if (addToHistory)  {
+      let running = await this.chrome.storage.local.get('running');
+      if (running && running.running) {
+        if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
+            return;
+      }
+
+      await this.chrome.storage.local.set({
+        lastSelection: text,
+        lastResult: "",
+        running: true,
+      });
     }
-    await this.chrome.storage.local.set({
-      lastSelection: text,
-      lastResult: "",
-      running: true,
-    });
 
     let prompts: any = [];
     let analysisPrompts: any = await this.getAnalysisPrompts();
@@ -197,23 +199,27 @@ export class AnalyzerExtensionCommon {
     }
 
     let results = await Promise.all(promises);
-    let history = await this.chrome.storage.local.get('history');
-    let historyRangeLimit = await this.chrome.storage.local.get('historyRangeLimit');
-    historyRangeLimit = Number(historyRangeLimit.historyRangeLimit) || 10;
-    history = history.history || [];
     let historyEntry = {
       text,
       results,
       runDate,
-      url
+      url,
+      title,
     };
-    history.unshift(historyEntry);
-    history = history.slice(0, historyRangeLimit);
-    await this.chrome.storage.local.set({
-      lastResult: results,
-      running: false,
-      history,
-    });
+    if (addToHistory) {
+      let history = await this.chrome.storage.local.get('history');
+      let historyRangeLimit = await this.chrome.storage.local.get('historyRangeLimit');
+      historyRangeLimit = Number(historyRangeLimit.historyRangeLimit) || 10;
+      history = history.history || [];
+      history.unshift(historyEntry);
+      history = history.slice(0, historyRangeLimit);
+      await this.chrome.storage.local.set({
+        history,
+        lastResult: results,
+        running: false,
+      });
+    }
+
     return historyEntry;
   }
   /**

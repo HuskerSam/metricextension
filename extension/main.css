@@ -671,3 +671,11 @@ body {
   flex-direction: column;
   width: 100%;
 }
+
+.bulk_analysis_progress {
+  display: inline-block;
+}
+
+.bulk_analysis_running .bulk_analysis_progress {
+  display: none;
+}
