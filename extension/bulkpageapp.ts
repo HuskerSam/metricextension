@@ -2,6 +2,8 @@ import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
 declare const chrome: any;
+import Papa from "papaparse";
+
 
 export default class BulkPageApp {
   previousSlimOptions = "";
@@ -16,13 +18,14 @@ export default class BulkPageApp {
   runId = '';
   lastRunFullData: any[] | null = null;
   lastRunCompactData: any[] | null = null;
+  chromeTabListener: any = null;
+  activeTabsBeingScraped: any = [];
 
   constructor() {
     this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
-      layout:"fitDataTable",
+      layout: "fitColumns",
       columns: [
-        { title: "URL", field: "url", width: 500, editor: "input" },
-        { title: "Options", field: "analysis_set", width: 200 },
+        { title: "URL", field: "url", editor: "input" },
       ],
     });
     this.bulk_url_list_tabulator.on("cellEdited", async (cell: any) => {
@@ -60,9 +63,9 @@ export default class BulkPageApp {
         alert("No data to download");
         return;
       }
-
-      const fileName = this.runId + "compact.json";
-      let compactData = await this.extCommon.writeCloudDataUsingUnacogAPI(fileName, this.lastRunCompactData);
+      const fileName = this.runId + "compact.csv";
+      const csvText = Papa.unparse(this.lastRunCompactData);
+      let compactData = await this.extCommon.writeCloudDataUsingUnacogAPI(fileName, csvText);
       let anchor = document.createElement('a');
       anchor.href = compactData.publicStorageUrlPath;
       anchor.download = fileName;
@@ -100,7 +103,16 @@ export default class BulkPageApp {
       },
     });
 
-
+    chrome.tabs.onUpdated.addListener(
+      (tabId: number, changeInfo: any, tab: any) => {
+        console.log(tabId, changeInfo, tab);
+        if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
+          console.log("Tab loaded", tabId);
+          this.activeTabsBeingScraped[tabId]();
+        }
+      }
+    );
+    
     chrome.storage.local.onChanged.addListener(() => {
       this.paintData();
     });
@@ -152,9 +164,9 @@ export default class BulkPageApp {
         }
       });
       compactData.push(compactResult);
-    });    
+    });
     this.lastRunCompactData = compactData;
-    await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + "compact.json", compactData);
+    await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + "compact.json", compactData, "text/csv");
     document.body.classList.remove("bulk_analysis_running");
   }
 
@@ -163,22 +175,27 @@ export default class BulkPageApp {
       let tab = await chrome.tabs.create({
         url
       });
-  
+
       function getDom() {
         return document.body.innerText;
       }
+      await this.detectTabLoaded(tab.id);
       setTimeout(async () => {
-  
+
         let scrapes = await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: getDom,
         });
-        console.log(tab, tab.title);
         const updatedTab = await chrome.tabs.get(tab.id);
         scrapes.title = updatedTab.title;
         await chrome.tabs.remove(tab.id);
         resolve(scrapes);
-      }, 5000);
+      }, 3000);
+    });
+  }
+  async detectTabLoaded(tabId: number) {
+    return new Promise((resolve, reject) => {
+      this.activeTabsBeingScraped[tabId] = resolve;
     });
   }
 

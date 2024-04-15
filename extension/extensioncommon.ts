@@ -63,7 +63,7 @@ export class AnalyzerExtensionCommon {
       error,
     }
   }
-  async writeCloudDataUsingUnacogAPI(fileName: string, fileData: any): Promise<any> {
+  async writeCloudDataUsingUnacogAPI(fileName: string, fileData: any, mimeType = "", fileExt = ""): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');
     apiToken = apiToken.apiToken || '';
     let sessionId = await this.chrome.storage.local.get('sessionId');
@@ -73,7 +73,9 @@ export class AnalyzerExtensionCommon {
       fileName,
       apiToken,
       sessionId,
-      fileData
+      fileData,
+      mimeType,
+      fileExt,
     };
     const fetchResults = await fetch(this.cloudWriteUrl, {
       method: "POST",
