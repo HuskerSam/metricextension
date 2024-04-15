@@ -3,6 +3,7 @@ import SlimSelect from 'slim-select';
 
 export class AnalyzerExtensionCommon {
   promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
+  cloudWriteUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/cloudwrite`;
   chrome: any;
   query_source_text: any;
   query_source_text_length: any;
@@ -63,6 +64,41 @@ export class AnalyzerExtensionCommon {
       error,
     }
   }
+  async writeCloudDataUsingUnacogAPI(fileName: string, fileData: any): Promise<any> {
+    let apiToken = await this.chrome.storage.local.get('apiToken');
+    apiToken = apiToken.apiToken || '';
+    let sessionId = await this.chrome.storage.local.get('sessionId');
+    sessionId = sessionId.sessionId || '';
+
+    const body = {
+      fileName,
+      apiToken,
+      sessionId,
+      fileData
+    };
+    const fetchResults = await fetch(this.cloudWriteUrl, {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    const cloudWriteResult = await fetchResults.json();
+    if (!cloudWriteResult.success) {
+      return cloudWriteResult;
+    }
+    console.log('cloudWriteResult,', cloudWriteResult);
+
+    const encodedFragment = encodeURIComponent(cloudWriteResult.storagePath);
+    const publicStorageUrlPath = `https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/${encodedFragment}?alt=media`;
+    
+    return {
+      success: true,
+      publicStorageUrlPath,
+    }
+  }
   async sendPromptForMetric(promptTemplate: string, query: string) {
     try {
       let result = Mustache.render(promptTemplate, { query });
@@ -119,7 +155,7 @@ export class AnalyzerExtensionCommon {
 
     return Object.keys(analysisSets);
   }
-  async runAnalysisPrompts(text: string, url = "", promptToUse = null) {
+  async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets") {
     const runDate = new Date().toISOString();
     let running = await this.chrome.storage.local.get('running');
     if (running && running.running) {
@@ -133,11 +169,11 @@ export class AnalyzerExtensionCommon {
 
     let prompts: any = [];
     let analysisPrompts: any = await this.getAnalysisPrompts();
-    let selectedAnalysisSets: any = await this.chrome.storage.local.get("selectedAnalysisSets");
+    let selectedAnalysisSets: any = await this.chrome.storage.local.get(selectedSetName);
     if (promptToUse) {
       prompts = [promptToUse];
-    } else if (selectedAnalysisSets && selectedAnalysisSets.selectedAnalysisSets) {
-      selectedAnalysisSets = selectedAnalysisSets.selectedAnalysisSets;
+    } else if (selectedAnalysisSets && selectedAnalysisSets[selectedSetName]) {
+      selectedAnalysisSets = selectedAnalysisSets[selectedSetName];
       for (let set of selectedAnalysisSets) {
         let localPrompts = analysisPrompts.filter((prompt: any) => prompt.setName === set);
         localPrompts.forEach((prompt: any) => {

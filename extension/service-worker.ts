@@ -4,9 +4,10 @@ declare const chrome: any;
 
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
    if (reason.reason === 'install') {
-        chrome.tabs.create({
+    let tab = await chrome.tabs.create({
           url: "https://unacog.com/clyde/"
         });
+        chrome.sidePanel.open({ tabId: tab.id });
       }
 
 
@@ -74,6 +75,9 @@ chrome.runtime.onMessageExternal.addListener(
                 apiToken: request.apiToken
             });
             sendResponse({ success: "key set" });
+        }
+        if (request.specialAction === 'openSidePanel') {
+            chrome.sidePanel.open({ tabId: sender.tab.id });
         }
     }
 );

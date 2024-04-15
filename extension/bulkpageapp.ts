@@ -11,6 +11,9 @@ export default class BulkPageApp {
   bulk_url_list_tabulator: TabulatorFull;
   add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLButtonElement;
   run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
+  runId = '';
+  lastRunFullData: any[] = [];
+  lastRunCompactData: any[] = [];
 
   constructor() {
     this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
@@ -71,21 +74,48 @@ export default class BulkPageApp {
   }
 
   async runBulkAnalysis() {
-    let tab = await chrome.tabs.create({
-      url: "https://unacog.com/clyde/"
+    this.runId = new Date().toISOString();
+    let rows = this.bulk_url_list_tabulator.getData();
+    let urls: string[] = [];
+    rows.forEach((row: any) => {
+      urls.push(row.url);
     });
+    urls = urls.splice(0, 1);
+    let promises: any[] = [];
+    urls.forEach((url) => {
+      promises.push(this.scrapeTabPages(url));
+    });
+    let results = await Promise.all(promises);
+    let analysisPromises: any[] = [];
+    results.forEach((result: any, index: number) => {
+      analysisPromises.push(this.extCommon.runAnalysisPrompts(result[0].result, urls[index], null, "selectedBulkAnalysisSets"));
+      console.log("result", result);
+    });
+    let analysisResults = await Promise.all(analysisPromises);
+    this.lastRunFullData = analysisResults;
+    let stuff = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + ".json", this.lastRunFullData);
+    console.log("stuff", stuff);
+  }
 
-    function getDom() {
-      return document.body.innerText;
-    }
-    setTimeout(async () => {
-
-      let scrapes = await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: getDom,
+  async scrapeTabPages(url: any) {
+    return new Promise(async (resolve, reject) => {
+      let tab = await chrome.tabs.create({
+        url
       });
-      console.log("scrapes", scrapes);
-    }, 5000);
+  
+      function getDom() {
+        return document.body.innerText;
+      }
+      setTimeout(async () => {
+  
+        let scrapes = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: getDom,
+        });
+        console.log("scrapes", scrapes);
+        resolve(scrapes);
+      }, 5000);
+    });
   }
 
   async paintData() {
