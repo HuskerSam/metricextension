@@ -2,6 +2,32 @@
 import { AnalyzerExtensionCommon } from "./extensioncommon";
 declare const chrome: any;
 
+chrome.storage.local.onChanged.addListener(async () => {
+    let activeTabReadToScrape = await chrome.storage.local.get("activeTabReadToScrape");
+    if (activeTabReadToScrape.activeTabReadToScrape) {
+        let tabId = await chrome.storage.local.get("activeTabId");
+
+
+        tabId = tabId.activeTabId;
+
+            setTimeout(async () => {
+                function getDom() {
+                    return document.body.innerText;
+                }
+                let scrapes = await chrome.scripting.executeScript({
+                    target: { tabId },
+                    func: getDom,
+                });
+        
+                console.log("scrapes", scrapes);
+          
+                await chrome.tabs.remove(tabId);
+                await chrome.storage.local.set({ activeTabReadToScrape: false });
+                await chrome.storage.local.set({ activeTabScrapeResult: scrapes });
+            }, 5000);
+    }
+});
+
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
    if (reason.reason === 'install') {
         chrome.tabs.create({

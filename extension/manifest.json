@@ -29,5 +29,12 @@
     ],
       "default_title": "open side panel"
     },
-    "permissions": ["storage", "activeTab", "scripting", "contextMenus", "unlimitedStorage", "sidePanel"]
-  }
+    "permissions": ["storage", "activeTab", "scripting", "contextMenus", "unlimitedStorage", "sidePanel"],
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["test.js"],
+        "run_at": "document_start"
+      }
+    ]
+    }
