@@ -39,8 +39,7 @@
     "contextMenus",
     "unlimitedStorage",
     "sidePanel",
-    "tabs",
-    "history"
+    "tabs"
   ],
   "content_scripts": [
     {
