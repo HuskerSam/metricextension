@@ -127,7 +127,6 @@ export default class BulkPageApp {
     rows.forEach((row: any) => {
       urls.push(row.url);
     });
-    urls = urls.slice(0, 2);
     let promises: any[] = [];
     urls.forEach((url) => {
       promises.push(this.scrapeTabPage(url));
