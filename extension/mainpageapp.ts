@@ -36,6 +36,10 @@ export default class MainPageApp {
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
     promptsTable: any;
     prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
+    history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
+    historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
+    currentPage = 1;
+    itemsPerPage = 1;
 
     constructor() {
         this.extCommon.initCommonDom();
@@ -64,6 +68,14 @@ export default class MainPageApp {
                 this.fileInput.value = ''; // Reset the file input value
             };
             reader.readAsText(file);
+        });
+
+        this.history_pagination.addEventListener('click', async (e: any) => {
+            let target = e.target;
+            if (target.tagName === 'A') {
+                this.currentPage = Number(target.textContent);
+                this.renderHistoryDisplay();
+            }
         });
 
         this.history_range_amount_select.addEventListener('click', async (e) => {
@@ -391,10 +403,16 @@ export default class MainPageApp {
 
         let history = await chrome.storage.local.get('history');
         history = history.history || [];
+
+        let startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        let endIndex = startIndex + this.itemsPerPage;
+
         let historyHtml = '';
-        for (let i = 0; i < history.length; i++) {
+        for (let i = startIndex; i < endIndex; i++) {
             let entry = history[i];
+            if (!entry) break;
             console.log('entry', entry);
+
             let historyPrompt = "";
             try {
                 let resultHistory = entry.result;
@@ -434,13 +452,13 @@ export default class MainPageApp {
               </div>
               <div class="token_usage_total_display">Total Usage Credits: ${usageCreditTotal}</div>
             </div>
-            <hr class="history_separator">
           `;
             historyHtml += entryHtml;
         }
-        const historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
-        historyDisplay.innerHTML = historyHtml;
-        historyDisplay.querySelectorAll('.export_history_entry').forEach((button: any) => {
+
+        this.historyDisplay.innerHTML = historyHtml;
+
+        this.historyDisplay.querySelectorAll('.export_history_entry').forEach((button: any) => {
             button.addEventListener('click', async (e: any) => {
                 let index = e.target.dataset.index;
                 let entry = history[index];
@@ -455,6 +473,23 @@ export default class MainPageApp {
                 URL.revokeObjectURL(url);
             });
         });
+
+        let paginationHtml = this.generatePagination(history.length, this.itemsPerPage, this.currentPage);
+        this.history_pagination.innerHTML = paginationHtml;
+    }
+   
+    generatePagination(totalItems: number, itemsPerPage: number, currentPage: number) {
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        let paginationHtml = '<ul class="pagination pagination-sm mb-0">';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#">${i}</a>
+                </li>
+            `;
+        }
+        paginationHtml += '</ul>';
+        return paginationHtml;
     }
     truncateText(text: any, maxLength: any) {
         if (!text) return '';

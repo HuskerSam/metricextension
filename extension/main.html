@@ -19,8 +19,8 @@
       <div class="left_panel_view">
         <ul class="nav nav-pills flex-column" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis" type="button"
-              role="tab" aria-controls="analysis" aria-selected="true">
+            <button class="nav-link active" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis"
+              type="button" role="tab" aria-controls="analysis" aria-selected="true">
               <i class="material-icons-outlined">assistant</i> Results
             </button>
           </li>
@@ -69,37 +69,17 @@
           <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
             <div class="history_display_container">
               <div class="history_controls">
-                <h5 class="category_header">Metric History</h5>
-                <div>
-                  <button class="btn clear_history">Clear History</button>
-                  <button class="btn export_history">Export</button>
-                  <select class="history_range_amount_select">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="100">100</option>
-                    <option value="500">500</option>
-                  </select>
+                <div style="flex:1">
+                  <span class="category_header">Metric History</span>
+                  <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#configModal" data-bs-tab="#history">
+                    <i class="material-icons-outlined">manage_history</i>
+                  </button>
                 </div>
+                <div class="history_pagination"></div>
               </div>
               <h5 class="category_header analysis_running">Analysis Running...</h5>
               <div class="history_display"></div>
-            </div>
-            <div class="analysis_content">
-              <div class="analysis_input">
-                <div class="form-floating">
-                  <label for="floatingQueryTextarea">Text to be analyzed</label>
-                  <textarea class="query_source_text" id="floatingQueryTextarea"
-                    placeholder="Analyze text to return a subjective rating, keywords, summary..."></textarea>
-                  <div class="query_text_description">
-                    <div class="query_source_text_length"></div>
-                    <div class="query_source_tokens_length">&nbsp;</div>
-                  </div>
-                </div>
-              </div>
+              <hr class="history_separator">
             </div>
             <div class="analysis_menu">
               <div class="analysis_sets_configuration">
@@ -113,6 +93,19 @@
                 <button class="btn run_analysis_btn">
                   <span class="btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
                 </button>
+              </div>
+            </div>
+            <div class="analysis_content">
+              <div class="analysis_input">
+                <div class="form-floating">
+                  <label for="floatingQueryTextarea">Text to be analyzed</label>
+                  <textarea class="query_source_text" id="floatingQueryTextarea"
+                    placeholder="Analyze text to return a subjective rating, keywords, summary..."></textarea>
+                  <div class="query_text_description">
+                    <div class="query_source_text_length"></div>
+                    <div class="query_source_tokens_length">&nbsp;</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -212,15 +205,23 @@
       </div>
     </div>
 
-    <!-- Config Modal -->
-    <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="configModalLabel">Configuration</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
+ <!-- Config Modal -->
+<div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <ul class="nav nav-tabs" id="configTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" type="button" role="tab" aria-controls="access" aria-selected="true">Access</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">History</button>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-body">
+        <div class="tab-content" id="configTabsContent">
+          <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
             <div class="api_config">
               <div class="form_row">
                 <label for="api_token_input">API Key:
@@ -239,12 +240,30 @@
               <button class="btn reset_chrome_storage">Clear Storage</button>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+            <div>
+              <button class="btn clear_history">Clear History</button>
+              <button class="btn export_history">Export</button>
+              <select class="history_range_amount_select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="100">100</option>
+                <option value="500">500</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
     </div>
+  </div>
+</div>
 
 
 
