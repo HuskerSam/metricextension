@@ -38,6 +38,7 @@ export default class MainPageApp {
     prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
+    manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
     currentPage = 1;
     itemsPerPage = 1;
 
@@ -147,6 +148,10 @@ export default class MainPageApp {
             this.wizard_input_prompt.value = '';
             this.prompt_id_input.focus();
             this.getAnalysisSetNameList();
+        });
+
+        this.manage_history_configuration.addEventListener('click', async () => {
+            document.getElementById('history-tab')?.click();
         });
 
         this.generate_metric_prompt.addEventListener('click', async () => {
@@ -406,7 +411,7 @@ export default class MainPageApp {
 
         let startIndex = (this.currentPage - 1) * this.itemsPerPage;
         let endIndex = startIndex + this.itemsPerPage;
-
+    
         let historyHtml = '';
         for (let i = startIndex; i < endIndex; i++) {
             let entry = history[i];
@@ -417,27 +422,24 @@ export default class MainPageApp {
             try {
                 let resultHistory = entry.result;
                 if (!resultHistory) resultHistory = entry.results[0];
-                historyPrompt = `${resultHistory.prompt.id}: ${this.truncateText(resultHistory.prompt.prompt, 50)}`;
+
             } catch (e) {
                 historyPrompt = "Error loading prompt";
                 console.error(e);
             }
             let entryHtml = `
             <div class="history_entry">
-              <div class="history_index">${i + 1}</div>
             <div class="history_entry_header">
-              <button class="export_history_entry" data-index="${i}">Export</button>
-            </div>
-              <div class="history_content">
                 <div class="history_header">
-                  <span class="history_date">${this.showGmailStyleDate(entry.runDate)}</span>
-                  <span class="url_display">${entry.url}</span>
+                    <span class="url_display">${entry.url}</span>
+                    <span class="history_date">${this.showGmailStyleDate(entry.runDate)}</span>
                 </div>
-                <div class="history_preview">
-                  <div class="history_text">${this.truncateText(entry.text, 80)}</div>
-                  <div class="history_prompt">${historyPrompt}</div>
-                </div>
-                <div class="history_results">
+            </div>
+            <div class="history_content">
+            <div class="history_preview">
+                <div class="history_text">${this.truncateText(entry.text, 500)}</div>
+            </div>
+            <div class="history_results">
           `;
             let usageCreditTotal = 0;
             entry.results.forEach((result: any) => {
@@ -450,7 +452,11 @@ export default class MainPageApp {
             entryHtml += `
                 </div>
               </div>
-              <div class="token_usage_total_display">Total Usage Credits: ${usageCreditTotal}</div>
+                <br>
+              <div class="history_header">
+                <div class="token_usage_total_display">Total Usage Credits: ${usageCreditTotal}</div>
+                <button class="export_history_entry" data-index="${i}">Export</button>
+              </div>
             </div>
           `;
             historyHtml += entryHtml;

@@ -137,6 +137,7 @@ body {
 
 .history_display {
   overflow: auto;
+  flex: 1;
 }
 
 .history_controls {
@@ -241,14 +242,12 @@ body {
   flex: 1;
   flex-direction: column;
   overflow: hidden;
-  height: calc(100% - 8px);
 }
 
 .form-floating {
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-medium);
 }
 
 .query_source_text {
@@ -463,23 +462,9 @@ body {
 }
 
 .history_entry {
-  margin-bottom: var(--spacing-medium);
   padding: var(--spacing-medium);
-  background-color: var(--light-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
   position: relative;
   font-size: var(--font-size-small);
-}
-
-.history_index {
-  font-size: var(--font-size-large);
-  font-weight: bold;
-  color: var(--primary-color);
-  margin-right: var(--spacing-medium);
-  position: absolute;
-  bottom: 0;
-  right: 0;
 }
 
 .history_content {
@@ -509,23 +494,20 @@ body {
 }
 
 .history_preview {
-  margin-bottom: var(--spacing-medium);
+  margin-bottom: var(--spacing-large);
 }
 
-.history_text,
-.history_prompt {
+.history_text {
   font-size: var(--font-size-base);
-  color: #566;
   margin-bottom: var(--spacing-small);
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
 }
 
 .history_separator {
   border: none;
   border-top: 1px solid var(--border-color);
-  margin: var(--spacing-large) 0;
+  margin: var(--spacing-large) 0 var(--spacing-small) 0;
 }
 
 
@@ -656,17 +638,8 @@ body {
     gap: var(--spacing-medium);
   }
 
-  .history_index {
-    position: static;
-    margin-top: var(--spacing-small);
-  }
-
   .history_separator {
     margin: var(--spacing-medium) 0;
-  }
-
-  .history_preview {
-    margin-bottom: var(--spacing-medium);
   }
 
   .history_text,
