@@ -169,8 +169,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: var(--spacing-small);
-  gap: 28px;
+  margin-top: var(--spacing-large);
+  gap: 24px;
+}
+
+.ss-main {
+  min-height: 40px;
 }
 
 .form-floating>label {
@@ -215,7 +219,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--spacing-medium);
+  margin-top: var(--spacing-medium);
 }
 
 .query_source_text {
@@ -498,7 +502,16 @@ body {
 
 .tab-content {
   padding: var(--spacing-large);
-  height: inherit;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.tab-content>.active {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .analysis_header {
@@ -671,12 +684,6 @@ body {
     margin-top: var(--spacing-small);
   }
 
-}
-
-.tab-content>.active {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
 }
 
 .bulk_analysis_progress {
