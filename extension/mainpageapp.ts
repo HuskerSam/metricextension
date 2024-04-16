@@ -36,6 +36,7 @@ export default class MainPageApp {
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
     promptsTable: any;
     prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
+    entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
     manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
@@ -433,13 +434,14 @@ export default class MainPageApp {
                 <div class="history_header">
                     <span class="url_display">${entry.url}</span>
                     <span class="history_date">${this.showGmailStyleDate(entry.runDate)}</span>
+                    <button class="export_history_entry btn" data-index="${i}">Export</button>
                 </div>
             </div>
             <div class="history_content">
-            <div class="history_preview">
-                <div class="history_text">${this.truncateText(entry.text, 500)}</div>
-            </div>
-            <div class="history_results">
+                <div class="history_preview">
+                    <div class="history_text">${this.truncateText(entry.text, 500)}</div>
+                </div>
+                <div class="history_results">
           `;
             let usageCreditTotal = 0;
             entry.results.forEach((result: any) => {
@@ -452,18 +454,13 @@ export default class MainPageApp {
             entryHtml += `
                 </div>
               </div>
-                <br>
-              <div class="history_header">
-                <div class="token_usage_total_display">Total Usage Credits: ${usageCreditTotal}</div>
-                <button class="export_history_entry" data-index="${i}">Export</button>
-              </div>
             </div>
           `;
             historyHtml += entryHtml;
+            this.entry_total_credit_usage.innerHTML = `Total Usage Credits: ${usageCreditTotal}`;
         }
-
         this.historyDisplay.innerHTML = historyHtml;
-
+        
         this.historyDisplay.querySelectorAll('.export_history_entry').forEach((button: any) => {
             button.addEventListener('click', async (e: any) => {
                 let index = e.target.dataset.index;

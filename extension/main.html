@@ -69,22 +69,23 @@
           <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
             <div class="history_display_container">
               <div class="history_controls">
-                <div style="flex:1">
-                  <span class="category_header">Metric History</span>
+                  <h5 class="category_header">Analysis History</h5>
                   <button type="button" class="btn manage_history_configuration" data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
                     <i class="material-icons-outlined">manage_history</i>
                   </button>
-                </div>
-                <div class="history_pagination"></div>
               </div>
               <h5 class="category_header analysis_running">Analysis Running...</h5>
               <div class="history_display"></div>
+              <div class="history_header">
+                <div class="entry_total_credit_usage"></div>
+                <div class="history_pagination"></div>
+              </div>
               <hr class="history_separator">
             </div>
             <div class="analysis_content">
               <div class="analysis_input">
                 <div class="form-floating">
-                  <label for="floatingQueryTextarea">Text to be analyzed</label>
+                  <label for="floatingQueryTextarea">Text for analysis</label>
                   <textarea class="query_source_text" id="floatingQueryTextarea"
                     placeholder="Analyze text to return a subjective rating, keywords, summary..."></textarea>
                   <div class="query_text_description">
