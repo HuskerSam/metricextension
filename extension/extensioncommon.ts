@@ -323,7 +323,7 @@ export class AnalyzerExtensionCommon {
     {{query}}`;
     return newPromptContent;
   }
-  async renderDisplay(className = 'analysis_display') {
+  async renderDisplay() {
     let lastResult = await this.chrome.storage.local.get('lastResult');
     let html = '';
     if (lastResult && lastResult.lastResult) {
@@ -331,7 +331,6 @@ export class AnalyzerExtensionCommon {
         html += this.getHTMLforPromptResult(result);
       });
     }
-    (<any>document.querySelector('.' + className)).innerHTML = html;
   }
   updateQuerySourceDetails() {
     let lastSelection = this.query_source_text.value;
