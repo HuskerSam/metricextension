@@ -2,8 +2,6 @@ import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
 declare const chrome: any;
-import Papa from "papaparse";
-
 
 export default class BulkPageApp {
   previousSlimOptions = "";
@@ -13,11 +11,8 @@ export default class BulkPageApp {
   bulk_url_list_tabulator: TabulatorFull;
   add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLButtonElement;
   run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
-  download_full_json = document.querySelector('.download_full_json') as HTMLButtonElement;
-  download_compact_csv = document.querySelector('.download_compact_csv') as HTMLButtonElement;
+  bulk_analysis_results_history = document.querySelector('.bulk_analysis_results_history') as HTMLDivElement;
   runId = '';
-  lastRunFullData: any[] | null = null;
-  lastRunCompactData: any[] | null = null;
   chromeTabListener: any = null;
   activeTabsBeingScraped: any = [];
 
@@ -40,40 +35,6 @@ export default class BulkPageApp {
     });
     this.run_bulk_analysis_btn.addEventListener('click', async () => {
       await this.runBulkAnalysis();
-    });
-
-    this.download_full_json.addEventListener('click', async () => {
-      if (this.lastRunFullData === null) {
-        alert("No data to download");
-        return;
-      }
-
-      const fileName = this.runId + ".json";
-      let fullRunData = await this.extCommon.writeCloudDataUsingUnacogAPI(fileName, this.lastRunFullData);
-      let anchor = document.createElement('a');
-      anchor.href = fullRunData.publicStorageUrlPath;
-      anchor.download = fileName;
-      anchor.target = '_blank';
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    });
-    this.download_compact_csv.addEventListener('click', async () => {
-      if (this.lastRunCompactData === null) {
-        alert("No data to download");
-        return;
-      }
-      const fileName = this.runId + "compact.csv";
-      const csvText = Papa.unparse(this.lastRunCompactData);
-      let compactData = await this.extCommon.writeCloudDataUsingUnacogAPI(fileName, csvText);
-      let anchor = document.createElement('a');
-      anchor.href = compactData.publicStorageUrlPath;
-      anchor.download = fileName;
-      console.log(anchor.download);
-      anchor.target = '_blank';
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
     });
 
     this.bulkSelected = new SlimSelect({
@@ -112,7 +73,7 @@ export default class BulkPageApp {
         }
       }
     );
-    
+
     chrome.storage.local.onChanged.addListener(() => {
       this.paintData();
     });
@@ -138,8 +99,7 @@ export default class BulkPageApp {
       analysisPromises.push(this.extCommon.runAnalysisPrompts(result[0].result, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
     });
     let analysisResults = await Promise.all(analysisPromises);
-    this.lastRunFullData = analysisResults;
-    await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + ".json", this.lastRunFullData);
+    const fullCloudUploadResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + ".json", analysisResults);
 
     let compactData: any[] = [];
     analysisResults.forEach((urlResult: any) => {
@@ -150,7 +110,7 @@ export default class BulkPageApp {
       urlResult.results.forEach((metricResult: any) => {
         const fieldName = metricResult.prompt.setName + "_" + metricResult.prompt.id;
         console.log(fieldName, metricResult.result);
-      if (metricResult.prompt.prompttype === "metric") {
+        if (metricResult.prompt.prompttype === "metric") {
           let metric = 0;
           try {
             let json = JSON.parse(metricResult.result.resultMessage);
@@ -162,13 +122,25 @@ export default class BulkPageApp {
         } else {
           compactResult[fieldName] = metricResult.result.resultMessage;
         }
-        
+
       });
       compactData.push(compactResult);
     });
-    this.lastRunCompactData = compactData;
-    await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + "compact.json", compactData, "text/csv");
+    const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + "compact.json", compactData, "text/csv");
     document.body.classList.remove("bulk_analysis_running");
+
+    let bulkHistory = await chrome.storage.local.get('bulkHistory');
+    let bulkHistoryRangeLimit = await chrome.storage.local.get('bulkHistoryRangeLimit');
+    bulkHistoryRangeLimit = Number(bulkHistoryRangeLimit.bulkHistoryRangeLimit) || 100;
+    bulkHistory = bulkHistory.bulkHistory || [];
+    bulkHistory.unshift({
+      runId: this.runId,
+      urls,
+      compactResultPath: compactResult.publicStorageUrlPath,
+      analysisResultPath: fullCloudUploadResult.publicStorageUrlPath,
+    });
+    bulkHistory = bulkHistory.slice(0, bulkHistoryRangeLimit);
+    await chrome.storage.local.set({ bulkHistory });
   }
 
   async scrapeTabPage(url: any) {
@@ -199,7 +171,14 @@ export default class BulkPageApp {
       this.activeTabsBeingScraped[tabId] = resolve;
     });
   }
-
+  analysisHistoryLogRowTemplate(historyItem: any, index: number): string {
+    return `
+      url count: ${historyItem.urls.length} <br>
+      run date: ${new Date(historyItem.runId).toLocaleString()} <br> 
+      <button class="download_full_json btn" data-index="${index}">download full JSON</button>
+      <button class="download_compact_csv btn" data-index="${index}">download compact CSV</button>
+    `;
+  }
   async paintData() {
     let allUrls: any[] = [];
     let rawData = await chrome.storage.local.get('bulkUrlList');
@@ -252,5 +231,42 @@ export default class BulkPageApp {
     if (this.bulkSelected.getSelected().length === 0) {
       this.bulkSelected.setSelected([setNames[0]]);
     }
+    this.paintAnalysisHistory();
+  }
+
+  async paintAnalysisHistory() {
+    let bulkHistory = await chrome.storage.local.get('bulkHistory');
+    bulkHistory = bulkHistory.bulkHistory || [];
+    let html = "";
+    bulkHistory.forEach((historyItem: any, index: number) => {
+      html += this.analysisHistoryLogRowTemplate(historyItem, index);
+    });
+    this.bulk_analysis_results_history.innerHTML = html;
+    this.bulk_analysis_results_history.querySelectorAll('.download_full_json').forEach((item: any) => {
+      item.addEventListener('click', async () => {
+        let index = item.getAttribute('data-index');
+        let bulkHistory = await chrome.storage.local.get('bulkHistory');
+        bulkHistory = bulkHistory.bulkHistory || [];
+        let historyItem = bulkHistory[index];
+         let a = document.createElement('a');
+         document.body.appendChild(a);
+        a.href = historyItem.analysisResultPath;
+        a.click();
+        document.body.removeChild(a);
+      });
+    });
+    this.bulk_analysis_results_history.querySelectorAll('.download_compact_csv').forEach((item: any) => {
+      item.addEventListener('click', async () => {
+        let index = item.getAttribute('data-index');
+        let bulkHistory = await chrome.storage.local.get('bulkHistory');
+        bulkHistory = bulkHistory.bulkHistory || [];
+        let historyItem = bulkHistory[index];
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = historyItem.compactResultPath;
+        a.click();
+        document.body.removeChild(a);
+      });
+    });
   }
 }

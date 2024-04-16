@@ -4,12 +4,10 @@ declare const chrome: any;
 
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
    if (reason.reason === 'install') {
-    let tab = await chrome.tabs.create({
+    await chrome.tabs.create({
           url: "https://unacog.com/clyde/"
         });
-        chrome.sidePanel.open({ tabId: tab.id });
-      }
-
+    }
 
     chrome.contextMenus.create({
         id: 'analyzeSelection',
