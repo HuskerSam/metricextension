@@ -1,7 +1,7 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
-import PapaPrase from 'papaparse';
+import Papa from 'papaparse';
 declare const chrome: any;
 
 export default class BulkPageApp {
@@ -44,10 +44,8 @@ export default class BulkPageApp {
       if (cell.getColumn().getField() === "delete") {
         this.lastTableEdit = new Date();
         let bulkUrlList = this.bulk_url_list_tabulator.getData();
-        let rowIndex = cell.getRow().getPosition() - 1;
-        console.log(rowIndex, bulkUrlList)
-        bulkUrlList.splice(rowIndex, 1);
-        console.log(bulkUrlList)
+        let rowIndex = cell.getRow().getPosition();
+        bulkUrlList.splice(rowIndex - 1, 1);
         this.bulk_url_list_tabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
       }
@@ -105,7 +103,7 @@ export default class BulkPageApp {
       rows.forEach((row: any) => {
         delete row.delete;
       });
-      let csv = PapaPrase.unparse(rows);
+      let csv = Papa.unparse(rows);
       let blob = new Blob([csv], { type: "text/csv" });
       let url = URL.createObjectURL(blob);
       let a = document.createElement('a');
@@ -123,7 +121,7 @@ export default class BulkPageApp {
       let reader = new FileReader();
       reader.onload = async () => {
         let text = reader.result as string;
-        let bulkUrlList = PapaPrase.parse(text, { header: true }).data;
+        let bulkUrlList = Papa.parse(text, { header: true }).data;
         this.bulk_url_list_tabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
         this.url_file_input.value = "";
@@ -241,7 +239,8 @@ export default class BulkPageApp {
       });
       compactData.push(compactResult);
     });
-    const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + "compact.json", compactData, "text/csv");
+    const csv = Papa.unparse(compactData);
+    const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId, csv, "text/csv", "csv");
     document.body.classList.remove("bulk_analysis_running");
 
     let bulkHistory = await chrome.storage.local.get('bulkHistory');
@@ -292,6 +291,7 @@ export default class BulkPageApp {
       run date: ${new Date(historyItem.runId).toLocaleString()} <br> 
       <button class="download_full_json btn" data-index="${index}">download full JSON</button>
       <button class="download_compact_csv btn" data-index="${index}">download compact CSV</button>
+      <hr>
     `;
   }
   async paintData(forceUpdate = false) {
@@ -351,7 +351,6 @@ export default class BulkPageApp {
     }
     this.paintAnalysisHistory();
   }
-
   async paintAnalysisHistory() {
     let bulkHistory = await chrome.storage.local.get('bulkHistory');
     bulkHistory = bulkHistory.bulkHistory || [];

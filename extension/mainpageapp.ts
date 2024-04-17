@@ -155,8 +155,8 @@ export default class MainPageApp {
         });
 
         this.generate_metric_prompt.addEventListener('click', async () => {
-            let text = this.wizard_input_prompt.value;
             this.prompt_template_text.value = `generating prompt...`;
+            let text = this.wizard_input_prompt.value;
             document.getElementById('wizard-prompt-tab')?.click();
             let newPrompt = '';
             if (this.prompt_type.value === 'metric') {
@@ -170,40 +170,12 @@ export default class MainPageApp {
             this.prompt_template_text.value = newPrompt;
         });
 
-        this.save_to_library_button.addEventListener('click', async (e) => {
-            let promptId = this.prompt_id_input.value.trim();
-            let promptDescription = this.prompt_description.value.trim();
-            let promptSuggestion = this.wizard_input_prompt.value.trim();
-            let promptType = this.prompt_type.value;
-            let promptTemplate = this.prompt_template_text.value.trim();
-            let setName = this.prompt_setname_input.value.trim();
-            if (!promptId || !promptType || !promptTemplate || !setName) {
-                alert('Please fill out all fields to add a prompt to the library.');
-                e.preventDefault();
-                document.getElementById('wizard-config-tab')?.click();
-                return;
-            }
-            let prompt = { id: promptId, description: promptDescription, prompttype: promptType, prompt: promptTemplate, setName, promptSuggestion };
-            let promptTemplateList = await this.promptsTable.getData();
-            let existingIndex = Number(this.prompt_row_index.value) - 1;
-            if (existingIndex >= 0) {
-                promptTemplateList[existingIndex] = prompt;
-            } else {
-                promptTemplateList.push(prompt);
-            }
-            this.prompt_id_input.value = '';
-            this.prompt_description.value = '';
-            this.prompt_type.value = '';
-            this.prompt_template_text.value = '';
-            this.wizard_input_prompt.value = '';
-
-            await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-            this.hydrateAllPromptRows();
+        this.save_to_library_button.addEventListener('click', async () => {
+            this.savePromptEditPopup();
             var myModalEl = document.getElementById('promptWizard');
-            var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl)
+            var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl);
             modal.hide();
         });
-
 
         this.initPromptTable();
         this.hydrateAllPromptRows();
@@ -217,6 +189,30 @@ export default class MainPageApp {
         let allPrompts = await this.extCommon.getAnalysisPrompts();
         this.promptsTable.setData(allPrompts);
     }
+    async savePromptEditPopup() {
+        let promptId = this.prompt_id_input.value.trim();
+        let promptDescription = this.prompt_description.value.trim();
+        let promptSuggestion = this.wizard_input_prompt.value.trim();
+        let promptType = this.prompt_type.value;
+        let promptTemplate = this.prompt_template_text.value.trim();
+        let setName = this.prompt_setname_input.value.trim();
+        if (!promptId || !promptType || !promptTemplate || !setName) {
+            alert('Please fill out all fields to add a prompt to the library.');
+            document.getElementById('wizard-config-tab')?.click();
+            return;
+        }
+        let prompt = { id: promptId, description: promptDescription, prompttype: promptType, prompt: promptTemplate, setName, promptSuggestion };
+        let promptTemplateList = await this.promptsTable.getData();
+        let existingIndex = Number(this.prompt_row_index.value) - 1;
+        if (existingIndex >= 0) {
+            promptTemplateList[existingIndex] = prompt;
+        } else {
+            promptTemplateList.push(prompt);
+        }
+
+        await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
+        this.hydrateAllPromptRows();
+    }
     initPromptTable() {
         this.promptsTable = new TabulatorFull(".prompt_list_editor", {
             layout: "fitDataStretch",
@@ -224,6 +220,7 @@ export default class MainPageApp {
             groupBy: "setName",
             //            groupStartOpen: [false],
             groupHeader: (value: any, count: number, data: any, group: any) => {
+                console.log("bbb", value, group);
                 return value + `<span style='margin-left:10px'>(${count} item)</span><button class='export_metric_set btn' style='float:right;' data-setname='${value}'><i class="material-icons-outlined">download</i> </button>`;
             },
             columns: [
@@ -282,7 +279,7 @@ export default class MainPageApp {
                 if (!button.headerConfigured) {
                     button.headerConfigured = true;
                     button.addEventListener('click', async (e: any) => {
-                        let setName = e.target.dataset.setname;
+                        let setName = button.dataset.setname;
                         let promptTemplateList = await this.promptsTable.getData();
                         let setPrompts = promptTemplateList.filter((prompt: any) => prompt.setName === setName);
                         let blob = new Blob([JSON.stringify(setPrompts)], { type: "application/json" });
@@ -342,7 +339,7 @@ export default class MainPageApp {
                 this.prompt_template_text.value = prompt.prompt;
                 this.prompt_setname_input.value = prompt.setName;
                 this.wizard_input_prompt.value = prompt.promptSuggestion;
-                let rowIndex = row.getPosition(true);
+                let rowIndex = row.getPosition();
                 this.prompt_row_index.value = rowIndex;
                 this.getAnalysisSetNameList();
             }
@@ -479,7 +476,7 @@ export default class MainPageApp {
         });
         const setNamesArray = Object.keys(setBasedResults);
         setNamesArray.forEach((setName: any) => {
-            html += `<h2>${setName}</h2>`;
+            html += `<h6 class="">${setName}</h6>`;
             let promptSetResults = setBasedResults[setName];
             promptSetResults.forEach((result: any) => {
                 usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
@@ -495,7 +492,6 @@ export default class MainPageApp {
             usageCreditTotal,
         };
     }
-
     generatePagination(totalItems: number, itemsPerPage: number, currentPage: number, pagesBeforeAfter: number = 9) {
         let totalPages = Math.ceil(totalItems / itemsPerPage);
         let paginationHtml = '';
