@@ -53,6 +53,7 @@
       <div class="right_panel_view">
         <div class="tab-content" id="myTabContent">
           <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+            <div class="prompt_list_editor"></div>
             <div class="data_controls">
               <button class="add_prompt_modal btn" id="add_prompt_btn" data-bs-toggle="modal"
                 data-bs-target="#promptWizard" type="button">Add Metric</button>
@@ -60,10 +61,6 @@
               <button class="import_rows btn">Import</button>
               <input type="file" id="file_input" accept=".json" style="display: none;">
             </div>
-            <div class="prompt_list_editor"></div>
-            <button style="visibility: hidden;" class="show_test_prompt_modal" data-bs-toggle="modal"
-              data-bs-target="#testModal">Test
-              Metric</button></button>
             <span class="status_text">Running...</span>
           </div>
           <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">

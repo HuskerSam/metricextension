@@ -12,6 +12,9 @@ export default class BulkPageApp {
   add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLButtonElement;
   run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
   bulk_analysis_results_history = document.querySelector('.bulk_analysis_results_history') as HTMLDivElement;
+  download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
+  upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
+  url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
   runId = '';
   chromeTabListener: any = null;
   activeTabsBeingScraped: any = [];
@@ -19,9 +22,28 @@ export default class BulkPageApp {
   constructor() {
     this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
       layout: "fitColumns",
+      movableRows:true,
+      rowHeader:{headerSort:false, resizable: false, minWidth:30, width:30, rowHandle:true, formatter:"handle"},
       columns: [
         { title: "URL", field: "url", editor: "input" },
+        {
+          title: "",
+          field: "delete",
+          headerSort: false,
+          formatter: () => {
+              return `<i class="material-icons-outlined">delete</i>`;
+          },
+          hozAlign: "center",
+          width: 30,
+      },
       ],
+    });
+    this.bulk_url_list_tabulator.on("cellClick", async (e: Event, cell: any) => {
+      if (cell.getColumn().getField() === "delete") {
+        let bulkUrlList = this.bulk_url_list_tabulator.getData();
+        this.bulk_url_list_tabulator.deleteRow(cell.getRow());
+        await chrome.storage.local.set({ bulkUrlList });
+      }
     });
     this.bulk_url_list_tabulator.on("cellEdited", async (cell: any) => {
       let bulkUrlList = this.bulk_url_list_tabulator.getData();
@@ -36,6 +58,29 @@ export default class BulkPageApp {
     this.run_bulk_analysis_btn.addEventListener('click', async () => {
       await this.runBulkAnalysis();
     });
+    this.download_url_list.addEventListener('click', async () => {
+      this.bulk_url_list_tabulator.download("csv", "bulk_url_list.csv");
+    });
+    this.upload_url_list.addEventListener('click', async () => {
+      this.url_file_input.click();
+    });
+    this.url_file_input.addEventListener('change', async () => {
+      let file = (this.url_file_input.files as any)[0];
+      let reader = new FileReader();
+      reader.onload = async () => {
+        let text = reader.result as string;
+        let lines = text.split('\n');
+        let bulkUrlList: any[] = [];
+        lines.forEach((line) => {
+          let parts = line.split(',');
+          bulkUrlList.push({ url: parts[0], analysis_set: parts[1] });
+        });
+        this.bulk_url_list_tabulator.setData(bulkUrlList);
+        await chrome.storage.local.set({ bulkUrlList });
+      };
+      reader.readAsText(file);
+    });
+
 
     this.bulkSelected = new SlimSelect({
       select: '.bulk_analysis_sets_select',

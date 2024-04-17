@@ -167,13 +167,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-small);
 }
 
 .history_date {
   font-size: var(--font-size-small);
   color: var(--secondary-color);
-  margin-top: var(--spacing-small);
 }
 
 .history_controls {
@@ -368,19 +366,18 @@ body {
 }
 
 .btn {
-  font-size: var(--font-size-base);
   line-height: 1em;
-  padding: var(--spacing-small) var(--spacing-medium);
-  border-radius: var(--border-radius);
+  font-size: var(--font-size-large);
+  padding: var(--spacing-small) var(--spacing-large);
+    border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
   cursor: pointer;
   position: relative;
   border-color: var(--text-color);
 }
 
-.run_analysis_btn {
-  font-size: var(--font-size-large);
-  padding: var(--spacing-small) var(--spacing-large);
+.run_bulk_analysis_btn {
+  width: 125px;
 }
 
 .btn:hover,
@@ -703,4 +700,12 @@ body {
 
 .bulk_analysis_running .bulk_analysis_progress {
   display: none;
+}
+
+.bulk_url_list_tabulator {
+  margin-top: var(--spacing-large);
+}
+
+.tabulator-row .tabulator-cell.tabulator-row-handle .tabulator-row-handle-box .tabulator-row-handle-bar {
+  height: 2px;
 }

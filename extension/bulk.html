@@ -14,22 +14,29 @@
 </head>
 
 <body class="main_configuration_page">
-  <div>
-    <select class="bulk_analysis_sets_select" multiple></select>
-  </div>
-  <div class="flex p-2">
-    <button class="add_bulk_url_row btn">add</button>
-    <button class="run_bulk_analysis_btn btn">run</button>
-    <div class="bulk_analysis_progress">
-      <button class="upload_url_list">upload url list</button>
-      <button class="download_url_list">download url list</button>
+  <div class="p-2">
+    <div class="analysis_actions">
+      <select class="bulk_analysis_sets_select" multiple></select>
+      <button class="btn run_bulk_analysis_btn">
+        <span class="btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
+      </button>
     </div>
-  </div>
-  <div class="bulk_url_list_tabulator" style="flex:1"></div>
-  <div>
+    <div class="bulk_url_list_tabulator" style="flex:1"></div>
+    <div class="analysis_menu">
+      <div class="bulk_analysis_progress">
+        <button class="upload_url_list btn">upload url list</button>
+        <button class="download_url_list btn">download url list</button>
+        <input type="file" id="url_file_input" accept=".csv" style="display: none;">
+      </div>
+      <div class=""> 
+        <button class="add_bulk_url_row btn">
+          <span class="btn_text">Add</span> <i class="material-icons-outlined">add</i>
+        </button>
+      </div>
+    </div>
     <hr>
+    <div class="bulk_analysis_results_history" style="flex:1; overflow: auto"></div>
   </div>
-  <div class="bulk_analysis_results_history" style="flex:1; overflow: auto"></div>
 </body>
 
 </html>
