@@ -150,15 +150,6 @@ body {
   border-radius: var(--border-radius);
 }
 
-.history_entry {
-  padding: 0 var(--spacing-medium);
-  position: relative;
-  font-size: var(--font-size-small);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
 .history_content {
   flex: 1;
   overflow: hidden;

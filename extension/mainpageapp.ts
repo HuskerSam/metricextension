@@ -409,59 +409,21 @@ export default class MainPageApp {
         let history = await chrome.storage.local.get('history');
         history = history.history || [];
 
-        let startIndex = (this.currentPage - 1) * this.itemsPerPage;
-        let endIndex = startIndex + this.itemsPerPage;
-    
-        let historyHtml = '';
-        for (let i = startIndex; i < endIndex; i++) {
-            let entry = history[i];
-            if (!entry) break;
-            console.log('entry', entry);
-
-            let historyPrompt = "";
-            try {
-                let resultHistory = entry.result;
-                if (!resultHistory) resultHistory = entry.results[0];
-
-            } catch (e) {
-                historyPrompt = "Error loading prompt";
-                console.error(e);
-            }
-            let entryHtml = `
-            <div class="history_entry_header">
-                <div class="history_header">
-                    <div class="history_entry_promptset">${entry.promptSetName}</div>
-                    <button class="export_history_entry btn" data-index="${i}">Export</button>
-                </div>
-            </div>
-            <div class="history_entry">
-            <div class="history_content">
-                <div class="history_text_source">
-                    <div class="history_text">${this.truncateText(entry.text, 500)}</div>
-                    <span class="url_display">(${entry.url})</span>
-                    <div class="history_prompt">${historyPrompt}</div>
-                </div>
-                <div class="history_results">
-          `;
-            let usageCreditTotal = 0;
-            entry.results.forEach((result: any) => {
-                usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
-            });
-
-            for (let result of entry.results) {
-                entryHtml += this.extCommon.getHTMLforPromptResult(result);
-            }
-            entryHtml += `
-                </div>
-              </div>
-            </div>
-          `;
-            historyHtml += entryHtml;
-            this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;"> Credits Used: ${Math.round(usageCreditTotal)}`;
-            this.history_date.innerHTML = this.showGmailStyleDate(entry.runDate);
+        let usageCreditTotal = 0;
+        let entry = history[this.currentPage - 1];
+        if (!entry) {
+            return;
         }
-        this.historyDisplay.innerHTML = historyHtml;
-        
+
+        let renderResult = this.renderHTMLForHistoryEntry(entry, this.currentPage - 1);
+        let entryHTML = renderResult.html;
+        usageCreditTotal += renderResult.usageCreditTotal;
+        this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;">
+                 Credits Used: ${Math.round(usageCreditTotal)}`;
+        this.history_date.innerHTML = this.showGmailStyleDate(entry.runDate);
+
+        this.historyDisplay.innerHTML = entryHTML;
+
         this.historyDisplay.querySelectorAll('.export_history_entry').forEach((button: any) => {
             button.addEventListener('click', async (e: any) => {
                 let index = e.target.dataset.index;
@@ -481,17 +443,69 @@ export default class MainPageApp {
         let paginationHtml = this.generatePagination(history.length, this.itemsPerPage, this.currentPage);
         this.history_pagination.innerHTML = paginationHtml;
     }
-   
+    renderHTMLForHistoryEntry(entry: any, historyIndex: number): {
+        html: string;
+        usageCreditTotal: number;
+    } {
+        let usageCreditTotal = 0;
+        let resultHistory = entry.result;
+         if (!resultHistory) resultHistory = entry.results[0];
+
+        let uniqueSetNames: any = {};
+        entry.results.forEach((result: any) => {
+            uniqueSetNames[result.prompt.setName] = true;
+        });
+        uniqueSetNames = Object.keys(uniqueSetNames);
+        let setNames = uniqueSetNames.join(', ');
+        let html = `
+        <div class="history_entry_header">
+            <div class="history_header">
+                <div class="history_entry_promptset">${setNames}</div>
+                <button class="export_history_entry btn" data-index="${historyIndex}">Export</button>
+            </div>
+            <div class="history_text_source">
+                <div class="history_text">${this.truncateText(entry.text, 500)}</div>
+                <span class="url_display">(${entry.url})</span>
+            </div>
+        </div>
+            <div class="history_results">`;
+        let allResults = entry.results;
+        let setBasedResults: any = {};
+        allResults.forEach((result: any) => {
+            if (!setBasedResults[result.prompt.setName]) {
+                setBasedResults[result.prompt.setName] = [];
+            }
+            setBasedResults[result.prompt.setName].push(result);
+        });
+        const setNamesArray = Object.keys(setBasedResults);
+        setNamesArray.forEach((setName: any) => {
+            html += `<h2>${setName}</h2>`;
+            let promptSetResults = setBasedResults[setName];
+            promptSetResults.forEach((result: any) => {
+                usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+            });
+
+            for (let result of promptSetResults) {
+                html += this.extCommon.getHTMLforPromptResult(result);
+            }
+        });
+        html += `</div>`;
+        return {
+            html,
+            usageCreditTotal,
+        };
+    }
+
     generatePagination(totalItems: number, itemsPerPage: number, currentPage: number, pagesBeforeAfter: number = 9) {
         let totalPages = Math.ceil(totalItems / itemsPerPage);
         let paginationHtml = '';
-    
+
         if (totalPages <= 1) {
             return paginationHtml;
         }
-    
+
         paginationHtml = '<ul class="pagination pagination-sm mb-0">';
-    
+
         for (let i = 1; i <= totalPages; i++) {
             if (
                 i === 1 ||
@@ -511,9 +525,9 @@ export default class MainPageApp {
                 `;
             }
         }
-    
+
         paginationHtml += '</ul>';
-    
+
         return paginationHtml;
     }
     truncateText(text: any, maxLength: any) {
