@@ -18,7 +18,6 @@ export default class MainPageApp {
     test_metric_container = document.querySelector('.test_metric_container') as HTMLDivElement;
     session_anchor_label = document.querySelector('.session_anchor_label') as HTMLDivElement;
     session_anchor = document.querySelector('.session_anchor') as HTMLAnchorElement;
-    status_text = document.querySelector('.status_text') as HTMLDivElement;
     create_prompt_tab = document.getElementById('create-prompt-tab') as HTMLButtonElement;
     prompt_id_input = document.querySelector('.prompt_id_input') as HTMLInputElement;
     prompt_description = document.querySelector('.prompt_description') as HTMLInputElement;
@@ -39,6 +38,7 @@ export default class MainPageApp {
     entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
+    history_date = document.querySelector('.history_date') as HTMLDivElement;
     manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
     currentPage = 1;
     itemsPerPage = 1;
@@ -131,7 +131,6 @@ export default class MainPageApp {
             for (let promptResult of result.results) {
                 html += this.extCommon.getHTMLforPromptResult(promptResult);
             }
-            this.status_text.innerHTML = html;
         });
 
         this.copy_to_clipboard_btn.addEventListener('click', async () => {
@@ -390,7 +389,7 @@ export default class MainPageApp {
             (<any>document.querySelector('.no_session_key')).style.display = 'block';
             this.session_anchor_label.innerHTML = 'Visit Unacog:';
             this.session_anchor.innerHTML = `Get Started`;
-            this.session_anchor.href = `https://unacog.com/help/#metricextension`;
+            this.session_anchor.href = `https://unacog.com/clyde`;
             (<any>document.querySelector('#api-config-tab i')).classList.add('api-key-warning');
         }
 
@@ -429,17 +428,18 @@ export default class MainPageApp {
                 console.error(e);
             }
             let entryHtml = `
-            <div class="history_entry">
             <div class="history_entry_header">
                 <div class="history_header">
-                    <span class="url_display">${entry.url}</span>
-                    <span class="history_date">${this.showGmailStyleDate(entry.runDate)}</span>
+                    <div class="history_entry_promptset">${entry.promptSetName}</div>
                     <button class="export_history_entry btn" data-index="${i}">Export</button>
                 </div>
             </div>
+            <div class="history_entry">
             <div class="history_content">
-                <div class="history_preview">
+                <div class="history_text_source">
                     <div class="history_text">${this.truncateText(entry.text, 500)}</div>
+                    <span class="url_display">(${entry.url})</span>
+                    <div class="history_prompt">${historyPrompt}</div>
                 </div>
                 <div class="history_results">
           `;
@@ -457,7 +457,8 @@ export default class MainPageApp {
             </div>
           `;
             historyHtml += entryHtml;
-            this.entry_total_credit_usage.innerHTML = `Total Usage Credits: ${usageCreditTotal}`;
+            this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;"> Credits Used: ${usageCreditTotal}`;
+            this.history_date.innerHTML = this.showGmailStyleDate(entry.runDate);
         }
         this.historyDisplay.innerHTML = historyHtml;
         
@@ -481,17 +482,38 @@ export default class MainPageApp {
         this.history_pagination.innerHTML = paginationHtml;
     }
    
-    generatePagination(totalItems: number, itemsPerPage: number, currentPage: number) {
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-        let paginationHtml = '<ul class="pagination pagination-sm mb-0">';
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHtml += `
-                <li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="#">${i}</a>
-                </li>
-            `;
+    generatePagination(totalItems: number, itemsPerPage: number, currentPage: number, pagesBeforeAfter: number = 9) {
+        let totalPages = Math.ceil(totalItems / itemsPerPage);
+        let paginationHtml = '';
+    
+        if (totalPages <= 1) {
+            return paginationHtml;
         }
+    
+        paginationHtml = '<ul class="pagination pagination-sm mb-0">';
+    
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - pagesBeforeAfter && i <= currentPage + pagesBeforeAfter)
+            ) {
+                paginationHtml += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#">${i}</a>
+                    </li>
+                `;
+            } else if (i === 2 || i === totalPages - 1) {
+                paginationHtml += `
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">...</a>
+                    </li>
+                `;
+            }
+        }
+    
         paginationHtml += '</ul>';
+    
         return paginationHtml;
     }
     truncateText(text: any, maxLength: any) {
