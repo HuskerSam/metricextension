@@ -230,7 +230,7 @@ export class AnalyzerExtensionCommon {
    * @returns 
    */
   getHTMLforPromptResult(result: any) {
-    const usageText = `<span class="token_usage_span">Token Usage: ${result.result.promptResult.ticketResults.usage_credits}</span>`;
+    const usageText = `<span class="credits_usage_span">Credits: ${Math.round(result.result.promptResult.ticketResults.usage_credits)}</span>`;
     if (result.prompt.prompttype === 'text') {
       return `
           <div class="prompt_result text_result">

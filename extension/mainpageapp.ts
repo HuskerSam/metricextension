@@ -389,7 +389,7 @@ export default class MainPageApp {
             (<any>document.querySelector('.no_session_key')).style.display = 'block';
             this.session_anchor_label.innerHTML = 'Visit Unacog:';
             this.session_anchor.innerHTML = `Get Started`;
-            this.session_anchor.href = `https://unacog.com/clyde`;
+            this.session_anchor.href = `https://unacog.com/klyde`;
             (<any>document.querySelector('#api-config-tab i')).classList.add('api-key-warning');
         }
 
@@ -457,7 +457,7 @@ export default class MainPageApp {
             </div>
           `;
             historyHtml += entryHtml;
-            this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;"> Credits Used: ${usageCreditTotal}`;
+            this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;"> Credits Used: ${Math.round(usageCreditTotal)}`;
             this.history_date.innerHTML = this.showGmailStyleDate(entry.runDate);
         }
         this.historyDisplay.innerHTML = historyHtml;

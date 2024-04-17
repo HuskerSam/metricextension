@@ -1,6 +1,7 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
+import PapaPrase from 'papaparse';
 declare const chrome: any;
 
 export default class BulkPageApp {
@@ -15,6 +16,7 @@ export default class BulkPageApp {
   download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
   upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
   url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
+  lastTableEdit = new Date();
   runId = '';
   chromeTabListener: any = null;
   activeTabsBeingScraped: any = [];
@@ -25,7 +27,7 @@ export default class BulkPageApp {
       movableRows:true,
       rowHeader:{headerSort:false, resizable: false, minWidth:30, width:30, rowHandle:true, formatter:"handle"},
       columns: [
-        { title: "URL", field: "url", editor: "input" },
+        { title: "URL", field: "url", editor: "input",  headerSort: false },
         {
           title: "",
           field: "delete",
@@ -40,26 +42,78 @@ export default class BulkPageApp {
     });
     this.bulk_url_list_tabulator.on("cellClick", async (e: Event, cell: any) => {
       if (cell.getColumn().getField() === "delete") {
+        this.lastTableEdit = new Date();
         let bulkUrlList = this.bulk_url_list_tabulator.getData();
-        this.bulk_url_list_tabulator.deleteRow(cell.getRow());
+        let rowIndex = cell.getRow().getPosition() - 1;
+        console.log(rowIndex, bulkUrlList)
+        bulkUrlList.splice(rowIndex, 1);
+        console.log(bulkUrlList)
+        this.bulk_url_list_tabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
       }
     });
+    this.bulk_url_list_tabulator.on("rowMoved", async (row: any) => {
+      this.lastTableEdit = new Date();
+      let bulkUrlList = this.bulk_url_list_tabulator.getData();
+      await chrome.storage.local.set({ bulkUrlList });
+    });
     this.bulk_url_list_tabulator.on("cellEdited", async (cell: any) => {
+      this.lastTableEdit = new Date();
       let bulkUrlList = this.bulk_url_list_tabulator.getData();
       await chrome.storage.local.set({ bulkUrlList });
     });
     this.add_bulk_url_row.addEventListener('click', async () => {
+      this.lastTableEdit = new Date();
       let bulkUrlList = this.bulk_url_list_tabulator.getData();
-      bulkUrlList.push({ url: "", analysis_set: "" });
+      bulkUrlList.push({ url: ""});
       this.bulk_url_list_tabulator.setData(bulkUrlList);
       await chrome.storage.local.set({ bulkUrlList });
     });
     this.run_bulk_analysis_btn.addEventListener('click', async () => {
+      let emptyRows = await this.checkForEmptyRows();
+      if (emptyRows) {
+        if (confirm("Empty rows detected. Do you want to remove them and continue?") === true) {
+          await this.trimEmptyRows();
+        } else {
+          alert("Empty rows detected. Please remove them before running analysis");
+          return;
+        }
+      }
+      let validUrls = true;
+      let bulkUrlList = this.bulk_url_list_tabulator.getData();
+      let invalidUrlList = '';
+      bulkUrlList.forEach((row: any) => {
+        let url = row.url;
+        let urlRegex = new RegExp("^(http|https)://", "i");
+        if (!urlRegex.test(url)) {
+          validUrls = false;
+          invalidUrlList += url + "\n";
+        }
+      });
+      if (!validUrls) {
+        alert("Invalid URLs detected. Please correct them before running analysis\n" + invalidUrlList);
+        return;
+      }
       await this.runBulkAnalysis();
     });
     this.download_url_list.addEventListener('click', async () => {
-      this.bulk_url_list_tabulator.download("csv", "bulk_url_list.csv");
+      if (this.bulk_url_list_tabulator.getData().length === 0) {
+        alert("No data to download");
+        return;
+      }
+      const rows: any[] = this.bulk_url_list_tabulator.getData();
+      rows.forEach((row: any) => {
+        delete row.delete;
+      });
+      let csv = PapaPrase.unparse(rows);
+      let blob = new Blob([csv], { type: "text/csv" });
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      document.body.appendChild(a);
+      a.href = url;
+      a.download = "bulk_url_list.csv";
+      a.click();
+      document.body.removeChild(a);
     });
     this.upload_url_list.addEventListener('click', async () => {
       this.url_file_input.click();
@@ -69,14 +123,10 @@ export default class BulkPageApp {
       let reader = new FileReader();
       reader.onload = async () => {
         let text = reader.result as string;
-        let lines = text.split('\n');
-        let bulkUrlList: any[] = [];
-        lines.forEach((line) => {
-          let parts = line.split(',');
-          bulkUrlList.push({ url: parts[0], analysis_set: parts[1] });
-        });
+        let bulkUrlList = PapaPrase.parse(text, { header: true }).data;
         this.bulk_url_list_tabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
+        this.url_file_input.value = "";
       };
       reader.readAsText(file);
     });
@@ -122,7 +172,27 @@ export default class BulkPageApp {
     chrome.storage.local.onChanged.addListener(() => {
       this.paintData();
     });
-    this.paintData();
+    this.paintData(true);
+  }
+
+  async checkForEmptyRows() {
+    let bulkUrlList = this.bulk_url_list_tabulator.getData();
+    let emptyRows = bulkUrlList.filter((row: any) => {
+      return row.url.trim() === "";
+    });
+    if (emptyRows.length > 0) {
+      return true;
+    }
+    return false
+  }
+
+  async trimEmptyRows() {
+    let bulkUrlList = this.bulk_url_list_tabulator.getData();
+    bulkUrlList = bulkUrlList.filter((row: any) => {
+      return row.url.trim() !== "";
+    });
+    this.bulk_url_list_tabulator.setData(bulkUrlList);
+    await chrome.storage.local.set({ bulkUrlList });
   }
 
   async runBulkAnalysis() {
@@ -224,7 +294,10 @@ export default class BulkPageApp {
       <button class="download_compact_csv btn" data-index="${index}">download compact CSV</button>
     `;
   }
-  async paintData() {
+  async paintData(forceUpdate = false) {
+    if (this.lastTableEdit.getTime() > new Date().getTime() - 1000 && !forceUpdate) {
+      return;
+    }
     let allUrls: any[] = [];
     let rawData = await chrome.storage.local.get('bulkUrlList');
     if (rawData && rawData.bulkUrlList && Object.keys(rawData.bulkUrlList).length > 0) {
