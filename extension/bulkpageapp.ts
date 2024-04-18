@@ -16,28 +16,30 @@ export default class BulkPageApp {
   download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
   upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
   url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
+  enable_browser_scraping_btn = document.querySelector('.enable_browser_scraping_btn') as HTMLButtonElement;
   lastTableEdit = new Date();
   runId = '';
+  activeTab: any = null;
   chromeTabListener: any = null;
   activeTabsBeingScraped: any = [];
 
   constructor() {
     this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
       layout: "fitColumns",
-      movableRows:true,
-      rowHeader:{headerSort:false, resizable: false, minWidth:30, width:30, rowHandle:true, formatter:"handle"},
+      movableRows: true,
+      rowHeader: { headerSort: false, resizable: false, minWidth: 30, width: 30, rowHandle: true, formatter: "handle" },
       columns: [
-        { title: "URL", field: "url", editor: "input",  headerSort: false },
+        { title: "URL", field: "url", editor: "input", headerSort: false },
         {
           title: "",
           field: "delete",
           headerSort: false,
           formatter: () => {
-              return `<i class="material-icons-outlined">delete</i>`;
+            return `<i class="material-icons-outlined">delete</i>`;
           },
           hozAlign: "center",
           width: 30,
-      },
+        },
       ],
     });
     this.bulk_url_list_tabulator.on("cellClick", async (e: Event, cell: any) => {
@@ -63,7 +65,7 @@ export default class BulkPageApp {
     this.add_bulk_url_row.addEventListener('click', async () => {
       this.lastTableEdit = new Date();
       let bulkUrlList = this.bulk_url_list_tabulator.getData();
-      bulkUrlList.push({ url: ""});
+      bulkUrlList.push({ url: "" });
       this.bulk_url_list_tabulator.setData(bulkUrlList);
       await chrome.storage.local.set({ bulkUrlList });
     });
@@ -128,7 +130,22 @@ export default class BulkPageApp {
       };
       reader.readAsText(file);
     });
-
+    this.enable_browser_scraping_btn.addEventListener('click', async () => {
+      // Permissions must be requested from inside a user gesture, like a button's
+      // click handler.
+      chrome.permissions.request({
+        permissions: ["activeTab", "tabs"],
+        origins: ["https://*/*",
+          "http://*/*"]
+      }, (granted: any) => {
+        // The callback argument will be true if the user granted the permissions.
+        if (granted) {
+          alert("Browser scraping enabled. You can now scrape pages using the browser scraping feature");
+        } else {
+          alert("Browser scraping permission denied. You can enable it from the extension settings page");
+        }
+      });
+    });
 
     this.bulkSelected = new SlimSelect({
       select: '.bulk_analysis_sets_select',
@@ -194,22 +211,42 @@ export default class BulkPageApp {
   }
 
   async runBulkAnalysis() {
-    document.body.classList.add("bulk_analysis_running");
+    document.body.classList.add("extension_running");
+    document.body.classList.remove("extension_not_running");
     this.runId = new Date().toISOString();
     let rows = this.bulk_url_list_tabulator.getData();
     let urls: string[] = [];
     rows.forEach((row: any) => {
       urls.push(row.url);
     });
+
+    this.activeTab = await chrome.tabs.getCurrent();
+
     let promises: any[] = [];
     urls.forEach((url) => {
       promises.push(this.scrapeTabPage(url));
     });
+
     let results = await Promise.all(promises);
     let analysisPromises: any[] = [];
     results.forEach((result: any, index: number) => {
-      console.log(result);
-      analysisPromises.push(this.extCommon.runAnalysisPrompts(result[0].result, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
+      if (!result || result.length === 0 || !result[0].result) {
+        console.log("invalid", result);
+        analysisPromises.push(async () => {
+          return {
+            text: "No text found in page",
+            url: urls[index],
+            results: [],
+            runDate: new Date().toISOString(),
+            title: "",
+          };
+        });
+      } else {
+        console.log("valid", result);
+        let text = result[0].result;
+        analysisPromises.push(this.extCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
+      }
+
     });
     let analysisResults = await Promise.all(analysisPromises);
     const fullCloudUploadResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + ".json", analysisResults);
@@ -220,28 +257,51 @@ export default class BulkPageApp {
       compactResult.url = urlResult.url;
       compactResult.title = urlResult.title;
 
-      urlResult.results.forEach((metricResult: any) => {
-        const fieldName = metricResult.prompt.setName + "_" + metricResult.prompt.id;
-        console.log(fieldName, metricResult.result);
-        if (metricResult.prompt.prompttype === "metric") {
-          let metric = 0;
-          try {
-            let json = JSON.parse(metricResult.result.resultMessage);
-            metric = json.contentRating;
-          } catch (e) {
-            metric = -1;
+      const results = urlResult.results;
+      if (results) {
+        results.forEach((metricResult: any) => {
+          const fieldName = metricResult.prompt.id + "_" + metricResult.prompt.setName;
+          console.log(fieldName, metricResult.result);
+          if (metricResult.prompt.prompttype === "metric") {
+            let metric = 0;
+            try {
+              let json = JSON.parse(metricResult.result.resultMessage);
+              metric = json.contentRating;
+            } catch (e) {
+              metric = -1;
+            }
+            compactResult[fieldName] = metric;
+          } else {
+            compactResult[fieldName] = metricResult.result.resultMessage;
           }
-          compactResult[fieldName] = metric;
-        } else {
-          compactResult[fieldName] = metricResult.result.resultMessage;
-        }
+        });
+      } else {
+        compactResult["No Results"] = "No Results";
+      }
 
-      });
       compactData.push(compactResult);
     });
+
+    if (compactData.length > 0) {
+      const firstRow = compactData[0];
+      const allFields: any = {};
+      compactData.forEach((row: any) => {
+        Object.keys(row).forEach((field) => {
+          allFields[field] = true;
+        });
+      });
+      const fieldNames = Object.keys(allFields);
+      fieldNames.forEach((fieldName) => {
+        if (!firstRow[fieldName]) {
+          firstRow[fieldName] = "";
+        }
+      });
+    }
+
     const csv = Papa.unparse(compactData);
     const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId, csv, "text/csv", "csv");
-    document.body.classList.remove("bulk_analysis_running");
+    document.body.classList.remove("extension_running");
+    document.body.classList.add("extension_not_running");
 
     let bulkHistory = await chrome.storage.local.get('bulkHistory');
     let bulkHistoryRangeLimit = await chrome.storage.local.get('bulkHistoryRangeLimit');
@@ -259,24 +319,30 @@ export default class BulkPageApp {
 
   async scrapeTabPage(url: any) {
     return new Promise(async (resolve, reject) => {
+
       let tab = await chrome.tabs.create({
         url
       });
 
-      function getDom() {
-        return document.body.innerText;
-      }
+      chrome.tabs.update(this.activeTab.id, { active: true })
+
+
       await this.detectTabLoaded(tab.id);
       setTimeout(async () => {
-
-        let scrapes = await chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: getDom,
-        });
-        const updatedTab = await chrome.tabs.get(tab.id);
-        scrapes.title = updatedTab.title;
-        await chrome.tabs.remove(tab.id);
-        resolve(scrapes);
+        try {
+          let scrapes = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => {
+              return document.body.innerText;
+            },
+          });
+          const updatedTab = await chrome.tabs.get(tab.id);
+          scrapes.title = updatedTab.title;
+          await chrome.tabs.remove(tab.id);
+          resolve(scrapes);
+        } catch (e) {
+          resolve("");
+        }
       }, 3000);
     });
   }
@@ -365,8 +431,8 @@ export default class BulkPageApp {
         let bulkHistory = await chrome.storage.local.get('bulkHistory');
         bulkHistory = bulkHistory.bulkHistory || [];
         let historyItem = bulkHistory[index];
-         let a = document.createElement('a');
-         document.body.appendChild(a);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
         a.href = historyItem.analysisResultPath;
         a.click();
         document.body.removeChild(a);

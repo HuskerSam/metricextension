@@ -727,3 +727,11 @@ body {
   justify-content: flex-end;
   flex: 1;
 }
+
+.bulk_analysis_history_placeholder {
+  display: none;
+}
+
+.extension_running .bulk_analysis_history_placeholder {
+  display: block;
+}

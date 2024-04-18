@@ -5,7 +5,7 @@ declare const chrome: any;
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
    if (reason.reason === 'install') {
     await chrome.tabs.create({
-          url: "https://unacog.com/clyde/"
+          url: "https://unacog.com/klyde/"
         });
     }
 

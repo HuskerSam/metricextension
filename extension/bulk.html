@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="lib/materialiconsoutlined.css">
   <link href="lib/bootstrap.min.css" rel="stylesheet">
   <script src="lib/bootstrap.bundle.min.js"></script>
+  <script src="lib/lottieplayer.js"></script>
   <link href="lib/tabulator.css" rel="stylesheet">
   <link href="lib/tabsimple.css" rel="stylesheet">
   <link href="lib/slimselect.css" rel="stylesheet">
@@ -32,9 +33,15 @@
         <button class="add_bulk_url_row btn">
           <span class="btn_text">Add</span> <i class="material-icons-outlined">add</i>
         </button>
+        <button class="enable_browser_scraping_btn btn">Enable Browser Scraping</button>
       </div>
     </div>
     <hr>
+    <div class="bulk_analysis_history_placeholder">
+      New Analysis Running...<br>
+      <lottie-player src="media/lottie.json" background="transparent" 
+        speed="1" style="width: 200px; height: 200px;" loop autoplay></lottie-player>
+     </div>
     <div class="bulk_analysis_results_history" style="flex:1; overflow: auto"></div>
   </div>
 </body>
