@@ -140,10 +140,10 @@ export class AnalyzerExtensionCommon {
       if (!cloudWriteResult.success) {
         return cloudWriteResult;
       }
-  
+
       const encodedFragment = encodeURIComponent(cloudWriteResult.storagePath);
       const publicStorageUrlPath = `https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/${encodedFragment}?alt=media`;
-  
+
       return {
         success: true,
         publicStorageUrlPath,
@@ -243,11 +243,11 @@ export class AnalyzerExtensionCommon {
   }
   async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
     const runDate = new Date().toISOString();
-    if (addToHistory)  {
+    if (addToHistory) {
       let running = await this.chrome.storage.local.get('running');
       if (running && running.running) {
         if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
-            return;
+          return;
       }
 
       await this.chrome.storage.local.set({
@@ -392,8 +392,14 @@ export class AnalyzerExtensionCommon {
     I would like one based on the following description: ${description}
     
     Here is an example of guidelines for scoring content based on political content:
-    Rate the following content 0-100, regarding its political content. 
-    Guideline for political metrics: Assess political content by evaluating the depth of political commentary, the range of political perspectives presented, and the degree of bias or impartiality. Consider the relevance of political themes to current events, historical context, and societal impact. Examine the effectiveness of conveying political messages, the use of persuasive language or rhetoric, and the potential for inciting debate or controversy. Take into account the diversity of political ideologies and the potential for engaging audiences with different political beliefs.`;
+    Rate the following content 0-10, regarding its political content. 
+    Guideline for political metrics: Assess political content by evaluating the depth of political commentary, the range of political perspectives presented, and the degree of bias or impartiality. Consider the relevance of political themes to current events, historical context, and societal impact. Examine the effectiveness of conveying political messages, the use of persuasive language or rhetoric, and the potential for inciting debate or controversy. Take into account the diversity of political ideologies and the potential for engaging audiences with different political beliefs.
+    0 - Apolitical:  Content completely avoids political themes, figures, or discussions.
+    1-2 - Low Political Content: Mentions political elements in passing, but doesn't delve into specifics. May reference a politician by name but not their policies.
+    3-4 - Moderate Political Content: Discusses political topics but with a neutral stance. Presents basic information about policies, figures, or events without bias.
+    5-6 - Medium Political Content: Analyzes political issues with some level of opinion or perspective. May favor one side slightly but still acknowledges opposing viewpoints.
+    7-8 - High Political Content: Offers in-depth analysis of political issues with a clear perspective. Uses persuasive language and rhetoric to advocate for a specific viewpoint.
+    9-10 - Extremely High Political Content: Focuses heavily on controversial political themes and current events. May use strong emotions and inflammatory language to incite debate. Presents a very narrow range of viewpoints.`;
 
     let newPromptContent = (await this.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
     newPromptContent += ` 
@@ -406,6 +412,14 @@ export class AnalyzerExtensionCommon {
     {{query}}`;
     return newPromptContent;
   }
+  async updateContentTextonSidePanel(text: string) {
+    let running = await this.chrome.storage.local.get('running');
+    if (running && running.running) {
+      this.query_source_text.value = "Running...";
+    } else {
+      this.query_source_text.value = text;
+    }
+  }
   async renderDisplay() {
     let history = await this.chrome.storage.local.get('history');
     history = history.history || [];
@@ -416,7 +430,7 @@ export class AnalyzerExtensionCommon {
       lastResult = entry.results;
       lastSelection = entry.text;
     }
-
+    await this.updateContentTextonSidePanel(lastSelection);
     let html = '';
     if (lastResult) {
       lastResult.forEach((result: any) => {
@@ -457,7 +471,7 @@ this.query_source_tokens_length.innerHTML = tokenCount;
 
     let lastSelection = await this.chrome.storage.local.get('lastSelection');
     lastSelection = lastSelection.lastSelection || "";
-    this.query_source_text.value = lastSelection;
+    this.updateContentTextonSidePanel(lastSelection);
     this.updateQuerySourceDetails();
 
     this.renderDisplay();

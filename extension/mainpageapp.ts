@@ -52,6 +52,7 @@ export default class MainPageApp {
     download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
     upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
     url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
+    open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
     lastTableEdit = new Date();
     runId = '';
     activeTab: any = null;
@@ -140,6 +141,10 @@ export default class MainPageApp {
         this.paintData(true);
     }
     initEventHandlers() {
+        this.open_side_panel_from_main.addEventListener('click', async () => {
+            this.activeTab = await chrome.tabs.getCurrent();
+            chrome.sidePanel.open({ tabId: this.activeTab.id });
+        });
         this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });

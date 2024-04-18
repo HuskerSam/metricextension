@@ -59,7 +59,7 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
 });
 
 chrome.action.onClicked.addListener(async (tab: any) => {
-    chrome.sidePanel.open({ tabId: tab.id });
+    openExentionSinglePage("main.html");
 });
 
 chrome.runtime.onMessageExternal.addListener(
@@ -77,6 +77,23 @@ chrome.runtime.onMessageExternal.addListener(
         if (request.specialAction === 'openSidePanel') {
             chrome.sidePanel.open({ tabId: sender.tab.id });
         }
+        if (request.specialAction === 'openMainPage') {
+            openExentionSinglePage("main.html");
+        }
     }
 );
+
+async function  openExentionSinglePage(url: string) {
+    const [tab] = await chrome.tabs.query({
+       url: `chrome-extension://${chrome.runtime.id}/main.html`,
+    });
+
+    if (tab) {
+        await chrome.tabs.update(tab.id, { active: true });
+    } else {
+        await chrome.tabs.create({
+            url
+        });
+    }
+}
 

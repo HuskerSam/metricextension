@@ -172,9 +172,8 @@ body {
   padding: 0 var(--spacing-large);
 }
 
-.entry_total_credit_usage,
-.status_text {
-  font-size: var(--font-size-small);
+.entry_total_credit_usage {
+    font-size: var(--font-size-small);
   color: var(--success-color);
   background-color: var(--light-color);
 }
@@ -196,8 +195,8 @@ body {
   display: flex;
   justify-content: end;
   align-items: center;
-  position: relative;
-  top: 8px;
+  padding-top: var(--spacing-small);
+  padding-right: var(--spacing-large);
 }
 
 .pagination {
@@ -583,10 +582,6 @@ body {
   font-size: var(--font-size-small);
   color: var(--secondary-color);
   margin-top: var(--spacing-small);
-}
-
-.status_text {
-  display: none;
 }
 
 .extension_running .analysis_running {

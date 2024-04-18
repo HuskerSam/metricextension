@@ -84,8 +84,9 @@
 
   .analysis_sets_configuration {
     display: block;
-    margin-top: var(--spacing-medium);
-    flex: 0;
+    margin-top: var(--spacing-large);
+    flex: 1;
+    padding-right: 4px;
   }
   .analysis_container {
     display: flex;
@@ -109,6 +110,10 @@
 .analysis_input {
   margin-right: var(--spacing-large);
 }
+
+.analysis_header {
+  margin-bottom: 0;
+}
 </style>
 
 <body>
@@ -122,16 +127,14 @@
 
   <div class="analysis_container">
     <div class="analysis_header">
-      <h5 class="category_header">Analytics</h5>
-      <span class="status_text">Running...</span>
+      <div class="analysis_sets_configuration">
+        <label class="positioned_label">Select Metrics for analysis</label>
+        <select class="analysis_set_select" multiple>
+        </select>
+      </div>
       <button class="show_main_page_btn btn">
         <i class="material-icons-outlined">settings</i>
       </button>
-    </div>
-    <div class="analysis_sets_configuration">
-      <label class="positioned_label">Select Metrics for analysis</label>
-      <select class="analysis_set_select" multiple>
-      </select>
     </div>
     <div class="textarea_container">
       <textarea class="query_source_text" placeholder="Enter text for analysis..."></textarea>

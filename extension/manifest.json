@@ -37,7 +37,8 @@
     "scripting",
     "contextMenus",
     "unlimitedStorage",
-    "sidePanel"
+    "sidePanel",
+    "tabs"
   ],
   "content_scripts": [
     {
