@@ -23,39 +23,49 @@ export class AnalyzerExtensionCommon {
     let sessionId = await this.chrome.storage.local.get('sessionId');
     sessionId = sessionId.sessionId || '';
 
+    let resultMessage = 'unknown error';
+    let promptResult: any = {};
+    let error = true;
+
     const body = {
       message,
       apiToken,
       sessionId,
       disableEmbedding: true,
     };
-    const fetchResults = await fetch(this.promptUrl, {
-      method: "POST",
-      mode: "cors",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    const promptResult = await fetchResults.json();
-    let resultMessage = 'unknown error';
-    let error = true;
-    if (!promptResult.success) {
-      console.log("error", promptResult);
-      resultMessage = promptResult.errorMessage;
-    } else {
-    }
-    if (promptResult.assist) {
-      if (promptResult.assist.error) {
-        resultMessage = promptResult.assist.error.message;
-      } else if (promptResult.assist.assist.error) {
-        resultMessage = promptResult.assist.assist.error.message;
+    try {
+      const fetchResults = await fetch(this.promptUrl, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      promptResult = await fetchResults.json();
+      if (!promptResult.success) {
+        console.log("error", promptResult);
+        resultMessage = promptResult.errorMessage;
       } else {
-        resultMessage = promptResult.assist.assist.choices["0"].message.content;
-        error = false;
       }
+      if (promptResult.assist) {
+        if (promptResult.assist.error) {
+          resultMessage = promptResult.assist.error.message;
+        } else if (promptResult.assist.assist.error) {
+          resultMessage = promptResult.assist.assist.error.message;
+        } else {
+          resultMessage = promptResult.assist.assist.choices["0"].message.content;
+          error = false;
+        }
+      }
+    } catch (err: any) {
+      console.log("error", err);
+      resultMessage = err.message;
+      error = err;
     }
+
+
     return {
       resultMessage,
       originalPrompt: message,
@@ -77,26 +87,33 @@ export class AnalyzerExtensionCommon {
       mimeType,
       fileExt,
     };
-    const fetchResults = await fetch(this.cloudWriteUrl, {
-      method: "POST",
-      mode: "cors",
-      cache: "no-cache",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    const cloudWriteResult = await fetchResults.json();
-    if (!cloudWriteResult.success) {
-      return cloudWriteResult;
-    }
-
-    const encodedFragment = encodeURIComponent(cloudWriteResult.storagePath);
-    const publicStorageUrlPath = `https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/${encodedFragment}?alt=media`;
-
-    return {
-      success: true,
-      publicStorageUrlPath,
+    try {
+      const fetchResults = await fetch(this.cloudWriteUrl, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      const cloudWriteResult = await fetchResults.json();
+      if (!cloudWriteResult.success) {
+        return cloudWriteResult;
+      }
+  
+      const encodedFragment = encodeURIComponent(cloudWriteResult.storagePath);
+      const publicStorageUrlPath = `https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/${encodedFragment}?alt=media`;
+  
+      return {
+        success: true,
+        publicStorageUrlPath,
+      }
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err,
+      };
     }
   }
   async sendPromptForMetric(promptTemplate: string, query: string) {
@@ -231,7 +248,7 @@ export class AnalyzerExtensionCommon {
    */
   getHTMLforPromptResult(result: any) {
     const usageText = `<span class="credits_usage_span">Credits: ${Math.round(result.result.promptResult.ticketResults.usage_credits)}</span>`;
-    if (result.prompt.prompttype === 'text') {
+    if (result.prompt.promptType === 'text') {
       return `
           <div class="prompt_result text_result">
             <div class="prompt_header">
@@ -241,7 +258,7 @@ export class AnalyzerExtensionCommon {
             <div class="result_usage">${usageText}</div>
           </div>
         `;
-    } else if (result.prompt.prompttype === 'metric') {
+    } else if (result.prompt.promptType === 'metric') {
       try {
         let json = JSON.parse(result.result.resultMessage);
         let metric = json.contentRating;

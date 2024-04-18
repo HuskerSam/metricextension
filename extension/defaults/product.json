@@ -4,7 +4,7 @@
         "id": "brevity",
         "prompt": "Guidelines for Scoring Content:\n\nRate the content on a scale of 0-100, considering the following aspects:\n\n1. Depth of Commentary: Evaluate the extent to which the content provides insightful and comprehensive analysis of the subject matter.\n\n2. Range of Perspectives: Assess the inclusion of diverse viewpoints and opinions, allowing for a balanced representation of different stances.\n\n3. Bias or Impartiality: Consider the objectivity of the content by examining any potential favoritism or prejudice towards a particular viewpoint.\n\n4. Relevance to Current Events: Determine the extent to which the content addresses and relates to ongoing or recent events.\n\n5. Historical Context: Evaluate whether the content acknowledges and incorporates historical context to provide a more comprehensive understanding.\n\n6. Societal Impact: Assess the potential influence and significance of the content on society and its potential to shape public opinion.\n\n7. Effectiveness of Conveying Messages: Evaluate how effectively the content communicates its intended political messages or arguments.\n\n8. Persuasive Language and Rhetoric: Consider the use of language and rhetoric techniques to influence or sway the audience's perception.\n\n9. Potential for Debate or Controversy: Assess the likelihood of the content sparking discussion, debate, or controversy among audiences.\n\n10. Engagement of Diverse Audiences: Take into account the potential for the content to engage individuals with different political beliefs or ideologies.\n\nRemember to assign a score based on the overall quality and effectiveness of the content in relation to these guidelines. \n    Please respond with json and only json in this format:\n    {\n      \"contentRating\": 0\n    }\n    \n    Here is the content to analyze:\n    {{query}}",
         "promptSuggestion": "jkl",
-        "prompttype": "metric",
+        "promptType": "metric",
         "setName": "Product"
     },
     {
@@ -12,7 +12,7 @@
         "id": "Utility",
         "prompt": "Rate the following content 0-100, regarding its usefulness to the common person. \n\nGuideline for usefulness metrics: Assess the usefulness of the content by evaluating its practicality, applicability, and relevance to the everyday life of the common person. Consider the clarity and accessibility of the information provided, the extent to which it addresses common problems or needs, and the potential for improving the quality of life or enhancing skills. Examine the credibility and reliability of the information, the inclusion of practical tips or actionable advice, and the potential for empowering individuals to make informed decisions. Take into account the diversity of perspectives and the potential for resonating with a wide range of individuals from different backgrounds. \n    Please respond with json and only json in this format:\n    {\n      \"contentRating\": 0\n    }\n    \n    Here is the content to analyze:\n    {{query}}",
         "promptSuggestion": "how useful is this product to the common person?",
-        "prompttype": "metric",
+        "promptType": "metric",
         "setName": "Product"
     },
     {
@@ -20,7 +20,7 @@
         "id": "Impact",
         "prompt": "Rate the following content 0-100, regarding its impact on society. \n\nGuideline for societal impact metrics: Assess the impact of the content on society by evaluating its ability to address significant social issues, promote positive change, or contribute to the betterment of communities. Consider the extent to which the content raises awareness, educates, or influences public opinion on societal matters. Examine the potential for the content to inspire action, foster empathy, or encourage dialogue and understanding among diverse groups. Take into account the inclusivity and representation of marginalized communities, as well as the potential for the content to challenge existing norms and promote social justice. \n    Please respond with json and only json in this format:\n    {\n      \"contentRating\": 0\n    }\n    \n    Here is the content to analyze:\n    {{query}}",
         "promptSuggestion": "How impact is this product on society?",
-        "prompttype": "metric",
+        "promptType": "metric",
         "setName": "Product"
     },
     {
@@ -28,7 +28,7 @@
         "id": "Reword",
         "prompt": "Reword the product description so a 5 year old can understand\n\nHere is the content to analyze:\n  {{query}}",
         "promptSuggestion": "Reword the product description so a 5 year old can understand",
-        "prompttype": "prompt",
+        "promptType": "prompt",
         "setName": "Product"
     },
     {
@@ -36,7 +36,7 @@
         "id": "Competitors",
         "prompt": "what are some products that would compete with this or what are some products are similar to this? \n\nHere is the content to analyze:\n  {{query}}",
         "promptSuggestion": "what are some products that would compete with this or what are some products are similar to this?",
-        "prompttype": "prompt",
+        "promptType": "prompt",
         "setName": "Product"
     }
 ]

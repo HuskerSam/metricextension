@@ -31,9 +31,10 @@
             </button>
           </li>
           <li class="nav-item" role="presentation">
-            <a class="nav-link bulk_run_tab" type="button" href="bulk.html" target="_blank">
+            <button class="nav-link" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button"
+              role="tab" aria-controls="bulk" aria-selected="false">
               <i class="material-icons-outlined">batch_prediction</i> Bulk
-            </a>
+            </button>
           </li>
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="api-config-tab" data-bs-toggle="modal" data-bs-target="#configModal"
@@ -71,7 +72,8 @@
                   <span class="history_date"></span>
                 </div>
                 <div class="flex_end">
-                  <button type="button" class="btn_menu_action manage_history_configuration" data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+                  <button type="button" class="btn_menu_action manage_history_configuration" data-bs-toggle="modal"
+                    data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
                     <i class="material-icons-outlined small_icon">manage_history</i>
                   </button>
                   <div class="history_pagination"></div>
@@ -106,6 +108,35 @@
                 </button>
               </div>
             </div>
+          </div>
+          <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
+            <div class="analysis_actions">
+              <select class="bulk_analysis_sets_select" multiple></select>
+              <button class="btn run_bulk_analysis_btn">
+                <span class="btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
+              </button>
+            </div>
+            <div class="bulk_url_list_tabulator" style="flex:1"></div>
+            <div class="analysis_menu">
+              <div class="bulk_analysis_progress">
+                <button class="upload_url_list btn">upload url list</button>
+                <button class="download_url_list btn">download url list</button>
+                <input type="file" id="url_file_input" accept=".csv" style="display: none;">
+              </div>
+              <div class="">
+                <button class="add_bulk_url_row btn">
+                  <span class="btn_text">Add</span> <i class="material-icons-outlined">add</i>
+                </button>
+                <button class="enable_browser_scraping_btn btn">Enable Browser Scraping</button>
+              </div>
+            </div>
+            <hr>
+            <div class="bulk_analysis_history_placeholder">
+              New Analysis Running...<br>
+              <lottie-player src="media/lottie.json" background="transparent" speed="1"
+                style="width: 200px; height: 200px;" loop autoplay></lottie-player>
+            </div>
+            <div class="bulk_analysis_results_history" style="flex:1; overflow: auto"></div>
           </div>
         </div>
       </div>
@@ -204,65 +235,67 @@
       </div>
     </div>
 
- <!-- Config Modal -->
-<div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <ul class="nav nav-tabs" id="configTabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" type="button" role="tab" aria-controls="access" aria-selected="true">Access</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">History</button>
-          </li>
-        </ul>
-      </div>
-      <div class="modal-body">
-        <div class="tab-content" id="configTabsContent">
-          <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
-            <div class="api_config">
-              <div class="form_row">
-                <label for="api_token_input">API Key:
-                  <input type="text" class="api_token_input">
-                </label>
+    <!-- Config Modal -->
+    <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <ul class="nav nav-tabs" id="configTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access"
+                  type="button" role="tab" aria-controls="access" aria-selected="true">Access</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button"
+                  role="tab" aria-controls="history" aria-selected="false">History</button>
+              </li>
+            </ul>
+          </div>
+          <div class="modal-body">
+            <div class="tab-content" id="configTabsContent">
+              <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
+                <div class="api_config">
+                  <div class="form_row">
+                    <label for="api_token_input">API Key:
+                      <input type="text" class="api_token_input">
+                    </label>
+                  </div>
+                  <div class="form_row">
+                    <label for="session_id_input">Session:
+                      <input type="text" class="session_id_input">
+                    </label>
+                  </div>
+                  <div class="form_row">
+                    <label class="session_anchor_label"></label>
+                    <a class="session_anchor" href="" target="_blank"></a>
+                  </div>
+                  <button class="btn reset_chrome_storage">Clear Storage</button>
+                </div>
               </div>
-              <div class="form_row">
-                <label for="session_id_input">Session:
-                  <input type="text" class="session_id_input">
-                </label>
+              <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                <div>
+                  <button class="btn clear_history">Clear History</button>
+                  <button class="btn export_history">Export</button>
+                  <select class="history_range_amount_select">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="100">100</option>
+                    <option value="500">500</option>
+                  </select>
+                </div>
               </div>
-              <div class="form_row">
-                <label class="session_anchor_label"></label>
-                <a class="session_anchor" href="" target="_blank"></a>
-              </div>
-              <button class="btn reset_chrome_storage">Clear Storage</button>
             </div>
           </div>
-          <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-            <div>
-              <button class="btn clear_history">Clear History</button>
-              <button class="btn export_history">Export</button>
-              <select class="history_range_amount_select">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="100">100</option>
-                <option value="500">500</option>
-              </select>
-            </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
     </div>
-  </div>
-</div>
 
 
 
