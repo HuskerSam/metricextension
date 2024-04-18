@@ -4,6 +4,7 @@ import SlimSelect from 'slim-select';
 export class AnalyzerExtensionCommon {
   promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
   cloudWriteUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/cloudwrite`;
+  cloudScrapeUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/scrapeurl`;
   chrome: any;
   query_source_text: any;
   query_source_text_length: any;
@@ -109,6 +110,36 @@ export class AnalyzerExtensionCommon {
         success: true,
         publicStorageUrlPath,
       }
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err,
+      };
+    }
+  }
+  async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
+    let apiToken = await this.chrome.storage.local.get('apiToken');
+    apiToken = apiToken.apiToken || '';
+    let sessionId = await this.chrome.storage.local.get('sessionId');
+    sessionId = sessionId.sessionId || '';
+
+    const body = {
+      apiToken,
+      sessionId,
+      url,
+      options,
+    };
+    try {
+      const fetchResults = await fetch(this.cloudScrapeUrl, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      return await fetchResults.json();
     } catch (err: any) {
       return {
         success: false,

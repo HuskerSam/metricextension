@@ -771,27 +771,50 @@ export default class MainPageApp {
         this.bulk_url_list_tabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
     }
+    async scrapeBulkUrl(bulkUrl: any) {
+        let options = bulkUrl.options;
+        let url = bulkUrl.url;
+        if (options === "server scrape") {
+            const result = await this.scrapeUrlServerSide(url);
+            if (result.success) {
+                return {
+                    text: result.result.text,
+                    title: result.result.title,
+                };
+            }
+            return {
+                text: "No text found in page",
+                title: "",
+            };
+        } else {
+            return this.scrapeTabPage(url);
+        }
+    }
+    async scrapeUrlServerSide(url: string, options = "") {
+        const result = await this.extCommon.scrapeURLUsingAPI(url, options);
+        console.log("scrapeUrlServerSide", result); 
+        return result;
+    }
     async runBulkAnalysis() {
         document.body.classList.add("extension_running");
         document.body.classList.remove("extension_not_running");
         this.runId = new Date().toISOString();
         let rows = this.bulk_url_list_tabulator.getData();
         let urls: string[] = [];
-        rows.forEach((row: any) => {
-            urls.push(row.url);
-        });
-
-        this.activeTab = await chrome.tabs.getCurrent();
-
         let promises: any[] = [];
-        urls.forEach((url) => {
-            promises.push(this.scrapeTabPage(url));
+        // cache the active tab
+        this.activeTab = await chrome.tabs.getCurrent();
+        rows.forEach((row: any) => {
+            promises.push(this.scrapeBulkUrl(row));
         });
 
         let results = await Promise.all(promises);
         let analysisPromises: any[] = [];
         results.forEach((result: any, index: number) => {
-            if (!result || result.length === 0 || !result[0].result) {
+            let text = "";
+            if (result && result.text) text = result.text;
+            if (result && result.length > 0 && result[0].text) text = result[0].text;
+            if (!text) {
                 console.log("invalid", result);
                 analysisPromises.push(async () => {
                     return {
@@ -804,7 +827,6 @@ export default class MainPageApp {
                 });
             } else {
                 console.log("valid", result);
-                let text = result[0].result;
                 analysisPromises.push(this.extCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
             }
 
