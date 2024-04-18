@@ -62,8 +62,87 @@ export default class MainPageApp {
     itemsPerPage = 1;
 
     constructor() {
-        this.extCommon.initCommonDom();
+        // helper constructors
+        this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
+            layout: "fitColumns",
+            movableRows: true,
+            rowHeader: { headerSort: false, resizable: false, minWidth: 30, width: 30, rowHandle: true, formatter: "handle" },
+            columns: [
+                { title: "URL", field: "url", editor: "input", headerSort: false },
+                {
+                    title: "Options",
+                    field: "options",
+                    headerSort: false,
+                    editor: "list",
+                    editorParams: {
+                        values: {
+                            "server scrape": "Server Scrape",
+                            "browser scrape": "Browser Scrape",
+                        },
+                    },
+                    width: 120,
+                }, {
+                    title: "",
+                    field: "delete",
+                    headerSort: false,
+                    formatter: () => {
+                        return `<i class="material-icons-outlined">delete</i>`;
+                    },
+                    hozAlign: "center",
+                    width: 30,
+                },
+            ],
+        });
+        this.bulkSelected = new SlimSelect({
+            select: '.bulk_analysis_sets_select',
+            settings: {
+                showSearch: false,
+                placeholderText: 'Select Analysis Set(s)',
+                keepOrder: true,
+                hideSelected: true,
+                minSelected: 1,
+                closeOnSelect: false,
+            },
+            events: {
+                afterChange: async (newVal) => {
+                    let selectedBulkAnalysisSets: any[] = [];
+                    this.bulkSelected.render.main.values.querySelectorAll('.ss-value')
+                        .forEach((item: any) => {
+                            selectedBulkAnalysisSets.push(item.innerText);
+                        });
+                    if (selectedBulkAnalysisSets.length <= 1) {
+                        this.bulk_analysis_sets_select.classList.add('slimselect_onevalue');
+                    } else {
+                        this.bulk_analysis_sets_select.classList.remove('slimselect_onevalue');
+                    }
+                    await chrome.storage.local.set({ selectedBulkAnalysisSets });
+                },
+            },
+        });
 
+        this.extCommon.initCommonDom();
+        this.initEventHandlers();
+        this.initPromptTable();
+        this.hydrateAllPromptRows();
+
+        // for detecting in browser scraping completion
+        chrome.tabs.onUpdated.addListener(
+            (tabId: number, changeInfo: any, tab: any) => {
+                console.log(tabId, changeInfo, tab);
+                if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
+                    console.log("Tab loaded", tabId);
+                    this.activeTabsBeingScraped[tabId]();
+                }
+            }
+        );
+
+        // list for changes to local storage and update the UI
+        chrome.storage.local.onChanged.addListener(() => {
+            this.paintData();
+        });
+        this.paintData(true);
+    }
+    initEventHandlers() {
         this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });
@@ -194,71 +273,7 @@ export default class MainPageApp {
             var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl);
             modal.hide();
         });
-        this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
-            layout: "fitColumns",
-            movableRows: true,
-            rowHeader: { headerSort: false, resizable: false, minWidth: 30, width: 30, rowHandle: true, formatter: "handle" },
-            columns: [
-                { title: "URL", field: "url", editor: "input", headerSort: false },
-                {
-                    title: "",
-                    field: "delete",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">delete</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-            ],
-        });
 
-        this.bulkSelected = new SlimSelect({
-            select: '.bulk_analysis_sets_select',
-            settings: {
-                showSearch: false,
-                placeholderText: 'Select Analysis Set(s)',
-                keepOrder: true,
-                hideSelected: true,
-                minSelected: 1,
-                closeOnSelect: false,
-            },
-            events: {
-                afterChange: async (newVal) => {
-                    let selectedBulkAnalysisSets: any[] = [];
-                    this.bulkSelected.render.main.values.querySelectorAll('.ss-value')
-                        .forEach((item: any) => {
-                            selectedBulkAnalysisSets.push(item.innerText);
-                        });
-                    if (selectedBulkAnalysisSets.length <= 1) {
-                        this.bulk_analysis_sets_select.classList.add('slimselect_onevalue');
-                    } else {
-                        this.bulk_analysis_sets_select.classList.remove('slimselect_onevalue');
-                    }
-                    await chrome.storage.local.set({ selectedBulkAnalysisSets });
-                },
-            },
-        });
-
-        chrome.tabs.onUpdated.addListener(
-            (tabId: number, changeInfo: any, tab: any) => {
-                console.log(tabId, changeInfo, tab);
-                if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
-                    console.log("Tab loaded", tabId);
-                    this.activeTabsBeingScraped[tabId]();
-                }
-            }
-        );
-        this.initBulkTab();
-        this.initPromptTable();
-        this.hydrateAllPromptRows();
-
-        chrome.storage.local.onChanged.addListener(() => {
-            this.paintData();
-        });
-        this.paintData(true);
-    }
-    initBulkTab() {
         this.bulk_url_list_tabulator.on("cellClick", async (e: Event, cell: any) => {
             if (cell.getColumn().getField() === "delete") {
                 this.lastTableEdit = new Date();
@@ -269,23 +284,27 @@ export default class MainPageApp {
                 await chrome.storage.local.set({ bulkUrlList });
             }
         });
+
         this.bulk_url_list_tabulator.on("rowMoved", async (row: any) => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulk_url_list_tabulator.getData();
             await chrome.storage.local.set({ bulkUrlList });
         });
+
         this.bulk_url_list_tabulator.on("cellEdited", async (cell: any) => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulk_url_list_tabulator.getData();
             await chrome.storage.local.set({ bulkUrlList });
         });
+
         this.add_bulk_url_row.addEventListener('click', async () => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulk_url_list_tabulator.getData();
-            bulkUrlList.push({ url: "" });
+            bulkUrlList.push({ url: "", options: "server scrape"});
             this.bulk_url_list_tabulator.setData(bulkUrlList);
             await chrome.storage.local.set({ bulkUrlList });
         });
+
         this.run_bulk_analysis_btn.addEventListener('click', async () => {
             let emptyRows = await this.checkForEmptyRows();
             if (emptyRows) {
@@ -313,6 +332,7 @@ export default class MainPageApp {
             }
             await this.runBulkAnalysis();
         });
+
         this.download_url_list.addEventListener('click', async () => {
             if (this.bulk_url_list_tabulator.getData().length === 0) {
                 alert("No data to download");
@@ -332,9 +352,11 @@ export default class MainPageApp {
             a.click();
             document.body.removeChild(a);
         });
+
         this.upload_url_list.addEventListener('click', async () => {
             this.url_file_input.click();
         });
+
         this.url_file_input.addEventListener('change', async () => {
             let file = (this.url_file_input.files as any)[0];
             let reader = new FileReader();
@@ -347,6 +369,7 @@ export default class MainPageApp {
             };
             reader.readAsText(file);
         });
+
         this.enable_browser_scraping_btn.addEventListener('click', async () => {
             // Permissions must be requested from inside a user gesture, like a button's
             // click handler.
@@ -740,7 +763,6 @@ export default class MainPageApp {
         }
         return false
     }
-
     async trimEmptyRows() {
         let bulkUrlList = this.bulk_url_list_tabulator.getData();
         bulkUrlList = bulkUrlList.filter((row: any) => {
@@ -749,7 +771,6 @@ export default class MainPageApp {
         this.bulk_url_list_tabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
     }
-
     async runBulkAnalysis() {
         document.body.classList.add("extension_running");
         document.body.classList.remove("extension_not_running");
@@ -856,7 +877,6 @@ export default class MainPageApp {
         bulkHistory = bulkHistory.slice(0, bulkHistoryRangeLimit);
         await chrome.storage.local.set({ bulkHistory });
     }
-
     async scrapeTabPage(url: any) {
         return new Promise(async (resolve, reject) => {
 
@@ -900,11 +920,7 @@ export default class MainPageApp {
           <hr>
         `;
     }
-    async paintData(forceUpdate = false) {
-        await this.extCommon.paintAnalysisTab();
-        this.renderSettingsTab();
-        this.renderHistoryDisplay();
-
+    async paintBulkURLList(forceUpdate = false) {
         //only continue if debounce timer is up
         if (this.lastTableEdit.getTime() > new Date().getTime() - 1000 && !forceUpdate) {
             return;
@@ -960,7 +976,14 @@ export default class MainPageApp {
         if (this.bulkSelected.getSelected().length === 0) {
             this.bulkSelected.setSelected([setNames[0]]);
         }
+    }
+    async paintData(forceUpdate = false) {
+        await this.extCommon.paintAnalysisTab();
+        this.renderSettingsTab();
+        this.renderHistoryDisplay();
         this.paintAnalysisHistory();
+
+        await this.paintBulkURLList(forceUpdate);
     }
     async paintAnalysisHistory() {
         let bulkHistory = await chrome.storage.local.get('bulkHistory');
