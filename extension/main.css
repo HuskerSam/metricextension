@@ -139,6 +139,7 @@ body {
   flex: 1;
   overflow: hidden;
   padding: var(--spacing-medium);
+  padding-bottom: 0;
 }
 
 .history_display {
@@ -195,6 +196,8 @@ body {
   display: flex;
   justify-content: end;
   align-items: center;
+  position: relative;
+  top: 8px;
 }
 
 .pagination {
@@ -203,7 +206,7 @@ body {
   --bs-pagination-font-size: var(--font-size-small);
   --bs-pagination-border-width: var(--bs-border-width);
   --bs-pagination-border-color: var(--bs-border-color);
-  --bs-pagination-border-radius: var(--bs-border-radius);
+  --bs-pagination-border-radius: 4px;
   --bs-pagination-hover-color: var(--bs-link-hover-color);
   --bs-pagination-hover-bg: var(--bs-tertiary-bg);
   --bs-pagination-hover-border-color: var(--bs-border-color);
@@ -246,21 +249,14 @@ body {
 }
 
 .ss-main {
-  min-height: 40px;
-}
-
-.form-floating>label {
-  left: -8px;
-  top: 2px;
-  font-size: var(--font-size-small);
-  color: var(--secondary-color);
-  padding: 0 var(--spacing-large);
+  min-height: 38px;
 }
 
 .analysis_sets_configuration {
   flex: 1;
   display: flex;
   position: relative;
+  margin-top: 4px;
 }
 
 .analysis_set_select {
@@ -284,12 +280,7 @@ body {
   flex: 1;
   flex-direction: column;
   overflow: hidden;
-}
-
-.form-floating {
   position: relative;
-  display: flex;
-  flex-direction: column;
 }
 
 .query_source_text {
@@ -304,15 +295,17 @@ body {
   resize: none;
   box-shadow: var(--box-shadow);
   overflow-y: auto;
-  padding-top: 24px;
+  padding-bottom: 24px;
+  margin: var(--spacing-medium) 0;
 }
 
 .query_text_description {
   font-size: var(--font-size-small);
   color: var(--secondary-color);
   position: absolute;
-  top: -4px;
-  right: 20px;
+  bottom: 5%;
+  right: 4%;
+  text-shadow: 1px 1px 1px #fff;
 }
 
 .positioned_label {
@@ -320,13 +313,6 @@ body {
   color: var(--secondary-color);
   position: absolute;
   top: -20px;
-}
-
-.query_source_text_length,
-.query_source_tokens_length {
-  padding-left: var(--spacing-medium);
-  position: relative;
-  top: var(--spacing-medium);
 }
 
 .category_header {
@@ -394,12 +380,6 @@ body {
 
 .run_bulk_analysis_btn {
   width: 125px;
-}
-
-.btn:hover,
-.btn:active,
-.btn:focus {
-  background-color: var(--background-color);
 }
 
 .btn-danger {
@@ -520,7 +500,7 @@ body {
 }
 
 .history_text {
-  margin: var(--spacing-medium) var(--spacing-small);
+  margin: var(--spacing-small);
   font-size: var(--font-size-base);
   text-overflow: ellipsis;
   overflow: hidden;
@@ -529,7 +509,7 @@ body {
 .history_separator {
   border: none;
   border-top: 1px solid var(--border-color);
-  margin: var(--spacing-large) 0 var(--spacing-small) 0;
+  margin: var(--spacing-small) 0;
 }
 
 
@@ -735,4 +715,19 @@ body {
 
 .extension_running .bulk_analysis_history_placeholder {
   display: block;
+}
+
+.extension_running .history_display {
+  display: none;
+}
+
+.history_display_results_running {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.extension_running .history_display_results_running {
+  display: flex;
 }

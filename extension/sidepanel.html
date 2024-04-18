@@ -6,6 +6,7 @@
   <script src="lib/bootstrap.bundle.min.js"></script>
   <link href="main.css" rel="stylesheet">
   <link href="lib/slimselect.css" rel="stylesheet">
+  <script src="lib/lottieplayer.js"></script>
   <script src="models/index.js"></script>
   </link>
 </head>
@@ -27,7 +28,13 @@
     font-family: var(--font-family);
     font-size: var(--font-size-base);
     line-height: 1.5;
+    overflow: auto;
   }
+
+  /* hide class */
+  .extension_running .analysis_display{
+  display: none;
+}
 
   .analysis_sets_configuration {
     margin-bottom: var(--spacing-medium);
@@ -133,19 +140,14 @@
           <div class="query_source_text_length"></div>
           <div class="query_source_tokens_length">&nbsp;</div>
         </div>
-        <br>
-        <br>
-        <select class="query_source_action">
-          <option>Action</option>
-          <option>Analyze</option>
-          <option>Copy to Clipboard</option>
-          <option>Analyze Selection</option>
-          <option>Analyze Page</option>
-        </select>
       </div>
     </div>
 
     <div class="analysis_output">
+      <div class="history_display_results_running">
+        <lottie-player src="media/lottie.json" background="transparent" speed="1"
+          style="width: 200px;height: 200px;align-self:center;" loop autoplay></lottie-player>
+      </div>
       <div class="analysis_display"></div>
       <h5 class="category_header analysis_running">Analysis Running...</h5>
     </div>

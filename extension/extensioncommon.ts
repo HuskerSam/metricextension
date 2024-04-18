@@ -12,11 +12,49 @@ export class AnalyzerExtensionCommon {
   previousSlimOptions = '';
   analysis_set_slimselect: any;
   analysis_set_select: any;
-  query_source_action: any;
+  analysis_display: any;
 
   constructor(chrome: any) {
     this.chrome = chrome;
 
+  }
+  async initCommonDom() {
+    this.query_source_text = document.querySelector(".query_source_text");
+    this.query_source_text_length = document.querySelector('.query_source_text_length');
+    this.query_source_tokens_length = document.querySelector('.query_source_tokens_length');
+    this.analysis_set_select = document.querySelector('.analysis_set_select');
+    this.analysis_set_slimselect = new SlimSelect({
+      select: '.analysis_set_select',
+      settings: {
+        showSearch: false,
+        placeholderText: 'Select Analysis Set(s)',
+        keepOrder: true,
+        hideSelected: true,
+        minSelected: 1,
+        closeOnSelect: false,
+      },
+      events: {
+        afterChange: async (newVal) => {
+          let selectedAnalysisSets: any[] = [];
+          this.analysis_set_slimselect.render.main.values.querySelectorAll('.ss-value')
+            .forEach((item: any) => {
+              selectedAnalysisSets.push(item.innerText);
+            });
+          if (selectedAnalysisSets.length <= 1) {
+            this.analysis_set_select.classList.add('slimselect_onevalue');
+          } else {
+            this.analysis_set_select.classList.remove('slimselect_onevalue');
+          }
+          await this.chrome.storage.local.set({ selectedAnalysisSets });
+        },
+      },
+    });
+
+    this.query_source_text.addEventListener('input', async (e: Event) => {
+      this.updateQuerySourceDetails();
+    });
+
+    this.analysis_display = document.querySelector(".analysis_display");
   }
   async processPromptUsingUnacogAPI(message: string): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');
@@ -213,8 +251,6 @@ export class AnalyzerExtensionCommon {
       }
 
       await this.chrome.storage.local.set({
-        lastSelection: text,
-        lastResult: "",
         running: true,
       });
     }
@@ -265,7 +301,6 @@ export class AnalyzerExtensionCommon {
       history = history.slice(0, historyRangeLimit);
       await this.chrome.storage.local.set({
         history,
-        lastResult: results,
         running: false,
       });
     }
@@ -372,12 +407,24 @@ export class AnalyzerExtensionCommon {
     return newPromptContent;
   }
   async renderDisplay() {
-    let lastResult = await this.chrome.storage.local.get('lastResult');
+    let history = await this.chrome.storage.local.get('history');
+    history = history.history || [];
+    let entry = history[0];
+    let lastResult = null;
+    let lastSelection = '';
+    if (entry) {
+      lastResult = entry.results;
+      lastSelection = entry.text;
+    }
+
     let html = '';
-    if (lastResult && lastResult.lastResult) {
-      lastResult.lastResult.forEach((result: any) => {
+    if (lastResult) {
+      lastResult.forEach((result: any) => {
         html += this.getHTMLforPromptResult(result);
       });
+    }
+    if (this.analysis_display) {
+      this.analysis_display.innerHTML = html;
     }
   }
   updateQuerySourceDetails() {
@@ -450,91 +497,6 @@ this.query_source_tokens_length.innerHTML = tokenCount;
       this.analysis_set_slimselect.setSelected([setNames[0]]);
     }
   }
-  async initCommonDom() {
-    this.query_source_text = document.querySelector(".query_source_text");
-    this.query_source_text_length = document.querySelector('.query_source_text_length');
-    this.query_source_tokens_length = document.querySelector('.query_source_tokens_length');
-    this.analysis_set_select = document.querySelector('.analysis_set_select');
-    this.analysis_set_slimselect = new SlimSelect({
-      select: '.analysis_set_select',
-      settings: {
-        showSearch: false,
-        placeholderText: 'Select Analysis Set(s)',
-        keepOrder: true,
-        hideSelected: true,
-        minSelected: 1,
-        closeOnSelect: false,
-      },
-      events: {
-        afterChange: async (newVal) => {
-          let selectedAnalysisSets: any[] = [];
-          this.analysis_set_slimselect.render.main.values.querySelectorAll('.ss-value')
-            .forEach((item: any) => {
-              selectedAnalysisSets.push(item.innerText);
-            });
-          if (selectedAnalysisSets.length <= 1) {
-            this.analysis_set_select.classList.add('slimselect_onevalue');
-          } else {
-            this.analysis_set_select.classList.remove('slimselect_onevalue');
-          }
-          await this.chrome.storage.local.set({ selectedAnalysisSets });
-        },
-      },
-    });
-
-    this.query_source_text.addEventListener('input', async (e: Event) => {
-      this.updateQuerySourceDetails();
-    });
-
-    this.query_source_action = document.querySelector(".query_source_action");
-    if (this.query_source_action) {
-      this.query_source_action.addEventListener('click', async (e: Event) => {
-        let index = this.query_source_action.selectedIndex;
-        this.query_source_action.selectedIndex = 0;
-        await this.querySourceTextFromDom(index);
-      });
-    }
-  }
-
-  async querySourceTextFromDom(index: any) {
-    if (index > 0) {
-      if (index === 1) {
-        this.runMetrics();
-      } else if (index === 2) {
-        this.query_source_text.select();
-        navigator.clipboard.writeText(this.query_source_text.value);
-      } else if (index === 3) {
-        function getSelection() {
-          return document.getSelection()?.toString();
-        }
-        let tabResults = await this.chrome.tabs.query({ active: true, currentWindow: true });
-        let tab = tabResults[0];
-        let scrapes = await this.chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: getSelection,
-        });
-        let text = scrapes[0].result;
-        text = text.slice(0, 20000);
-        this.query_source_text.value = text;
-        this.runMetrics();
-      } else if (index === 4) {
-        function getDom() {
-          return document.body.innerText;
-        }
-        let tabResults = await this.chrome.tabs.query({ active: true, currentWindow: true });
-        let tab = tabResults[0];
-        let scrapes = await this.chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: getDom,
-        });
-        let text = scrapes[0].result;
-        text = text.slice(0, 20000);
-        this.query_source_text.value = text;
-        this.runMetrics();
-      }
-    }
-  }
-
   async runMetrics() {
     let text = this.query_source_text.value;
     await this.runAnalysisPrompts(text, 'user input');

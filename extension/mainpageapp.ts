@@ -52,7 +52,6 @@ export default class MainPageApp {
     download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
     upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
     url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
-    enable_browser_scraping_btn = document.querySelector('.enable_browser_scraping_btn') as HTMLButtonElement;
     lastTableEdit = new Date();
     runId = '';
     activeTab: any = null;
@@ -128,9 +127,7 @@ export default class MainPageApp {
         // for detecting in browser scraping completion
         chrome.tabs.onUpdated.addListener(
             (tabId: number, changeInfo: any, tab: any) => {
-                console.log(tabId, changeInfo, tab);
                 if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
-                    console.log("Tab loaded", tabId);
                     this.activeTabsBeingScraped[tabId]();
                 }
             }
@@ -203,7 +200,6 @@ export default class MainPageApp {
         this.clear_history.addEventListener('click', async () => {
             if (confirm('Are you sure you want to clear all history?')) {
                 await chrome.storage.local.set({ history: [] });
-                this.renderHistoryDisplay();
             }
         });
 
@@ -262,7 +258,6 @@ export default class MainPageApp {
                 newPrompt = await this.extCommon.getKeywordPromptForDescription(text);
             } else if (this.prompt_type.value === 'shortsummary') {
                 newPrompt = await this.extCommon.getSummaryPromptForDescription(text);
-                console.log('shortSummary', newPrompt);
             };
             this.prompt_template_text.value = newPrompt;
         });
@@ -300,7 +295,7 @@ export default class MainPageApp {
         this.add_bulk_url_row.addEventListener('click', async () => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulk_url_list_tabulator.getData();
-            bulkUrlList.push({ url: "", options: "server scrape"});
+            bulkUrlList.push({ url: "", options: "server scrape" });
             this.bulk_url_list_tabulator.setData(bulkUrlList);
             await chrome.storage.local.set({ bulkUrlList });
         });
@@ -369,23 +364,6 @@ export default class MainPageApp {
             };
             reader.readAsText(file);
         });
-
-        this.enable_browser_scraping_btn.addEventListener('click', async () => {
-            // Permissions must be requested from inside a user gesture, like a button's
-            // click handler.
-            chrome.permissions.request({
-                permissions: ["activeTab", "tabs"],
-                origins: ["https://*/*",
-                    "http://*/*"]
-            }, (granted: any) => {
-                // The callback argument will be true if the user granted the permissions.
-                if (granted) {
-                    alert("Browser scraping enabled. You can now scrape pages using the browser scraping feature");
-                } else {
-                    alert("Browser scraping permission denied. You can enable it from the extension settings page");
-                }
-            });
-        });
     }
     async hydrateAllPromptRows() {
         let allPrompts = await this.extCommon.getAnalysisPrompts();
@@ -415,6 +393,19 @@ export default class MainPageApp {
         await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
         this.hydrateAllPromptRows();
     }
+    async enabledBrowserScrapePermissions() {
+        // Permissions must be requested from inside a user gesture, like a button's
+        // click handler.
+        await chrome.permissions.request({
+            permissions: ["activeTab", "tabs"],
+            origins: ["https://*/*",
+                "http://*/*"]
+        }, (granted: any) => {
+            if (!granted) {
+                alert("Browser scraping permission denied. You can enable it from the extension settings page");
+            }
+        });
+    }
     initPromptTable() {
         this.promptsTable = new TabulatorFull(".prompt_list_editor", {
             layout: "fitDataStretch",
@@ -422,7 +413,6 @@ export default class MainPageApp {
             groupBy: "setName",
             //            groupStartOpen: [false],
             groupHeader: (value: any, count: number, data: any, group: any) => {
-                console.log("bbb", value, group);
                 return value + `<span style='margin-left:10px'>(${count} item)</span><button class='export_metric_set btn' style='float:right;' data-setname='${value}'><i class="material-icons-outlined">download</i> </button>`;
             },
             columns: [
@@ -605,16 +595,23 @@ export default class MainPageApp {
 
         let usageCreditTotal = 0;
         let entry = history[this.currentPage - 1];
-        if (!entry) {
-            return;
+        let entryHTML = `
+        <div class="history_empty">
+            <p class="history_empty_onboarding_message">
+                No history found. <br><br>
+                Select metric and provide text input to begin.
+            </p>
+        </div>
+        `;
+        // if history is empty
+        if (entry) {
+            let renderResult = this.renderHTMLForHistoryEntry(entry, this.currentPage - 1);
+            entryHTML = renderResult.html;
+            usageCreditTotal += renderResult.usageCreditTotal;
+            this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;">
+                     Credits Used: ${Math.round(usageCreditTotal)}`;
+            this.history_date.innerHTML = this.showGmailStyleDate(entry.runDate);
         }
-
-        let renderResult = this.renderHTMLForHistoryEntry(entry, this.currentPage - 1);
-        let entryHTML = renderResult.html;
-        usageCreditTotal += renderResult.usageCreditTotal;
-        this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;">
-                 Credits Used: ${Math.round(usageCreditTotal)}`;
-        this.history_date.innerHTML = this.showGmailStyleDate(entry.runDate);
 
         this.historyDisplay.innerHTML = entryHTML;
 
@@ -635,6 +632,7 @@ export default class MainPageApp {
         });
 
         let paginationHtml = this.generatePagination(history.length, this.itemsPerPage, this.currentPage);
+    
         this.history_pagination.innerHTML = paginationHtml;
     }
     renderHTMLForHistoryEntry(entry: any, historyIndex: number): {
@@ -645,12 +643,6 @@ export default class MainPageApp {
         let resultHistory = entry.result;
         if (!resultHistory) resultHistory = entry.results[0];
 
-        let uniqueSetNames: any = {};
-        entry.results.forEach((result: any) => {
-            uniqueSetNames[result.prompt.setName] = true;
-        });
-        uniqueSetNames = Object.keys(uniqueSetNames);
-        let setNames = uniqueSetNames.join(', ');
         let html = `
         <div class="history_entry_header">
         <div class="history_text">${this.truncateText(entry.text, 500)}</div>
@@ -791,19 +783,33 @@ export default class MainPageApp {
     }
     async scrapeUrlServerSide(url: string, options = "") {
         const result = await this.extCommon.scrapeURLUsingAPI(url, options);
-        console.log("scrapeUrlServerSide", result); 
+        result.url = url;
         return result;
     }
     async runBulkAnalysis() {
+        let rows = this.bulk_url_list_tabulator.getData();
+        let browserScrape = false;
+        rows.forEach((row: any) => {
+            if (row.options === "browser scrape") {
+                browserScrape = true;
+            }
+        });
+        if (browserScrape) {
+            if (confirm("Browser scraping is enabled. This will open tabs in your browser to scrape the pages. Do you want to continue?") === false) {
+                return;
+            }
+            await this.enabledBrowserScrapePermissions();
+        }
+
         document.body.classList.add("extension_running");
         document.body.classList.remove("extension_not_running");
         this.runId = new Date().toISOString();
-        let rows = this.bulk_url_list_tabulator.getData();
         let urls: string[] = [];
         let promises: any[] = [];
         // cache the active tab
         this.activeTab = await chrome.tabs.getCurrent();
         rows.forEach((row: any) => {
+            urls.push(row.url);
             promises.push(this.scrapeBulkUrl(row));
         });
 
@@ -814,7 +820,6 @@ export default class MainPageApp {
             if (result && result.text) text = result.text;
             if (result && result.length > 0 && result[0].text) text = result[0].text;
             if (!text) {
-                console.log("invalid", result);
                 analysisPromises.push(async () => {
                     return {
                         text: "No text found in page",
@@ -825,7 +830,6 @@ export default class MainPageApp {
                     };
                 });
             } else {
-                console.log("valid", result);
                 analysisPromises.push(this.extCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
             }
 
@@ -843,7 +847,6 @@ export default class MainPageApp {
             if (results) {
                 results.forEach((metricResult: any) => {
                     const fieldName = metricResult.prompt.id + "_" + metricResult.prompt.setName;
-                    console.log(fieldName, metricResult.result);
                     if (metricResult.prompt.promptType === "metric") {
                         let metric = 0;
                         try {

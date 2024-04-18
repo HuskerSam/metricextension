@@ -32,10 +32,6 @@
     "https://*/*",
     "http://*/*"
   ],
-  "optional_permissions": [
-    "activeTab",
-    "tabs"
-  ],
   "permissions": [
     "storage",
     "scripting",
