@@ -653,14 +653,13 @@ export default class MainPageApp {
         let setNames = uniqueSetNames.join(', ');
         let html = `
         <div class="history_entry_header">
-            <div class="history_header">
-                <div class="history_entry_promptset">${setNames}</div>
-                <button class="export_history_entry btn" data-index="${historyIndex}">Export</button>
-            </div>
-            <div class="history_text_source">
-                <div class="history_text">${this.truncateText(entry.text, 500)}</div>
-                <span class="url_display">(${entry.url})</span>
-            </div>
+        <div class="history_text">${this.truncateText(entry.text, 500)}</div>
+        <div class="history_header">
+            <span class="url_display">(${this.truncateText(entry.url, 100)})</span>
+            <button class="export_history_entry btn_menu_action" data-index="${historyIndex}">
+                <i class="material-icons-outlined small_icon">download</i>
+            </button>
+        </div>
         </div>
             <div class="history_results">`;
         let allResults = entry.results;

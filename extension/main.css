@@ -385,7 +385,6 @@ body {
 
 .btn_menu_action {
   padding: var(--spacing-medium) var(--spacing-large);
-  margin: 0 var(--spacing-medium);
   border: none;
   cursor: pointer;
   position: relative;
@@ -520,13 +519,9 @@ body {
   white-space: nowrap;
 }
 
-.history_text_source {
-  margin-top: var(--spacing-large);
-}
-
 .history_text {
+  margin: var(--spacing-medium) var(--spacing-small);
   font-size: var(--font-size-base);
-  margin-bottom: var(--spacing-small);
   text-overflow: ellipsis;
   overflow: hidden;
 }
@@ -720,6 +715,12 @@ body {
 
 .tabulator-row .tabulator-cell.tabulator-row-handle .tabulator-row-handle-box .tabulator-row-handle-bar {
   height: 2px;
+}
+
+.flex_start {
+  display: flex;
+  justify-content: flex-start;
+  flex: 1;
 }
 
 .flex_end {

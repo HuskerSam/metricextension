@@ -66,22 +66,36 @@
           </div>
           <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
             <div class="history_display_container">
-              <div class="history_display"></div>
-              <div class="history_footer pt-0 mt-0">
+              <div class="history_header pt-0 mt-0">
                 <div class="history_usage_stats">
                   <div class="entry_total_credit_usage"></div>
                   <span class="history_date"></span>
                 </div>
-                <div class="flex_end">
+              </div>
+              <div class="history_display"></div>
+              <div class="history_footer">
+                  <div class="history_pagination"></div>
                   <button type="button" class="btn_menu_action manage_history_configuration" data-bs-toggle="modal"
                     data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
                     <i class="material-icons-outlined small_icon">manage_history</i>
                   </button>
-                  <div class="history_pagination"></div>
-                </div>
               </div>
             </div>
             <hr class="history_separator">
+            <div class="analysis_menu">
+              <div class="analysis_sets_configuration">
+                <label class="positioned_label">Metrics for analysis</label>
+                <select class="analysis_set_select" multiple>
+                </select>
+              </div>
+              <div class="analysis_actions">
+                <button class="btn copy_to_clipboard_btn">
+                  <span class="btn_text">Copy</span> <i class="material-icons-outlined">content_paste</i></button>
+                <button class="btn run_analysis_btn btn-success">
+                  <span class="btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
+                </button>
+              </div>
+            </div>
             <div class="analysis_content">
               <div class="analysis_input">
                 <div class="form-floating">
@@ -95,24 +109,13 @@
                 </div>
               </div>
             </div>
-            <div class="analysis_menu">
-              <div class="analysis_sets_configuration">
-                <label class="positioned_label">Metrics for analysis</label>
-                <select class="analysis_set_select" multiple>
-                </select>
-              </div>
-              <div class="analysis_actions">
-                <button class="btn copy_to_clipboard_btn">
-                  <span class="btn_text">Copy</span> <i class="material-icons-outlined">content_paste</i></button>
-                <button class="btn run_analysis_btn">
-                  <span class="btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
-                </button>
-              </div>
-            </div>
           </div>
           <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
             <div class="analysis_actions">
-              <select class="bulk_analysis_sets_select" multiple></select>
+              <div class="analysis_sets_configuration">
+                <label class="positioned_label">Metrics for analysis</label>
+                <select class="bulk_analysis_sets_select" multiple></select>
+              </div>
               <button class="btn run_bulk_analysis_btn btn-success">
                 <span class="btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
               </button>
