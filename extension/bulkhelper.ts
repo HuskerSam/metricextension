@@ -1,7 +1,8 @@
 import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
-import SlimSelect from 'slim-select';
+import SlimSelect from 'slim-select';import hljs from 'highlight.js';
+import json from 'highlight.js/lib/languages/json';
 declare const chrome: any;
 
 export default class BulkHelper {
@@ -27,9 +28,11 @@ export default class BulkHelper {
     bulkHistoryEntryListItems = document.querySelectorAll('.bulk_history_pagination li a') as NodeListOf<HTMLLIElement>;
     clear_bulk_history = document.querySelector('.clear_bulk_history') as HTMLButtonElement;
     manage_bulk_history_configuration = document.querySelector('.manage_bulk_history_configuration') as HTMLButtonElement;
+    view_bulk_json_file = document.querySelector('.view_bulk_json_file') as HTMLButtonElement;
+    json_display_modal = document.querySelector('.json_display_modal') as HTMLDivElement;
+    json_display_modal_content = document.querySelector('.json_display_modal_content') as HTMLDivElement;
     previousSlimOptions = "";
     lastTableEdit = new Date();
-
 
     constructor() {
         this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
@@ -250,7 +253,19 @@ export default class BulkHelper {
             a.click();
             document.body.removeChild(a);
         });
-
+        this.view_bulk_json_file.addEventListener('click', async () => {
+            let bulkHistory = await chrome.storage.local.get('bulkHistory');
+            bulkHistory = bulkHistory.bulkHistory || [];
+            let historyItem = bulkHistory[this.bulkSelectedIndex];
+            this.json_display_modal_content.innerHTML = "Loading...";
+            (new (<any>window).bootstrap.Modal(this.json_display_modal)).show(); 
+            let jsonFetchResult = await fetch(historyItem.analysisResultPath);
+            let jsonText = await jsonFetchResult.text();
+            jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
+            this.json_display_modal_content.innerHTML = jsonText;
+            hljs.highlightElement(this.json_display_modal_content);
+        });
+        
         this.download_compact_csv.addEventListener('click', async () => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
             bulkHistory = bulkHistory.bulkHistory || [];
@@ -272,6 +287,7 @@ export default class BulkHelper {
          this.manage_bulk_history_configuration.addEventListener('click', async () => {
             document.getElementById('history-tab')?.click();
         });
+        hljs.registerLanguage('json', json);
     }
 
     async checkForEmptyRows() {

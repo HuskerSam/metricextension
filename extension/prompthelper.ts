@@ -150,7 +150,6 @@ export default class PromptHelper {
             };
             reader.readAsText(file);
         });
-
         this.initPromptTable();
         this.hydrateAllPromptRows();
     }
