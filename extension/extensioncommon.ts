@@ -155,36 +155,6 @@ export class AnalyzerExtensionCommon {
       };
     }
   }
-  async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
-    let apiToken = await this.chrome.storage.local.get('apiToken');
-    apiToken = apiToken.apiToken || '';
-    let sessionId = await this.chrome.storage.local.get('sessionId');
-    sessionId = sessionId.sessionId || '';
-
-    const body = {
-      apiToken,
-      sessionId,
-      url,
-      options,
-    };
-    try {
-      const fetchResults = await fetch(this.cloudScrapeUrl, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      return await fetchResults.json();
-    } catch (err: any) {
-      return {
-        success: false,
-        error: err,
-      };
-    }
-  }
   async sendPromptForMetric(promptTemplate: string, query: string) {
     try {
       let result = Mustache.render(promptTemplate, { query });
@@ -514,5 +484,35 @@ this.query_source_tokens_length.innerHTML = tokenCount;
   async runMetrics() {
     let text = this.query_source_text.value;
     await this.runAnalysisPrompts(text, 'user input');
+  }
+  async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
+    let apiToken = await this.chrome.storage.local.get('apiToken');
+    apiToken = apiToken.apiToken || '';
+    let sessionId = await this.chrome.storage.local.get('sessionId');
+    sessionId = sessionId.sessionId || '';
+
+    const body = {
+      apiToken,
+      sessionId,
+      url,
+      options,
+    };
+    try {
+      const fetchResults = await fetch(this.cloudScrapeUrl, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      return await fetchResults.json();
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err,
+      };
+    }
   }
 }
