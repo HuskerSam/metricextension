@@ -1,7 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
-import SlimSelect from 'slim-select';
-import Papa from 'papaparse';
 import BulkHelper from './bulkhelper';
 declare const chrome: any;
 
@@ -45,19 +43,7 @@ export default class MainPageApp {
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
     history_date = document.querySelector('.history_date') as HTMLDivElement;
     manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
-    previousSlimOptions = "";
-    bulk_analysis_sets_select: any = document.querySelector('.bulk_analysis_sets_select');
-    bulkSelected: SlimSelect;
-    bulk_url_list_tabulator: TabulatorFull;
-    add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLButtonElement;
-    run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
-    bulk_analysis_results_history = document.querySelector('.bulk_analysis_results_history') as HTMLDivElement;
-    download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
-    upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
-    url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
-    lastTableEdit = new Date();
-    runId = '';
     activeTab: any = null;
     chromeTabListener: any = null;
     itemsPerView = 5;
@@ -66,66 +52,7 @@ export default class MainPageApp {
 
     constructor() {
         // helper constructors
-        this.bulk_url_list_tabulator = new TabulatorFull(".bulk_url_list_tabulator", {
-            layout: "fitColumns",
-            movableRows: true,
-            rowHeader: { headerSort: false, resizable: false, minWidth: 30, width: 30, rowHandle: true, formatter: "handle" },
-            columns: [
-                { title: "URL", field: "url", editor: "input", headerSort: false },
-                {
-                    title: "Scrape",
-                    field: "scrape",
-                    headerSort: false,
-                    editor: "list",
-                    editorParams: {
-                        values: {
-                            "server scrape": "Server Scrape",
-                            "browser scrape": "Browser Scrape",
-                            "override content": "Override Content",
-                        },
-                    },
-                    width: 120,
-                },
-                { title: "Options", field: "options", editor: "input", headerSort: false, width: 120, },
-                { title: "Content", field: "content", editor: "textarea", headerSort: false, width: 120, },
-                {
-                    title: "",
-                    field: "delete",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">delete</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-            ],
-        });
-        this.bulkSelected = new SlimSelect({
-            select: '.bulk_analysis_sets_select',
-            settings: {
-                showSearch: false,
-                placeholderText: 'Select Analysis Set(s)',
-                keepOrder: true,
-                hideSelected: true,
-                minSelected: 1,
-                closeOnSelect: false,
-            },
-            events: {
-                afterChange: async (newVal) => {
-                    let selectedBulkAnalysisSets: any[] = [];
-                    this.bulkSelected.render.main.values.querySelectorAll('.ss-value')
-                        .forEach((item: any) => {
-                            selectedBulkAnalysisSets.push(item.innerText);
-                        });
-                    if (selectedBulkAnalysisSets.length <= 1) {
-                        this.bulk_analysis_sets_select.classList.add('slimselect_onevalue');
-                    } else {
-                        this.bulk_analysis_sets_select.classList.remove('slimselect_onevalue');
-                    }
-                    await chrome.storage.local.set({ selectedBulkAnalysisSets });
-                },
-            },
-        });
+
 
         this.extCommon.initCommonDom();
         this.initEventHandlers();
@@ -263,105 +190,9 @@ export default class MainPageApp {
             var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl);
             modal.hide();
         });
-
-        this.bulk_url_list_tabulator.on("cellClick", async (e: Event, cell: any) => {
-            if (cell.getColumn().getField() === "delete") {
-                this.lastTableEdit = new Date();
-                let bulkUrlList = this.bulk_url_list_tabulator.getData();
-                let rowIndex = cell.getRow().getPosition();
-                bulkUrlList.splice(rowIndex - 1, 1);
-                this.bulk_url_list_tabulator.setData(bulkUrlList);
-                await chrome.storage.local.set({ bulkUrlList });
-            }
-        });
-
-        this.bulk_url_list_tabulator.on("rowMoved", async (row: any) => {
-            this.lastTableEdit = new Date();
-            let bulkUrlList = this.bulk_url_list_tabulator.getData();
-            await chrome.storage.local.set({ bulkUrlList });
-        });
-
-        this.bulk_url_list_tabulator.on("cellEdited", async (cell: any) => {
-            this.lastTableEdit = new Date();
-            let bulkUrlList = this.bulk_url_list_tabulator.getData();
-            await chrome.storage.local.set({ bulkUrlList });
-        });
-
-        this.add_bulk_url_row.addEventListener('click', async () => {
-            this.lastTableEdit = new Date();
-            let bulkUrlList = this.bulk_url_list_tabulator.getData();
-            bulkUrlList.push({ url: "", scrape: "server scrape", options: "", content: "" });
-            this.bulk_url_list_tabulator.setData(bulkUrlList);
-            await chrome.storage.local.set({ bulkUrlList });
-        });
-
-        this.run_bulk_analysis_btn.addEventListener('click', async () => {
-            let emptyRows = await this.checkForEmptyRows();
-            if (emptyRows) {
-                if (confirm("Empty rows detected. Do you want to remove them and continue?") === true) {
-                    await this.trimEmptyRows();
-                } else {
-                    alert("Empty rows detected. Please remove them before running analysis");
-                    return;
-                }
-            }
-            let validUrls = true;
-            let bulkUrlList = this.bulk_url_list_tabulator.getData();
-            let invalidUrlList = '';
-            bulkUrlList.forEach((row: any) => {
-                let url = row.url;
-                let urlRegex = new RegExp("^(http|https)://", "i");
-                if (!urlRegex.test(url)) {
-                    validUrls = false;
-                    invalidUrlList += url + "\n";
-                }
-            });
-            if (!validUrls) {
-                alert("Invalid URLs detected. Please correct them before running analysis\n" + invalidUrlList);
-                return;
-            }
-            
-            let rows = this.bulk_url_list_tabulator.getData();
-            await this.bulkHelper.runBulkAnalysis(rows);
-        });
-
-        this.download_url_list.addEventListener('click', async () => {
-            if (this.bulk_url_list_tabulator.getData().length === 0) {
-                alert("No data to download");
-                return;
-            }
-            const rows: any[] = this.bulk_url_list_tabulator.getData();
-            rows.forEach((row: any) => {
-                delete row.delete;
-            });
-            let csv = Papa.unparse(rows);
-            let blob = new Blob([csv], { type: "text/csv" });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            document.body.appendChild(a);
-            a.href = url;
-            a.download = "bulk_url_list.csv";
-            a.click();
-            document.body.removeChild(a);
-        });
-
-        this.upload_url_list.addEventListener('click', async () => {
-            this.url_file_input.click();
-        });
-
-        this.url_file_input.addEventListener('change', async () => {
-            let file = (this.url_file_input.files as any)[0];
-            let reader = new FileReader();
-            reader.onload = async () => {
-                let text = reader.result as string;
-                let bulkUrlList = Papa.parse(text, { header: true }).data;
-                this.bulk_url_list_tabulator.setData(bulkUrlList);
-                await chrome.storage.local.set({ bulkUrlList });
-                this.url_file_input.value = "";
-            };
-            reader.readAsText(file);
-        });
     }
+
+
     async hydrateAllPromptRows() {
         let allPrompts = await this.extCommon.getAnalysisPrompts();
         this.promptsTable.setData(allPrompts);
@@ -571,7 +402,7 @@ export default class MainPageApp {
     }
     async renderHistoryDisplay() {
         let historyRangeLimit = await chrome.storage.local.get('historyRangeLimit');
-        historyRangeLimit = historyRangeLimit.historyRangeLimit || 10;
+        historyRangeLimit = historyRangeLimit.historyRangeLimit || 20;
         this.history_range_amount_select.value = historyRangeLimit;
 
         let history = await chrome.storage.local.get('history');
@@ -587,14 +418,13 @@ export default class MainPageApp {
             </p>
         </div>
         `;
-        // if history is empty
         if (entry) {
             let renderResult = this.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
             entryHTML = renderResult.html;
             usageCreditTotal += renderResult.usageCreditTotal;
             this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;">
                      Credits Used: ${Math.round(usageCreditTotal)}`;
-            this.history_date.innerHTML = this.showGmailStyleDate(entry.runDate);
+            this.history_date.innerHTML = this.extCommon.showGmailStyleDate(entry.runDate);
         }
 
         this.historyDisplay.innerHTML = entryHTML;
@@ -616,8 +446,8 @@ export default class MainPageApp {
         });
 
         let paginationHtml = this.generatePagination(history.length);
-
         this.history_pagination.innerHTML = paginationHtml;
+        
         this.historyEntryListItems = document.querySelectorAll('.history_pagination li a') as NodeListOf<HTMLLIElement>;
         this.historyEntryListItems.forEach((item: any) => {
             item.addEventListener('click', async (e: any) => {
@@ -645,9 +475,9 @@ export default class MainPageApp {
 
         let html = `
         <div class="history_entry_header">
-        <div class="history_text">${this.truncateText(entry.text, 500)}</div>
+        <div class="history_text">${this.extCommon.truncateText(entry.text, 500)}</div>
         <div class="history_header">
-            <span class="url_display">(${this.truncateText(entry.url, 100)})</span>
+            <span class="url_display">(${this.extCommon.truncateText(entry.url, 100)})</span>
             <button class="export_history_entry btn_menu_action" data-index="${historyIndex}">
                 <i class="material-icons-outlined small_icon">download</i>
             </button>
@@ -713,161 +543,12 @@ export default class MainPageApp {
 
         return paginationHtml;
     }
-    truncateText(text: any, maxLength: any) {
-        if (!text) return '';
-        if (text.length <= maxLength) {
-            return text;
-        }
-        return text.slice(0, maxLength) + '...';
-    }
-    formatAMPM(date: any) {
-        let hours = date.getHours();
-        let minutes = date.getMinutes();
-        const ampm = hours >= 12 ? "pm" : "am";
-        hours = hours % 12;
-        hours = hours ? hours : 12; // the hour '0' should be '12'
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        return hours + ":" + minutes + " " + ampm;
-    }
-    showGmailStyleDate(ISOdate: any, amFormat = false) {
-        let date = new Date(ISOdate);
-        if (Date.now() - date.getTime() < 24 * 60 * 60 * 1000) {
-            if (amFormat) return this.formatAMPM(date);
-
-            let result = this.formatAMPM(date);
-            return result;
-        }
-
-        return date.toLocaleDateString("en-us", {
-            month: "short",
-            day: "numeric",
-        });
-    }
-    async checkForEmptyRows() {
-        let bulkUrlList = this.bulk_url_list_tabulator.getData();
-        let emptyRows = bulkUrlList.filter((row: any) => {
-            return row.url.trim() === "";
-        });
-        if (emptyRows.length > 0) {
-            return true;
-        }
-        return false
-    }
-    async trimEmptyRows() {
-        let bulkUrlList = this.bulk_url_list_tabulator.getData();
-        bulkUrlList = bulkUrlList.filter((row: any) => {
-            return row.url.trim() !== "";
-        });
-        this.bulk_url_list_tabulator.setData(bulkUrlList);
-        await chrome.storage.local.set({ bulkUrlList });
-    }
-    analysisHistoryLogRowTemplate(historyItem: any, index: number): string {
-        return `
-          url count: ${historyItem.urls.length} <br>
-          run date: ${new Date(historyItem.runId).toLocaleString()} <br> 
-          <button class="download_full_json btn" data-index="${index}">download full JSON</button>
-          <button class="download_compact_csv btn" data-index="${index}">download compact CSV</button>
-          <hr>
-        `;
-    }
     async paintData(forceUpdate = false) {
         await this.extCommon.paintAnalysisTab();
         this.renderSettingsTab();
         this.renderHistoryDisplay();
-        this.paintAnalysisHistory();
+        this.bulkHelper.paintAnalysisHistory();
 
-        await this.paintBulkURLList(forceUpdate);
-    }
-    async paintAnalysisHistory() {
-        let bulkHistory = await chrome.storage.local.get('bulkHistory');
-        bulkHistory = bulkHistory.bulkHistory || [];
-        let html = "";
-        bulkHistory.forEach((historyItem: any, index: number) => {
-            html += this.analysisHistoryLogRowTemplate(historyItem, index);
-        });
-        this.bulk_analysis_results_history.innerHTML = html;
-        this.bulk_analysis_results_history.querySelectorAll('.download_full_json').forEach((item: any) => {
-            item.addEventListener('click', async () => {
-                let index = item.getAttribute('data-index');
-                let bulkHistory = await chrome.storage.local.get('bulkHistory');
-                bulkHistory = bulkHistory.bulkHistory || [];
-                let historyItem = bulkHistory[index];
-                let a = document.createElement('a');
-                document.body.appendChild(a);
-                a.href = historyItem.analysisResultPath;
-                a.click();
-                document.body.removeChild(a);
-            });
-        });
-        this.bulk_analysis_results_history.querySelectorAll('.download_compact_csv').forEach((item: any) => {
-            item.addEventListener('click', async () => {
-                let index = item.getAttribute('data-index');
-                let bulkHistory = await chrome.storage.local.get('bulkHistory');
-                bulkHistory = bulkHistory.bulkHistory || [];
-                let historyItem = bulkHistory[index];
-                let a = document.createElement('a');
-                document.body.appendChild(a);
-                a.href = historyItem.compactResultPath;
-                a.click();
-                document.body.removeChild(a);
-            });
-        });
-    }
-    async paintBulkURLList(forceUpdate = false) {
-        //only continue if debounce timer is up
-        if (this.lastTableEdit.getTime() > new Date().getTime() - 1000 && !forceUpdate) {
-            return;
-        }
-        let allUrls: any[] = [];
-        let rawData = await chrome.storage.local.get('bulkUrlList');
-        if (rawData && rawData.bulkUrlList && Object.keys(rawData.bulkUrlList).length > 0) {
-            allUrls = rawData.bulkUrlList;
-        }
-
-        this.bulk_url_list_tabulator.setData(allUrls);
-
-        let running = await chrome.storage.local.get('running');
-        if (running && running.running) {
-            document.body.classList.add("extension_running");
-            document.body.classList.remove("extension_not_running");
-        } else {
-            document.body.classList.remove("extension_running");
-            document.body.classList.add("extension_not_running");
-        }
-
-        const setNames = await this.extCommon.getAnalysisSetNames();
-        let html = "";
-        setNames.forEach((setName) => {
-            html += `<option value="${setName}">${setName}</option>`;
-        });
-        let selectedBulkAnalysisSets = await chrome.storage.local.get("selectedBulkAnalysisSets");
-        let slimOptions: any[] = [];
-        setNames.forEach((setName) => {
-            slimOptions.push({ text: setName, value: setName });
-        });
-        const slimOptionsString = JSON.stringify(slimOptions);
-        if (this.previousSlimOptions !== slimOptionsString) {
-            this.bulkSelected.setData(slimOptions);
-            this.previousSlimOptions = slimOptionsString;
-        }
-
-        if (selectedBulkAnalysisSets && selectedBulkAnalysisSets.selectedBulkAnalysisSets) {
-            this.bulkSelected.setSelected(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
-            let domSelections = this.bulkSelected.render.main.values.querySelectorAll('.ss-value');
-            let indexMap: any = {};
-            domSelections.forEach((item: any, index: any) => {
-                indexMap[item.innerText] = index;
-            });
-            let setOrder = selectedBulkAnalysisSets.selectedBulkAnalysisSets;
-            setOrder.forEach((setName: any, index: any) => {
-                let domIndex = indexMap[setName];
-                if (domSelections[domIndex]) {
-                    this.bulkSelected.render.main.values.appendChild(domSelections[domIndex]);
-                }
-            });
-        }
-        if (this.bulkSelected.getSelected().length === 0) {
-            this.bulkSelected.setSelected([setNames[0]]);
-        }
+        await this.bulkHelper.paintBulkURLList(forceUpdate);
     }
 }

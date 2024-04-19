@@ -65,3 +65,6 @@ models/
 
 # dotenv environment variables file
 .env
+
+# tailwind output css
+style/output.css

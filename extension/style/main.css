@@ -192,6 +192,7 @@ body {
   flex:1;
 }
 
+.bulk_history_pagination,
 .history_pagination {
   display: flex;
   justify-content: end;
