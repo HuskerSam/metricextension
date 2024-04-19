@@ -2,10 +2,12 @@ import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
 import Papa from 'papaparse';
+import BulkHelper from './bulkhelper';
 declare const chrome: any;
 
 export default class MainPageApp {
     extCommon = new AnalyzerExtensionCommon(chrome);
+    bulkHelper = new BulkHelper();
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
     importButton = document.querySelector('.import_rows') as HTMLButtonElement;
@@ -58,7 +60,6 @@ export default class MainPageApp {
     runId = '';
     activeTab: any = null;
     chromeTabListener: any = null;
-    activeTabsBeingScraped: any = [];
     itemsPerView = 5;
     baseHistoryIndex = 0;
     currentPageIndex = 0;
@@ -130,15 +131,6 @@ export default class MainPageApp {
         this.initEventHandlers();
         this.initPromptTable();
         this.hydrateAllPromptRows();
-
-        // for detecting in browser scraping completion
-        chrome.tabs.onUpdated.addListener(
-            (tabId: number, changeInfo: any, tab: any) => {
-                if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
-                    this.activeTabsBeingScraped[tabId]();
-                }
-            }
-        );
 
         // list for changes to local storage and update the UI
         chrome.storage.local.onChanged.addListener(() => {
@@ -328,7 +320,9 @@ export default class MainPageApp {
                 alert("Invalid URLs detected. Please correct them before running analysis\n" + invalidUrlList);
                 return;
             }
-            await this.runBulkAnalysis();
+            
+            let rows = this.bulk_url_list_tabulator.getData();
+            await this.bulkHelper.runBulkAnalysis(rows);
         });
 
         this.download_url_list.addEventListener('click', async () => {
@@ -395,19 +389,6 @@ export default class MainPageApp {
 
         await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
         this.hydrateAllPromptRows();
-    }
-    async enabledBrowserScrapePermissions() {
-        // Permissions must be requested from inside a user gesture, like a button's
-        // click handler.
-        await chrome.permissions.request({
-            permissions: ["activeTab", "tabs"],
-            origins: ["https://*/*",
-                "http://*/*"]
-        }, (granted: any) => {
-            if (!granted) {
-                alert("Browser scraping permission denied. You can enable it from the extension settings page");
-            }
-        });
     }
     initPromptTable() {
         this.promptsTable = new TabulatorFull(".prompt_list_editor", {
@@ -780,192 +761,6 @@ export default class MainPageApp {
         this.bulk_url_list_tabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
     }
-    async scrapeBulkUrl(bulkUrl: any) {
-        let scrape = bulkUrl.scrape;
-        let url = bulkUrl.url || "";
-        let options = bulkUrl.options || "";
-        if (scrape === "server scrape") {
-            const result = await this.scrapeUrlServerSide(url, options);
-            if (result.success) {
-                return {
-                    text: result.result.text,
-                    title: result.result.title,
-                };
-            }
-            return {
-                text: "No text found in page",
-                title: "",
-            };
-        } else if (scrape === "browser scrape") {
-            return this.scrapeTabPage(url);
-        } else if (scrape === "override content") {
-            return {
-                text: bulkUrl.content,
-                url,
-                title: "",
-            };
-        } else {
-            return {
-                text: "No text found in page",
-                title: "",
-                url
-            };
-        }
-    }
-    async scrapeUrlServerSide(url: string, options: string) {
-        const result = await this.extCommon.scrapeURLUsingAPI(url, options);
-        result.url = url;
-        return result;
-    }
-    async runBulkAnalysis() {
-        let rows = this.bulk_url_list_tabulator.getData();
-        let browserScrape = false;
-        rows.forEach((row: any) => {
-            if (row.scrape === "browser scrape") {
-                browserScrape = true;
-            }
-        });
-        if (browserScrape) {
-            if (confirm("Browser scraping is enabled. This will open tabs in your browser to scrape the pages. Do you want to continue?") === false) {
-                return;
-            }
-            await this.enabledBrowserScrapePermissions();
-        }
-
-        document.body.classList.add("extension_running");
-        document.body.classList.remove("extension_not_running");
-        this.runId = new Date().toISOString();
-        let urls: string[] = [];
-        let promises: any[] = [];
-        // cache the active tab
-        this.activeTab = await chrome.tabs.getCurrent();
-        rows.forEach((row: any) => {
-            urls.push(row.url);
-            promises.push(this.scrapeBulkUrl(row));
-        });
-
-        let results = await Promise.all(promises);
-        let analysisPromises: any[] = [];
-        results.forEach((result: any, index: number) => {
-            let text = "";
-            if (result && result.text) text = result.text;
-            if (result && result.length > 0 && result[0].text) text = result[0].text;
-            if (!text) {
-                analysisPromises.push(async () => {
-                    return {
-                        text: "No text found in page",
-                        url: urls[index],
-                        results: [],
-                        runDate: new Date().toISOString(),
-                        title: "",
-                    };
-                });
-            } else {
-                analysisPromises.push(this.extCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
-            }
-
-        });
-        let analysisResults = await Promise.all(analysisPromises);
-        const fullCloudUploadResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId + ".json", analysisResults);
-
-        let compactData: any[] = [];
-        analysisResults.forEach((urlResult: any) => {
-            let compactResult: any = {};
-            compactResult.url = urlResult.url;
-            compactResult.title = urlResult.title;
-
-            const results = urlResult.results;
-            if (results) {
-                results.forEach((metricResult: any) => {
-                    const fieldName = metricResult.prompt.id + "_" + metricResult.prompt.setName;
-                    if (metricResult.prompt.promptType === "metric") {
-                        let metric = 0;
-                        try {
-                            let json = JSON.parse(metricResult.result.resultMessage);
-                            metric = json.contentRating;
-                        } catch (e) {
-                            metric = -1;
-                        }
-                        compactResult[fieldName] = metric;
-                    } else {
-                        compactResult[fieldName] = metricResult.result.resultMessage;
-                    }
-                });
-            } else {
-                compactResult["No Results"] = "No Results";
-            }
-
-            compactData.push(compactResult);
-        });
-
-        if (compactData.length > 0) {
-            const firstRow = compactData[0];
-            const allFields: any = {};
-            compactData.forEach((row: any) => {
-                Object.keys(row).forEach((field) => {
-                    allFields[field] = true;
-                });
-            });
-            const fieldNames = Object.keys(allFields);
-            fieldNames.forEach((fieldName) => {
-                if (!firstRow[fieldName]) {
-                    firstRow[fieldName] = "";
-                }
-            });
-        }
-
-        const csv = Papa.unparse(compactData);
-        const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(this.runId, csv, "text/csv", "csv");
-        document.body.classList.remove("extension_running");
-        document.body.classList.add("extension_not_running");
-
-        let bulkHistory = await chrome.storage.local.get('bulkHistory');
-        let bulkHistoryRangeLimit = await chrome.storage.local.get('bulkHistoryRangeLimit');
-        bulkHistoryRangeLimit = Number(bulkHistoryRangeLimit.bulkHistoryRangeLimit) || 100;
-        bulkHistory = bulkHistory.bulkHistory || [];
-        bulkHistory.unshift({
-            runId: this.runId,
-            urls,
-            compactResultPath: compactResult.publicStorageUrlPath,
-            analysisResultPath: fullCloudUploadResult.publicStorageUrlPath,
-        });
-        bulkHistory = bulkHistory.slice(0, bulkHistoryRangeLimit);
-        await chrome.storage.local.set({ bulkHistory });
-    }
-    async scrapeTabPage(url: any) {
-        return new Promise(async (resolve, reject) => {
-
-            let tab = await chrome.tabs.create({
-                url
-            });
-
-            chrome.tabs.update(this.activeTab.id, { active: true })
-
-
-            await this.detectTabLoaded(tab.id);
-            setTimeout(async () => {
-                try {
-                    let scrapes = await chrome.scripting.executeScript({
-                        target: { tabId: tab.id },
-                        func: () => {
-                            return document.body.innerText;
-                        },
-                    });
-                    const updatedTab = await chrome.tabs.get(tab.id);
-                    scrapes.title = updatedTab.title;
-                    await chrome.tabs.remove(tab.id);
-                    resolve(scrapes);
-                } catch (e) {
-                    resolve("");
-                }
-            }, 3000);
-        });
-    }
-    async detectTabLoaded(tabId: number) {
-        return new Promise((resolve, reject) => {
-            this.activeTabsBeingScraped[tabId] = resolve;
-        });
-    }
     analysisHistoryLogRowTemplate(historyItem: any, index: number): string {
         return `
           url count: ${historyItem.urls.length} <br>
@@ -974,6 +769,49 @@ export default class MainPageApp {
           <button class="download_compact_csv btn" data-index="${index}">download compact CSV</button>
           <hr>
         `;
+    }
+    async paintData(forceUpdate = false) {
+        await this.extCommon.paintAnalysisTab();
+        this.renderSettingsTab();
+        this.renderHistoryDisplay();
+        this.paintAnalysisHistory();
+
+        await this.paintBulkURLList(forceUpdate);
+    }
+    async paintAnalysisHistory() {
+        let bulkHistory = await chrome.storage.local.get('bulkHistory');
+        bulkHistory = bulkHistory.bulkHistory || [];
+        let html = "";
+        bulkHistory.forEach((historyItem: any, index: number) => {
+            html += this.analysisHistoryLogRowTemplate(historyItem, index);
+        });
+        this.bulk_analysis_results_history.innerHTML = html;
+        this.bulk_analysis_results_history.querySelectorAll('.download_full_json').forEach((item: any) => {
+            item.addEventListener('click', async () => {
+                let index = item.getAttribute('data-index');
+                let bulkHistory = await chrome.storage.local.get('bulkHistory');
+                bulkHistory = bulkHistory.bulkHistory || [];
+                let historyItem = bulkHistory[index];
+                let a = document.createElement('a');
+                document.body.appendChild(a);
+                a.href = historyItem.analysisResultPath;
+                a.click();
+                document.body.removeChild(a);
+            });
+        });
+        this.bulk_analysis_results_history.querySelectorAll('.download_compact_csv').forEach((item: any) => {
+            item.addEventListener('click', async () => {
+                let index = item.getAttribute('data-index');
+                let bulkHistory = await chrome.storage.local.get('bulkHistory');
+                bulkHistory = bulkHistory.bulkHistory || [];
+                let historyItem = bulkHistory[index];
+                let a = document.createElement('a');
+                document.body.appendChild(a);
+                a.href = historyItem.compactResultPath;
+                a.click();
+                document.body.removeChild(a);
+            });
+        });
     }
     async paintBulkURLList(forceUpdate = false) {
         //only continue if debounce timer is up
@@ -1031,48 +869,5 @@ export default class MainPageApp {
         if (this.bulkSelected.getSelected().length === 0) {
             this.bulkSelected.setSelected([setNames[0]]);
         }
-    }
-    async paintData(forceUpdate = false) {
-        await this.extCommon.paintAnalysisTab();
-        this.renderSettingsTab();
-        this.renderHistoryDisplay();
-        this.paintAnalysisHistory();
-
-        await this.paintBulkURLList(forceUpdate);
-    }
-    async paintAnalysisHistory() {
-        let bulkHistory = await chrome.storage.local.get('bulkHistory');
-        bulkHistory = bulkHistory.bulkHistory || [];
-        let html = "";
-        bulkHistory.forEach((historyItem: any, index: number) => {
-            html += this.analysisHistoryLogRowTemplate(historyItem, index);
-        });
-        this.bulk_analysis_results_history.innerHTML = html;
-        this.bulk_analysis_results_history.querySelectorAll('.download_full_json').forEach((item: any) => {
-            item.addEventListener('click', async () => {
-                let index = item.getAttribute('data-index');
-                let bulkHistory = await chrome.storage.local.get('bulkHistory');
-                bulkHistory = bulkHistory.bulkHistory || [];
-                let historyItem = bulkHistory[index];
-                let a = document.createElement('a');
-                document.body.appendChild(a);
-                a.href = historyItem.analysisResultPath;
-                a.click();
-                document.body.removeChild(a);
-            });
-        });
-        this.bulk_analysis_results_history.querySelectorAll('.download_compact_csv').forEach((item: any) => {
-            item.addEventListener('click', async () => {
-                let index = item.getAttribute('data-index');
-                let bulkHistory = await chrome.storage.local.get('bulkHistory');
-                bulkHistory = bulkHistory.bulkHistory || [];
-                let historyItem = bulkHistory[index];
-                let a = document.createElement('a');
-                document.body.appendChild(a);
-                a.href = historyItem.compactResultPath;
-                a.click();
-                document.body.removeChild(a);
-            });
-        });
     }
 }
