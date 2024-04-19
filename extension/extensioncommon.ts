@@ -336,52 +336,7 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-  async getSummaryPromptForDescription(description: string): Promise<string> {
-    const newPromptAgent = `Please help me form a concise set of guidenlines for summarizing content based on the following description: ${description}`;
-    let newPromptContent = (await this.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
-    newPromptContent += `
-  This summary should be no longer than 50 or more words. Use the following format to answer:
-  Summary: [summary of content]
-  Here is the content to analyze:
-  {{query}}`;
-    return newPromptContent;
-  }
-  async getKeywordPromptForDescription(description: string): Promise<string> {
-    const newPromptAgent = `Please help form a concise set guidelines for keywords using following description: ${description}
-    `;
 
-    let newPromptContent = (await this.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
-    newPromptContent += `Use the following format to answer, include up to 5: Keywords: [keyword1], [keyword2], [keyword3], ...
-    Here is the content to analyze:
-    {{query}}
-    `;
-    return newPromptContent;
-  }
-  async getMetricPromptForDescription(description: string): Promise<string> {
-    const newPromptAgent = `Please help form a new concise set guidelines for scoring content.
-    I would like one based on the following description: ${description}
-    
-    Here is an example of guidelines for scoring content based on political content:
-    Rate the following content 0-10, regarding its political content. 
-    Guideline for political metrics: Assess political content by evaluating the depth of political commentary, the range of political perspectives presented, and the degree of bias or impartiality. Consider the relevance of political themes to current events, historical context, and societal impact. Examine the effectiveness of conveying political messages, the use of persuasive language or rhetoric, and the potential for inciting debate or controversy. Take into account the diversity of political ideologies and the potential for engaging audiences with different political beliefs.
-    0 - Apolitical:  Content completely avoids political themes, figures, or discussions.
-    1-2 - Low Political Content: Mentions political elements in passing, but doesn't delve into specifics. May reference a politician by name but not their policies.
-    3-4 - Moderate Political Content: Discusses political topics but with a neutral stance. Presents basic information about policies, figures, or events without bias.
-    5-6 - Medium Political Content: Analyzes political issues with some level of opinion or perspective. May favor one side slightly but still acknowledges opposing viewpoints.
-    7-8 - High Political Content: Offers in-depth analysis of political issues with a clear perspective. Uses persuasive language and rhetoric to advocate for a specific viewpoint.
-    9-10 - Extremely High Political Content: Focuses heavily on controversial political themes and current events. May use strong emotions and inflammatory language to incite debate. Presents a very narrow range of viewpoints.`;
-
-    let newPromptContent = (await this.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
-    newPromptContent += ` 
-    Please respond with json and only json in this format:
-    {
-      "contentRating": 0
-    }
-    
-    Here is the content to analyze:
-    {{query}}`;
-    return newPromptContent;
-  }
   async updateContentTextonSidePanel(text: string) {
     let running = await this.chrome.storage.local.get('running');
     if (running && running.running) {

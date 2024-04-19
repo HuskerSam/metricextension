@@ -62,9 +62,9 @@
             <div class="flex gap-2 data_controls">
               <button class="add_prompt_modal btn" id="add_prompt_btn" data-bs-toggle="modal"
                 data-bs-target="#promptWizard" type="button">Add Metric</button>
-                <button class="export_rows btn">Export</button>
-              <button class="import_rows btn">Import</button>
-              <input type="file" id="file_input" accept=".json" class="hidden">
+                <button class="prompt_list_export_rows btn">Export</button>
+              <button class="prompt_list_import_rows btn">Import</button>
+              <input type="file" id="prompt_list_file_input" accept=".json" class="hidden">
             </div>
           </div>
           <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
@@ -169,7 +169,7 @@
       </div>
     </div>
     <!-- test modal -->
-    <div class="modal fade" id="testModal" tabindex="-1" aria-labelledby="testModalLabel" aria-hidden="true">
+    <div class="modal fade test_modal" id="testModal" tabindex="-1" aria-labelledby="testModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -177,7 +177,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="test_metric_container"></div>
+            <div class="test_metric_container flex justify-center items-center"></div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

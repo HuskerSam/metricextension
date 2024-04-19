@@ -1,42 +1,23 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
-import { TabulatorFull } from 'tabulator-tables';
 import BulkHelper from './bulkhelper';
+import PromptHelper from './prompthelper';
 declare const chrome: any;
 
 export default class MainPageApp {
     extCommon = new AnalyzerExtensionCommon(chrome);
     bulkHelper = new BulkHelper();
+    promptHelper = new PromptHelper();
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
-    importButton = document.querySelector('.import_rows') as HTMLButtonElement;
-    fileInput = document.getElementById('file_input') as HTMLInputElement;
-    exportButton = document.querySelector('.export_rows') as HTMLButtonElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
-    wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
-    add_prompt_modal = document.querySelector('.add_prompt_modal') as HTMLButtonElement;
-    prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
-    generate_metric_prompt = document.querySelector('.generate_metric_prompt') as HTMLButtonElement;
-    show_test_prompt_modal = document.querySelector('.show_test_prompt_modal') as HTMLButtonElement;
-    test_metric_container = document.querySelector('.test_metric_container') as HTMLDivElement;
     session_anchor_label = document.querySelector('.session_anchor_label') as HTMLDivElement;
     session_anchor = document.querySelector('.session_anchor') as HTMLAnchorElement;
-    create_prompt_tab = document.getElementById('create-prompt-tab') as HTMLButtonElement;
-    prompt_id_input = document.querySelector('.prompt_id_input') as HTMLInputElement;
-    prompt_description = document.querySelector('.prompt_description') as HTMLInputElement;
-    prompt_type = document.querySelector('.prompt_type') as HTMLInputElement;
-    prompt_template_text = document.querySelector('.prompt_template_text') as HTMLInputElement;
-    user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
-    save_to_library_button = document.querySelector('.save_to_library_button') as HTMLButtonElement;
-    prompt_setname_input = document.querySelector('.prompt_setname_input') as HTMLInputElement;
-    input_datalist_prompt_list = document.querySelector('#input_datalist_prompt_list') as HTMLDataListElement;
-    query_source_text = document.querySelector('.query_source_text') as HTMLTextAreaElement;
     run_analysis_btn = document.querySelector('.run_analysis_btn') as HTMLButtonElement;
     copy_to_clipboard_btn = document.querySelector('.copy_to_clipboard_btn') as HTMLButtonElement;
     export_history = document.querySelector('.export_history') as HTMLButtonElement;
     clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
     promptsTable: any;
-    prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
     entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
     historyEntryListItems: any = null;
@@ -52,12 +33,8 @@ export default class MainPageApp {
 
     constructor() {
         // helper constructors
-
-
         this.extCommon.initCommonDom();
         this.initEventHandlers();
-        this.initPromptTable();
-        this.hydrateAllPromptRows();
 
         // list for changes to local storage and update the UI
         chrome.storage.local.onChanged.addListener(() => {
@@ -78,53 +55,21 @@ export default class MainPageApp {
             let sessionId = this.session_id_input.value;
             chrome.storage.local.set({ sessionId });
         });
-        this.importButton.addEventListener('click', () => {
-            document.getElementById('file_input')?.click();
-        });
-
-        this.fileInput.addEventListener('change', async (e: any) => {
-            let file = e.target.files[0];
-            let reader = new FileReader();
-            reader.onload = async (e: any) => {
-                let promptTemplateList = JSON.parse(e.target.result);
-                let existingPrompts = await this.promptsTable.getData();
-                promptTemplateList = existingPrompts.concat(promptTemplateList);
-                await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-                this.hydrateAllPromptRows();
-                this.fileInput.value = ''; // Reset the file input value
-            };
-            reader.readAsText(file);
-        });
-
         this.history_range_amount_select.addEventListener('click', async (e) => {
             let amount = this.history_range_amount_select.value;
             chrome.storage.local.set({ historyRangeLimit: amount });
         });
-
-        this.exportButton.addEventListener('click', async () => {
-            let promptTemplateList = await this.promptsTable.getData();
-            let blob = new Blob([JSON.stringify(promptTemplateList)], { type: "application/json" });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = 'allprompts.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
         this.clearStorageButton.addEventListener('click', async () => {
             if (confirm('Are you sure you want to clear all data? This will clear your session key. If you have custom prompts, download first.')) {
                 await chrome.storage.local.clear();
                 location.reload();
             }
         });
-
         this.clear_history.addEventListener('click', async () => {
             if (confirm('Are you sure you want to clear all history?')) {
                 await chrome.storage.local.set({ history: [] });
             }
         });
-
         this.export_history.addEventListener('click', async () => {
             let history = await chrome.storage.local.get('history');
             history = history.history || [];
@@ -138,243 +83,21 @@ export default class MainPageApp {
             a.remove();
             URL.revokeObjectURL(url);
         });
-
         this.run_analysis_btn.addEventListener('click', async () => {
-            let text = this.query_source_text.value;
+            let text = this.extCommon.query_source_text.value;
             let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual');
             let html = '';
             for (let promptResult of result.results) {
                 html += this.extCommon.getHTMLforPromptResult(promptResult);
             }
         });
-
         this.copy_to_clipboard_btn.addEventListener('click', async () => {
-            let text = this.query_source_text.value;
+            let text = this.extCommon.query_source_text.value;
             navigator.clipboard.writeText(text);
         });
-
-        this.add_prompt_modal.addEventListener('click', async () => {
-            this.prompt_setname_input.value = '';
-            this.prompt_id_input.value = '';
-            this.prompt_description.value = '';
-            this.prompt_type.value = '';
-            this.prompt_template_text.value = '';
-            this.prompt_row_index.value = '-1';
-            this.wizard_input_prompt.value = '';
-            this.prompt_id_input.focus();
-            this.getAnalysisSetNameList();
-        });
-
         this.manage_history_configuration.addEventListener('click', async () => {
             document.getElementById('history-tab')?.click();
         });
-
-        this.generate_metric_prompt.addEventListener('click', async () => {
-            this.prompt_template_text.value = `generating prompt...`;
-            let text = this.wizard_input_prompt.value;
-            document.getElementById('wizard-prompt-tab')?.click();
-            let newPrompt = '';
-            if (this.prompt_type.value === 'metric') {
-                newPrompt = await this.extCommon.getMetricPromptForDescription(text);
-            } else if (this.prompt_type.value === 'keywords') {
-                newPrompt = await this.extCommon.getKeywordPromptForDescription(text);
-            } else if (this.prompt_type.value === 'shortsummary') {
-                newPrompt = await this.extCommon.getSummaryPromptForDescription(text);
-            };
-            this.prompt_template_text.value = newPrompt;
-        });
-
-        this.save_to_library_button.addEventListener('click', async () => {
-            this.savePromptEditPopup();
-            var myModalEl = document.getElementById('promptWizard');
-            var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl);
-            modal.hide();
-        });
-    }
-
-
-    async hydrateAllPromptRows() {
-        let allPrompts = await this.extCommon.getAnalysisPrompts();
-        this.promptsTable.setData(allPrompts);
-    }
-    async savePromptEditPopup() {
-        let promptId = this.prompt_id_input.value.trim();
-        let promptDescription = this.prompt_description.value.trim();
-        let promptSuggestion = this.wizard_input_prompt.value.trim();
-        let promptType = this.prompt_type.value;
-        let promptTemplate = this.prompt_template_text.value.trim();
-        let setName = this.prompt_setname_input.value.trim();
-        if (!promptId || !promptType || !promptTemplate || !setName) {
-            alert('Please fill out all fields to add a prompt to the library.');
-            document.getElementById('wizard-config-tab')?.click();
-            return;
-        }
-        let prompt = { id: promptId, description: promptDescription, promptType: promptType, prompt: promptTemplate, setName, promptSuggestion };
-        let promptTemplateList = await this.promptsTable.getData();
-        let existingIndex = Number(this.prompt_row_index.value) - 1;
-        if (existingIndex >= 0) {
-            promptTemplateList[existingIndex] = prompt;
-        } else {
-            promptTemplateList.push(prompt);
-        }
-
-        await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-        this.hydrateAllPromptRows();
-    }
-    initPromptTable() {
-        this.promptsTable = new TabulatorFull(".prompt_list_editor", {
-            layout: "fitDataStretch",
-            movableRows: true,
-            groupBy: "setName",
-            //            groupStartOpen: [false],
-            groupHeader: (value: any, count: number, data: any, group: any) => {
-                return value + `<span style='margin-left:10px'>(${count} item)</span><button class='export_metric_set btn' style='float:right;' data-setname='${value}'><i class="material-icons-outlined">download</i> </button>`;
-            },
-            columns: [
-                { title: "Id", field: "id", headerSort: false, width: 100 },
-                {
-                    title: "",
-                    field: "delete",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">delete</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-                {
-                    title: "",
-                    field: "clone",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">copy_content</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-                {
-                    title: "",
-                    field: "edit",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">edit</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-                {
-                    title: "",
-                    field: "testone",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">bolt</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-                {
-                    title: "Type", field: "promptType",
-                    headerSort: false,
-                },
-                //       { title: "Description", field: "description", headerSort: false, width: 100 },
-                { title: "Prompt", field: "prompt", headerSort: false, width: 100 },
-
-            ],
-        });
-        this.promptsTable.on("renderComplete", () => {
-            this.prompt_list_editor.querySelectorAll('.export_metric_set').forEach((button: any) => {
-                if (!button.headerConfigured) {
-                    button.headerConfigured = true;
-                    button.addEventListener('click', async (e: any) => {
-                        let setName = button.dataset.setname;
-                        let promptTemplateList = await this.promptsTable.getData();
-                        let setPrompts = promptTemplateList.filter((prompt: any) => prompt.setName === setName);
-                        let blob = new Blob([JSON.stringify(setPrompts)], { type: "application/json" });
-                        let url = URL.createObjectURL(blob);
-                        let a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${setName}_prompts.json`;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    });
-                }
-            });
-        });
-        this.promptsTable.on("cellClick", async (e: Event, cell: any) => {
-            if (cell.getColumn().getField() === "delete") {
-                if (this.promptsTable.getDataCount() <= 1) {
-                    alert('You must have at least one prompt in the library.');
-                } else {
-                    if (confirm('Are you sure you want to delete this row?')) {
-                        this.promptsTable.deleteRow(cell.getRow());
-                        this.savePromptTableData();
-                    }
-                }
-            }
-            if (cell.getColumn().getField() === "testone") {
-                const row = cell.getRow();
-                const prompt = row.getData();
-                let text = this.query_source_text.value;
-                let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual', prompt);
-                let promptResult = result.results[0];
-                let promptId = promptResult.prompt.id;
-                let promptTemplate = promptResult.prompt.prompt;
-                let promptType = promptResult.prompt.promptType;
-                let promptHtml = this.extCommon.getHTMLforPromptResult(promptResult);
-                let html = `
-                <div class="prompt_result">
-                    <div class="prompt_header">
-                        <span class="prompt_id">${promptId}</span>
-                        <span class="prompt_type">${promptType}</span>
-                    </div>
-                    <div class="prompt_content">
-                        <div class="prompt_text">${promptTemplate}</div>
-                        <div class="result_content">${promptHtml}</div>
-                    </div>
-                </div>
-                `;
-                this.test_metric_container.innerHTML = html;
-                this.show_test_prompt_modal.click();
-            }
-            if (cell.getColumn().getField() === "edit") {
-                const row = cell.getRow();
-                const prompt = row.getData();
-                this.add_prompt_modal.click();
-                this.prompt_id_input.value = prompt.id;
-                this.prompt_description.value = prompt.description;
-                this.prompt_type.value = prompt.promptType;
-                this.prompt_template_text.value = prompt.prompt;
-                this.prompt_setname_input.value = prompt.setName;
-                this.wizard_input_prompt.value = prompt.promptSuggestion;
-                let rowIndex = row.getPosition();
-                this.prompt_row_index.value = rowIndex;
-                this.getAnalysisSetNameList();
-            }
-            if (cell.getColumn().getField() === "clone") {
-                const row = cell.getRow();
-                const prompt = row.getData();
-                let promptTemplateList = await this.promptsTable.getData();
-                promptTemplateList.push(prompt);
-                await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-                this.hydrateAllPromptRows();
-            }
-        });
-
-        this.promptsTable.on("rowMoved", async (cell: any) => {
-            this.savePromptTableData();
-        });
-    }
-    async getAnalysisSetNameList() {
-        let html = '';
-        let promptSetNames = await this.extCommon.getAnalysisSetNames();
-        promptSetNames.forEach((setName) => {
-            html += `<option>${setName}</option>`;
-        });
-        this.input_datalist_prompt_list.innerHTML = html;
-    }
-    async savePromptTableData() {
-        let masterAnalysisList = await this.promptsTable.getData();
-        chrome.storage.local.set({ masterAnalysisList });
     }
     async renderSettingsTab() {
         let sessionConfig = await chrome.storage.local.get('sessionId');
