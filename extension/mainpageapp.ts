@@ -39,6 +39,7 @@ export default class MainPageApp {
     prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
     entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
+    historyEntryListItems: any = null;
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
     history_date = document.querySelector('.history_date') as HTMLDivElement;
     manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
@@ -58,8 +59,9 @@ export default class MainPageApp {
     activeTab: any = null;
     chromeTabListener: any = null;
     activeTabsBeingScraped: any = [];
-    currentPage = 1;
-    itemsPerPage = 1;
+    itemsPerView = 5;
+    baseHistoryIndex = 0;
+    currentPageIndex = 0;
 
     constructor() {
         // helper constructors
@@ -169,14 +171,6 @@ export default class MainPageApp {
                 this.fileInput.value = ''; // Reset the file input value
             };
             reader.readAsText(file);
-        });
-
-        this.history_pagination.addEventListener('click', async (e: any) => {
-            let target = e.target;
-            if (target.tagName === 'A') {
-                this.currentPage = Number(target.textContent);
-                this.renderHistoryDisplay();
-            }
         });
 
         this.history_range_amount_select.addEventListener('click', async (e) => {
@@ -599,7 +593,7 @@ export default class MainPageApp {
         history = history.history || [];
 
         let usageCreditTotal = 0;
-        let entry = history[this.currentPage - 1];
+        let entry = history[this.baseHistoryIndex];
         let entryHTML = `
         <div class="history_empty">
             <p class="history_empty_onboarding_message">
@@ -610,7 +604,7 @@ export default class MainPageApp {
         `;
         // if history is empty
         if (entry) {
-            let renderResult = this.renderHTMLForHistoryEntry(entry, this.currentPage - 1);
+            let renderResult = this.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
             entryHTML = renderResult.html;
             usageCreditTotal += renderResult.usageCreditTotal;
             this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;">
@@ -636,9 +630,25 @@ export default class MainPageApp {
             });
         });
 
-        let paginationHtml = this.generatePagination(history.length, this.itemsPerPage, this.currentPage);
-    
+        let paginationHtml = this.generatePagination(history.length);
+
         this.history_pagination.innerHTML = paginationHtml;
+        this.historyEntryListItems = document.querySelectorAll('.history_pagination li a') as NodeListOf<HTMLLIElement>;
+        this.historyEntryListItems.forEach((item: any) => {
+            item.addEventListener('click', async (e: any) => {
+                e.preventDefault();
+                const index = Number(item.dataset.entryindex);
+                if (index === -1) {
+                    this.currentPageIndex = Math.max(this.currentPageIndex - 1, 0);
+                } else if (index === -2) {
+                    this.currentPageIndex = Math.min(this.currentPageIndex + 1, Math.ceil(history.length / this.itemsPerView) - 1);
+                } else {
+                    this.baseHistoryIndex = index;
+                    this.currentPageIndex = Math.floor(this.baseHistoryIndex / this.itemsPerView);
+                }
+                this.renderHistoryDisplay();
+            });
+        });
     }
     renderHTMLForHistoryEntry(entry: any, historyIndex: number): {
         html: string;
@@ -685,35 +695,34 @@ export default class MainPageApp {
             usageCreditTotal,
         };
     }
-    generatePagination(totalItems: number, itemsPerPage: number, currentPage: number, pagesBeforeAfter: number = 9) {
-        let totalPages = Math.ceil(totalItems / itemsPerPage);
-        let paginationHtml = '';
+    generatePagination(totalItems: number) {
+        const currentEntryIndex = this.baseHistoryIndex;
+        const totalPages = Math.ceil(totalItems / this.itemsPerView);
 
-        if (totalPages <= 1) {
-            return paginationHtml;
-        }
+
+        let paginationHtml = '';
 
         paginationHtml = '<ul class="pagination pagination-sm mb-0">';
 
-        for (let i = 1; i <= totalPages; i++) {
-            if (
-                i === 1 ||
-                i === totalPages ||
-                (i >= currentPage - pagesBeforeAfter && i <= currentPage + pagesBeforeAfter)
-            ) {
-                paginationHtml += `
-                    <li class="page-item ${i === currentPage ? 'active' : ''}">
-                        <a class="page-link" href="#">${i}</a>
-                    </li>
-                `;
-            } else if (i === 2 || i === totalPages - 1) {
-                paginationHtml += `
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">...</a>
-                    </li>
-                `;
-            }
+        paginationHtml += `<li class="page-item ${this.currentPageIndex === 0 ? 'buttondisabled' : ''}">
+            <a class="page-link" href="#" aria-label="Previous" data-entryindex="-1">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>`;
+        const startIndex = this.currentPageIndex * this.itemsPerView;
+        const endIndex = Math.min((this.currentPageIndex + 1) * this.itemsPerView, totalItems);
+        for (let i = startIndex; i < endIndex; i++) {
+            paginationHtml += `<li class="page-item ${currentEntryIndex === i ? 'selected' : ''}">
+            <a class="page-link" href="#" data-entryindex="${i}">
+                <span aria-hidden="true">${i + 1}</span>
+            </a>
+        </li>`;
         }
+        paginationHtml += `<li class="page-item ${this.currentPageIndex === totalPages - 1 ? 'buttondisabled' : ''}">
+            <a class="page-link" href="#" aria-label="Next" data-entryindex="-2">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>`;
 
         paginationHtml += '</ul>';
 

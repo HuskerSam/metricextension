@@ -726,3 +726,8 @@ body {
 .extension_running .history_display_results_running {
   display: flex;
 }
+
+.page-item.selected a {
+  background-color: blue;
+  color: #fff;
+}
