@@ -72,18 +72,22 @@ export default class MainPageApp {
             columns: [
                 { title: "URL", field: "url", editor: "input", headerSort: false },
                 {
-                    title: "Options",
-                    field: "options",
+                    title: "Scrape",
+                    field: "scrape",
                     headerSort: false,
                     editor: "list",
                     editorParams: {
                         values: {
                             "server scrape": "Server Scrape",
                             "browser scrape": "Browser Scrape",
+                            "override content": "Override Content",
                         },
                     },
                     width: 120,
-                }, {
+                },
+                { title: "Options", field: "options", editor: "input", headerSort: false, width: 120, },
+                { title: "Content", field: "content", editor: "textarea", headerSort: false, width: 120, },
+                {
                     title: "",
                     field: "delete",
                     headerSort: false,
@@ -294,7 +298,7 @@ export default class MainPageApp {
         this.add_bulk_url_row.addEventListener('click', async () => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulk_url_list_tabulator.getData();
-            bulkUrlList.push({ url: "", options: "server scrape" });
+            bulkUrlList.push({ url: "", scrape: "server scrape", options: "", content: "" });
             this.bulk_url_list_tabulator.setData(bulkUrlList);
             await chrome.storage.local.set({ bulkUrlList });
         });
@@ -777,10 +781,11 @@ export default class MainPageApp {
         await chrome.storage.local.set({ bulkUrlList });
     }
     async scrapeBulkUrl(bulkUrl: any) {
-        let options = bulkUrl.options;
-        let url = bulkUrl.url;
-        if (options === "server scrape") {
-            const result = await this.scrapeUrlServerSide(url);
+        let scrape = bulkUrl.scrape;
+        let url = bulkUrl.url || "";
+        let options = bulkUrl.options || "";
+        if (scrape === "server scrape") {
+            const result = await this.scrapeUrlServerSide(url, options);
             if (result.success) {
                 return {
                     text: result.result.text,
@@ -791,11 +796,23 @@ export default class MainPageApp {
                 text: "No text found in page",
                 title: "",
             };
-        } else {
+        } else if (scrape === "browser scrape") {
             return this.scrapeTabPage(url);
+        } else if (scrape === "override content") {
+            return {
+                text: bulkUrl.content,
+                url,
+                title: "",
+            };
+        } else {
+            return {
+                text: "No text found in page",
+                title: "",
+                url
+            };
         }
     }
-    async scrapeUrlServerSide(url: string, options = "") {
+    async scrapeUrlServerSide(url: string, options: string) {
         const result = await this.extCommon.scrapeURLUsingAPI(url, options);
         result.url = url;
         return result;
@@ -804,7 +821,7 @@ export default class MainPageApp {
         let rows = this.bulk_url_list_tabulator.getData();
         let browserScrape = false;
         rows.forEach((row: any) => {
-            if (row.options === "browser scrape") {
+            if (row.scrape === "browser scrape") {
                 browserScrape = true;
             }
         });
