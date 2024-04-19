@@ -1,15 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --ss-animation-timing: 0.05s;
-  --primary-color: #007bff;
-  --secondary-color: #6c757d;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --light-color: #f8f9fa;
-  --dark-color: #343a40;
-  --text-color: #212529;
-  --border-color: #ccc;
-  --background-color: #f5f5f5;
+  --primary-color: rgb(0, 123, 255);
+  --secondary-color: rgb(108, 117, 125);
+  --success-color: rgb(40, 167, 69);
+  --warning-color: rgb(255, 193, 7);
+  --danger-color: rgb(220, 53, 69);
+  --light-color: rgb(248, 249, 250);
+  --dark-color: rgb(52, 58, 64);
+  --text-color: rgb(33, 37, 41);
+  --border-color: rgb(204, 204, 204);
+  --background-color: rgb(245, 245, 245);
+  --border-color: rgb(229, 231, 235);
   --font-family: 'Roboto', sans-serif;
   --font-size-base: 14px;
   --font-size-small: 12px;
@@ -20,6 +25,34 @@
   --spacing-medium: 8px;
   --spacing-large: 16px;
 }
+
+/* fight bs default */
+
+.pagination {
+  --bs-box-shadow: none;
+  --bs-pagination-padding-x: var(--spacing-medium);
+  --bs-pagination-padding-y: 2px;
+  --bs-pagination-font-size: var(--font-size-small);
+  --bs-pagination-border-width: var(--bs-border-width);
+  --bs-pagination-border-color: var(--bs-border-color);
+  --bs-pagination-border-radius: 4px;
+  --bs-pagination-hover-color: var(--bs-link-hover-color);
+  --bs-pagination-hover-bg: var(--bs-tertiary-bg);
+  --bs-pagination-hover-border-color: var(--bs-border-color);
+  --bs-pagination-focus-color: var(--bs-link-hover-color);
+  --bs-pagination-focus-bg: var(--bs-secondary-bg);
+  --bs-pagination-focus-box-shadow: none;
+  --bs-pagination-active-color: var(--bs-primary-color);
+  --bs-pagination-active-bg: none;
+  --bs-pagination-active-border-color: none;
+  --bs-pagination-disabled-color: var(--bs-secondary-color);
+  --bs-pagination-disabled-bg: var(--bs-secondary-bg);
+  --bs-pagination-disabled-border-color: none;
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+}
+
 
 html,
 body {
@@ -39,38 +72,6 @@ body {
   overflow: hidden;
 }
 
-.main_body_split_containers {
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  overflow: hidden;
-  width: 100%;
-}
-
-.left_panel_view {
-  width: 180px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  height: 100%;
-  transition: left .6s, visibility .6s;
-  padding: var(--spacing-medium);
-}
-
-.left_panel_view ul {
-  flex-direction: column;
-}
-
-.right_panel_view {
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-  height: 100%;
-  display: flex;
-}
-
-/* left panel elements */
 
 .nav-tabs {
   background-color: var(--light-color);
@@ -199,30 +200,6 @@ body {
   padding-right: var(--spacing-large);
 }
 
-.pagination {
-  --bs-pagination-padding-x: var(--spacing-medium);
-  --bs-pagination-padding-y: 2px;
-  --bs-pagination-font-size: var(--font-size-small);
-  --bs-pagination-border-width: var(--bs-border-width);
-  --bs-pagination-border-color: var(--bs-border-color);
-  --bs-pagination-border-radius: 4px;
-  --bs-pagination-hover-color: var(--bs-link-hover-color);
-  --bs-pagination-hover-bg: var(--bs-tertiary-bg);
-  --bs-pagination-hover-border-color: var(--bs-border-color);
-  --bs-pagination-focus-color: var(--bs-link-hover-color);
-  --bs-pagination-focus-bg: var(--bs-secondary-bg);
-  --bs-pagination-focus-box-shadow: none;
-  --bs-pagination-active-color: var(--bs-primary-color);
-  --bs-pagination-active-bg: none;
-  --bs-pagination-active-border-color: none;
-  --bs-pagination-disabled-color: var(--bs-secondary-color);
-  --bs-pagination-disabled-bg: var(--bs-secondary-bg);
-  --bs-pagination-disabled-border-color: none;
-  display: flex;
-  padding-left: 0;
-  list-style: none;
-}
-
 .small_icon {
   font-size: 20px;
   color: var(--text-color);
@@ -290,9 +267,7 @@ body {
   line-height: 1.5;
   border: none;
   border-radius: var(--border-radius);
-  background-color: var(--background-color);
   resize: none;
-  box-shadow: var(--box-shadow);
   overflow-y: auto;
   padding-bottom: 24px;
   margin: var(--spacing-medium) 0;
@@ -361,11 +336,15 @@ body {
   line-height: 1em;
   font-size: var(--font-size-large);
   padding: var(--spacing-small) var(--spacing-large);
-    border-radius: var(--border-radius);
+  border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
   cursor: pointer;
   position: relative;
   border-color: var(--text-color);
+}
+
+.btn:hover {
+  filter: brightness(50%);
 }
 
 .btn_menu_action {

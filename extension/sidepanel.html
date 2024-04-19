@@ -1,161 +1,52 @@
 <html>
-
 <head>
   <link rel="stylesheet" href="lib/materialiconsoutlined.css">
   <link href="lib/bootstrap.min.css" rel="stylesheet">
   <script src="lib/bootstrap.bundle.min.js"></script>
-  <link href="main.css" rel="stylesheet">
+  <link href="style/output.css" rel="stylesheet">
   <link href="lib/slimselect.css" rel="stylesheet">
   <script src="lib/lottieplayer.js"></script>
   <script src="models/index.js"></script>
   </link>
 </head>
-<style>
-  .analysis_container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: var(--spacing-medium);
-  }
-
-  .output_container {
-    flex: 1;
-    margin-bottom: var(--spacing-large);
-    overflow: auto;
-  }
-
-  .analysis_display {
-    font-family: var(--font-family);
-    font-size: var(--font-size-base);
-    line-height: 1.5;
-    overflow: auto;
-  }
-
-  /* hide class */
-  .extension_running .analysis_display{
-  display: none;
-}
-
-  .analysis_sets_configuration {
-    margin-bottom: var(--spacing-medium);
-  }
-
-  .textarea_container {
-    margin-top: auto;
-  }
-
-  .query_source_controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-small);
-  }
-
-  .query_text_description {
-    display: flex;
-    position: relative;
-    top: -6px;
-    right: 0;
-  }
-
-  .query_source_text_length,
-  .query_source_tokens_length {
-    margin-right: var(--spacing-medium);
-  }
-
-  .query_source_action {
-    padding: var(--spacing-small) var(--spacing-medium);
-    font-size: var(--font-size-base);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-  }
-
-  .query_source_text {
-    width: 100%;
-    min-height: 150px;
-    padding: var(--spacing-medium);
-    font-family: var(--font-family);
-    font-size: var(--font-size-base);
-    line-height: 1.5;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    resize: vertical;
-  }
-
-  .analysis_sets_configuration {
-    display: block;
-    margin-top: var(--spacing-large);
-    flex: 1;
-    padding-right: 4px;
-  }
-  .analysis_container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: var(--spacing-medium);
-  }
-  .query_source_text {
-    height: 20vh;
-}
-
-.analysis_input,
-.analysis_output {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-  height: calc(100% - 8px);
-}
-
-.analysis_input {
-  margin-right: var(--spacing-large);
-}
-
-.analysis_header {
-  margin-bottom: 0;
-}
-</style>
-
 <body>
-  <div class="no_session_key" style="display: none;">
-    <div class="message">
-      <i class="material-icons-outlined">warning</i>
-      <span>No session key. Please visit <a href="https://unacog.com" target="_blank">unacog.com</a> to get
+  <div class="no_session_key hidden">
+    <div class="flex items-center">
+      <i class="material-icons-outlined mr-4">warning</i>
+      <span>No session key. Please visit <a href="https://unacog.com" target="_blank" class="text-blue-500 hover:underline">unacog.com</a> to get
         started.</span>
     </div>
   </div>
-
-  <div class="analysis_container">
-    <div class="analysis_header">
-      <div class="analysis_sets_configuration">
-        <label class="positioned_label">Select Metrics for analysis</label>
-        <select class="analysis_set_select" multiple>
+  <div class="flex flex-col h-full p-2">
+    <div class="flex justify-between mt-3">
+      <div class="flex relative w-full">
+        <label class="absolute -top-5 text-sm text-gray-500">Select Metrics for analysis</label>
+        <select class="analysis_set_select w-full" multiple>
         </select>
       </div>
-      <button class="show_main_page_btn btn">
-        <i class="material-icons-outlined">settings</i>
-      </button>
+      <div class="p-1">
+        <button class="show_main_page_btn btn">
+          <i class="material-icons-outlined">settings</i>
+        </button>
+      </div>
     </div>
-    <div class="textarea_container">
-      <textarea class="query_source_text" placeholder="Enter text for analysis..."></textarea>
-      <div class="query_source_controls">
-        <div class="query_text_description">
-          <div class="query_source_text_length"></div>
+    <div class="mt-auto">
+      <textarea class="query_source_text w-full min-h-[150px] p-2 font-sans text-base leading-6 border border-gray-300 rounded resize-y" placeholder="Enter text for analysis..."></textarea>
+      <div class="flex justify-between items-center mb-2">
+        <div class="flex relative -top-1.5 left-1 text-xs text-slate-500">
+          <div class="query_source_text_length mr-4"></div>
           <div class="query_source_tokens_length">&nbsp;</div>
         </div>
       </div>
     </div>
-
-    <div class="analysis_output">
-      <div class="history_display_results_running">
+    <div class="flex flex-col flex-1 overflow-hidden h-[calc(100%-32px)]">
+      <div class="history_display_results_running flex flex-col justify-center flex-1">
         <lottie-player src="media/lottie.json" background="transparent" speed="1"
           style="width: 200px;height: 200px;align-self:center;" loop autoplay></lottie-player>
       </div>
-      <div class="analysis_display"></div>
-      <h5 class="category_header analysis_running">Analysis Running...</h5>
+      <div class="analysis_display overflow-auto"></div>
+      <h5 class="analysis_running mb-2 pt-0 px-2">Analysis Running...</h5>
     </div>
   </div>
-
 </body>
-
 </html>
