@@ -15,7 +15,7 @@
 <body class="main_configuration_page">
   <div class="flex flex-col h-full overflow-hidden">
     <div class="flex flex-1 flex-row overflow-hidden w-full">
-      <div class="w-48 overflow-hidden flex flex-col h-full transition-all duration-600 p-2">
+      <div class="w-40 overflow-hidden flex flex-col h-full transition-all duration-600 p-2">
         <ul class="flex flex-col" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
             <button class="nav-link active" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis"
@@ -39,6 +39,11 @@
             <button class="nav-link" id="api-config-tab" data-bs-toggle="modal" data-bs-target="#configModal"
               type="button">
               <i class="material-icons-outlined">vpn_key</i> Access
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link open_side_panel_from_main">
+              <i class="material-icons-outlined">send_time_extension</i>
             </button>
           </li>
         </ul>
@@ -75,9 +80,6 @@
                 <button class="btn run_analysis_btn bg-green-500 text-white">
                   <span class="relative bottom-1 btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
                 </button>
-                <button class="btn open_side_panel_from_main">
-                  <i class="material-icons-outlined">menu</i>
-                </button>
               </div>
             </div>
             <div class="flex overflow-hidden analysis_content">
@@ -93,7 +95,7 @@
                 <div class="flex-1 flex justify-between items-center history_usage_stats">
                   <div class="text-xs text-green-500 bg-gray-100 entry_total_credit_usage"></div>
                 </div>
-                <button type="button" class="p-2 border-none cursor-pointer relative bg-transparent border-transparent btn_menu_action manage_history_configuration" data-bs-toggle="modal"
+                <button type="button" class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration" data-bs-toggle="modal"
                 data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
                 <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
               </button>
@@ -137,18 +139,31 @@
               <lottie-player src="media/lottie.json" background="transparent" speed="1"
                 class="w-48 h-48" loop autoplay></lottie-player>
             </div>
-            <div class="flex-1 overflow-auto bulk_analysis_results_history">
+            <div class="overflow-auto bulk_analysis_results_history flex-column flex-2">
               <div class="bulk_action_bar">
                 <span class="bulk_selected_last_run_date"></span>
                 <button class="download_full_json btn">
                   <span class="relative bottom-1 btn_text">Full JSON</span> <i class="material-icons-outlined">download</i>
                 </button>
+                <button class="view_bulk_json_file btn">
+                  <span class="relative bottom-1 btn_text">View</span> <i class="material-icons-outlined">launch</i>
+                </button>
                 <button class="download_compact_csv btn">
                   <span class="relative bottom-1 btn_text">CSV</span> <i class="material-icons-outlined">download</i>
                 </button>
+                <button type="button" class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_bulk_history_configuration" data-bs-toggle="modal"
+                data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+                <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
+              </button>
+              </div>
+              <div class="flex-1 bulk_analysis_results_tabulator"></div>
+              <div class="flex justify-end items-center pt-1 pr-4 bulk_history_pagination"></div>
+            </div>
+            <div class="no_bulk_result_history_entry flex-2 flex-column">
+              <div class="flex flex-col justify-center items-center h-full">
+                <div class="text-gray-600 text-lg">No bulk analysis results found.</div>
               </div>
             </div>
-            <div class="flex justify-end items-center pt-1 pr-4 bulk_history_pagination"></div>
           </div>
         </div>
       </div>
@@ -281,8 +296,9 @@
                 </div>
               </div>
               <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-                <div>
+                <div class="flex flex-column gap-2">
                   <button class="btn clear_history">Clear History</button>
+                  <button class="btn clear_bulk_history">Clear Bulk History</button>
                   <button class="btn export_history">Export</button>
                   <select class="history_range_amount_select">
                     <option value="1">1</option>

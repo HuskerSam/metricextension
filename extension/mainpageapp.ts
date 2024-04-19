@@ -478,7 +478,7 @@ export default class MainPageApp {
         <div class="history_text">${this.extCommon.truncateText(entry.text, 500)}</div>
         <div class="history_header">
             <span class="url_display">(${this.extCommon.truncateText(entry.url, 100)})</span>
-            <button class="export_history_entry btn_menu_action" data-index="${historyIndex}">
+            <button class="export_history_entry" data-index="${historyIndex}">
                 <i class="material-icons-outlined small_icon">download</i>
             </button>
         </div>

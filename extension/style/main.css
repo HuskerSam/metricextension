@@ -81,7 +81,7 @@ body {
 .nav-link {
   font-size: var(--font-size-large);
   color: var(--text-color);
-  padding: var(--spacing-medium) var(--spacing-large);
+  padding: var(--spacing-medium);
   transition: background-color 0.3s ease;
   margin: var(--spacing-small) 0;
 }
@@ -346,15 +346,6 @@ body {
 
 .btn:hover {
   filter: brightness(50%);
-}
-
-.btn_menu_action {
-  padding: var(--spacing-medium) var(--spacing-large);
-  border: none;
-  cursor: pointer;
-  position: relative;
-  background-color: transparent;  
-  border-color: transparent;
 }
 
 .run_bulk_analysis_btn {
@@ -710,4 +701,20 @@ body {
 .page-item.selected a {
   background-color: blue;
   color: #fff;
+}
+
+.bulk_analysis_results_history {
+  display: none;
+}
+
+.bulk_history_item_selected .bulk_analysis_results_history {
+  display: flex;
+}
+
+.no_bulk_result_history_entry {
+  display: none
+}
+
+.no_bulk_history_item_selected .no_bulk_result_history_entry {
+  display: flex;
 }
