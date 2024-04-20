@@ -212,6 +212,7 @@ export class AnalyzerExtensionCommon {
     return Object.keys(analysisSets);
   }
   async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
+    if (text.length > 30000) text = text.slice(0, 30000);
     const runDate = new Date().toISOString();
     if (addToHistory) {
       let running = await this.chrome.storage.local.get('running');

@@ -215,9 +215,12 @@ export default class BulkHelper {
                 let text = reader.result as string;
                 let existingUrlList = this.bulkUrlListTabulator.getData();
                 let bulkUrlList = Papa.parse(text, { header: true }).data;
-                bulkUrlList = bulkUrlList.concat(existingUrlList);
-                this.bulkUrlListTabulator.setData(bulkUrlList);
-                await chrome.storage.local.set({ bulkUrlList });
+                bulkUrlList.forEach((row: any) => {
+                    if (!row.scrape) row.scrape = "server scrape";
+                    existingUrlList.push(row);
+                });
+                this.bulkUrlListTabulator.setData(existingUrlList);
+                await chrome.storage.local.set({ bulkUrlList: existingUrlList });
                 this.url_file_input.value = "";
             };
             reader.readAsText(file);
