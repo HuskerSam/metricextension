@@ -1,7 +1,8 @@
 import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
-import SlimSelect from 'slim-select';import hljs from 'highlight.js';
+import SlimSelect from 'slim-select';
+import hljs from 'highlight.js';
 import json from 'highlight.js/lib/languages/json';
 declare const chrome: any;
 
@@ -126,8 +127,6 @@ export default class BulkHelper {
                 }
             }
         );
-
-
         this.bulkUrlListTabulator.on("cellClick", async (e: Event, cell: any) => {
             if (cell.getColumn().getField() === "delete") {
                 this.lastTableEdit = new Date();
@@ -138,19 +137,16 @@ export default class BulkHelper {
                 await chrome.storage.local.set({ bulkUrlList });
             }
         });
-
         this.bulkUrlListTabulator.on("rowMoved", async (row: any) => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulkUrlListTabulator.getData();
             await chrome.storage.local.set({ bulkUrlList });
         });
-
         this.bulkUrlListTabulator.on("cellEdited", async (cell: any) => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulkUrlListTabulator.getData();
             await chrome.storage.local.set({ bulkUrlList });
         });
-
         this.add_bulk_url_row.addEventListener('click', async () => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulkUrlListTabulator.getData();
@@ -158,7 +154,6 @@ export default class BulkHelper {
             this.bulkUrlListTabulator.setData(bulkUrlList);
             await chrome.storage.local.set({ bulkUrlList });
         });
-
         this.run_bulk_analysis_btn.addEventListener('click', async () => {
             let emptyRows = await this.checkForEmptyRows();
             if (emptyRows) {
@@ -188,7 +183,6 @@ export default class BulkHelper {
             let rows = this.bulkUrlListTabulator.getData();
             await this.runBulkAnalysis(rows);
         });
-
         this.download_url_list.addEventListener('click', async () => {
             if (this.bulkUrlListTabulator.getData().length === 0) {
                 alert("No data to download");
@@ -208,41 +202,26 @@ export default class BulkHelper {
             a.click();
             document.body.removeChild(a);
         });
-
         this.upload_url_list.addEventListener('click', async () => {
             this.url_file_input.click();
         });
-
         this.url_file_input.addEventListener('change', async () => {
+            if (!this.url_file_input.files || (this.url_file_input.files as any).length === 0) {    
+                return;
+            }
             let file = (this.url_file_input.files as any)[0];
             let reader = new FileReader();
             reader.onload = async () => {
                 let text = reader.result as string;
+                let existingUrlList = this.bulkUrlListTabulator.getData();
                 let bulkUrlList = Papa.parse(text, { header: true }).data;
+                bulkUrlList = bulkUrlList.concat(existingUrlList);
                 this.bulkUrlListTabulator.setData(bulkUrlList);
                 await chrome.storage.local.set({ bulkUrlList });
                 this.url_file_input.value = "";
             };
             reader.readAsText(file);
         });
-
-        this.upload_url_list.addEventListener('click', async () => {
-            this.url_file_input.click();
-        });
-
-        this.url_file_input.addEventListener('change', async () => {
-            let file = (this.url_file_input.files as any)[0];
-            let reader = new FileReader();
-            reader.onload = async () => {
-                let text = reader.result as string;
-                let bulkUrlList = Papa.parse(text, { header: true }).data;
-                this.bulkUrlListTabulator.setData(bulkUrlList);
-                await chrome.storage.local.set({ bulkUrlList });
-                this.url_file_input.value = "";
-            };
-            reader.readAsText(file);
-        });
-
         this.download_full_json.addEventListener('click', async () => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
             bulkHistory = bulkHistory.bulkHistory || [];
@@ -258,14 +237,13 @@ export default class BulkHelper {
             bulkHistory = bulkHistory.bulkHistory || [];
             let historyItem = bulkHistory[this.bulkSelectedIndex];
             this.json_display_modal_content.innerHTML = "Loading...";
-            (new (<any>window).bootstrap.Modal(this.json_display_modal)).show(); 
+            (new (<any>window).bootstrap.Modal(this.json_display_modal)).show();
             let jsonFetchResult = await fetch(historyItem.analysisResultPath);
             let jsonText = await jsonFetchResult.text();
             jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
             this.json_display_modal_content.innerHTML = jsonText;
             hljs.highlightElement(this.json_display_modal_content);
         });
-        
         this.download_compact_csv.addEventListener('click', async () => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
             bulkHistory = bulkHistory.bulkHistory || [];
@@ -276,20 +254,17 @@ export default class BulkHelper {
             a.click();
             document.body.removeChild(a);
         });
-
         this.clear_bulk_history.addEventListener('click', async () => {
             if (confirm("Are you sure you want to clear the history?") === true) {
                 await chrome.storage.local.set({ bulkHistory: [] });
                 this.paintAnalysisHistory();
             }
-         });
-
-         this.manage_bulk_history_configuration.addEventListener('click', async () => {
+        });
+        this.manage_bulk_history_configuration.addEventListener('click', async () => {
             document.getElementById('history-tab')?.click();
         });
         hljs.registerLanguage('json', json);
     }
-
     async checkForEmptyRows() {
         let bulkUrlList = this.bulkUrlListTabulator.getData();
         let emptyRows = bulkUrlList.filter((row: any) => {
@@ -308,7 +283,6 @@ export default class BulkHelper {
         this.bulkUrlListTabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
     }
-
     async detectTabLoaded(tabId: number) {
         return new Promise((resolve, reject) => {
             this.activeTabsBeingScraped[tabId] = resolve;
@@ -337,6 +311,7 @@ export default class BulkHelper {
                     await chrome.tabs.remove(tab.id);
                     resolve(scrapes);
                 } catch (e) {
+                    console.log("tab scrape error", e);
                     resolve("");
                 }
             }, 3000);
@@ -359,7 +334,9 @@ export default class BulkHelper {
                 title: "",
             };
         } else if (scrape === "browser scrape") {
-            return this.scrapeTabPage(url, defaultTabId);
+            let results =  this.scrapeTabPage(url, defaultTabId);
+            console.log("active scrape results", results);
+            return results;
         } else if (scrape === "override content") {
             return {
                 text: bulkUrl.content,
@@ -409,7 +386,7 @@ export default class BulkHelper {
         results.forEach((result: any, index: number) => {
             let text = "";
             if (result && result.text) text = result.text;
-            if (result && result.length > 0 && result[0].text) text = result[0].text;
+            if (result && result.length > 0 && result[0].result) text = result[0].result;
             if (!text) {
                 analysisPromises.push(async () => {
                     return {
@@ -552,7 +529,7 @@ export default class BulkHelper {
         let tabulatorColumns: any[] = [];
         columns.forEach((column) => {
             const title = column.split("_")[0];
-            tabulatorColumns.push({ title, field: column, width: 100});
+            tabulatorColumns.push({ title, field: column, width: 100 });
         });
         this.bulkResultsTabulator.setColumns(tabulatorColumns);
         this.bulkResultsTabulator.setData(csvData);
@@ -585,7 +562,9 @@ export default class BulkHelper {
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>`;
-
+        paginationHtml += `<li class="page-item count">
+                   ${totalItems} items
+                   </li>`;
         paginationHtml += '</ul>';
 
         return paginationHtml;

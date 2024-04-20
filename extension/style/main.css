@@ -698,11 +698,6 @@ body {
   display: flex;
 }
 
-.page-item.selected a {
-  background-color: blue;
-  color: #fff;
-}
-
 .bulk_analysis_results_history {
   display: none;
 }
@@ -717,4 +712,25 @@ body {
 
 .no_bulk_history_item_selected .no_bulk_result_history_entry {
   display: flex;
+}
+
+.page-item.buttondisabled {
+  visibility: hidden;
+}
+
+.page-item.selected a {
+  background-color: blue;
+  color: #fff;
+}
+
+.page-item {
+  width: 2.75em;
+  text-align: center;
+}
+
+.page-item.count {
+  font-size: .5em;
+  color: var(--secondary-color);
+  line-height: .9em;
+  padding-top: 4px;
 }

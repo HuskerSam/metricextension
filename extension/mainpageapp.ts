@@ -261,7 +261,9 @@ export default class MainPageApp {
                 <span aria-hidden="true">&raquo;</span>
             </a>
         </li>`;
-
+        paginationHtml += `<li class="page-item count">
+                   ${totalItems} items
+                   </li>`;
         paginationHtml += '</ul>';
 
         return paginationHtml;
