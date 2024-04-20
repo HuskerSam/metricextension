@@ -411,11 +411,18 @@ body {
 }
 
 .prompt_result {
-  margin-bottom: var(--spacing-medium);
-  padding: var(--spacing-medium);
-  border-radius: var(--border-radius);
-  display: inline-block;
+  display: flex;
+  flex-direction: row;
+  border-bottom: solid 1px var(--border-color);
 }
+
+.metric_result .prompt_id {
+  font-weight: bold;
+  width: 150px;
+  overflow: hidden;
+  align-self: center;
+}
+
 
 .prompt_id_input {
   font-weight: bold;
@@ -426,17 +433,33 @@ body {
   font-size: var(--font-size-base);
 }
 
-.metric_score {
+.metric_result .metric_score {
+  width: 50px;
+  overflow: hidden;
+  align-self: center;
   font-size: var(--font-size-large);
   color: var(--primary-color);
   margin-left: var(--spacing-small);
 }
 
+.metric_score .outofscore {
+  font-size: .75em;
+  opacity: .75;
+  padding-left: 6px;
+  padding-bottom: 6px;
+  color: black;
+  display: inline-block;
+}
+
 .metric_bar {
   height: 10px;
-  background-color: var(--light-color);
+  background-color: white;
+  border: solid 1px var(--border-color);
   border-radius: 5px;
   overflow: hidden;
+  flex: 1;
+  max-width: 250px;
+  align-self: center;
 }
 
 .metric_fill {
@@ -445,7 +468,6 @@ body {
 }
 
 .text_result,
-.metric_result,
 .json_result {
   margin-bottom: var(--spacing-medium);
   padding: var(--spacing-medium);

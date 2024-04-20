@@ -16,7 +16,6 @@ export class AnalyzerExtensionCommon {
 
   constructor(chrome: any) {
     this.chrome = chrome;
-
   }
   async initCommonDom() {
     this.query_source_text = document.querySelector(".query_source_text");
@@ -278,11 +277,6 @@ export class AnalyzerExtensionCommon {
 
     return historyEntry;
   }
-  /**
-   * 
-   * @param result 
-   * @returns 
-   */
   getHTMLforPromptResult(result: any) {
     const usageText = `<span class="credits_usage_span">Credits: ${Math.round(result.result.promptResult.ticketResults.usage_credits)}</span>`;
     if (result.prompt.promptType === 'text') {
@@ -302,11 +296,10 @@ export class AnalyzerExtensionCommon {
         return `
             <div class="prompt_result metric_result">
               <span class="prompt_id">${result.prompt.id}</span>
-              <span class="metric_score">${metric}</span>
+              <span class="metric_score">${metric}<span class="outofscore">/10</span></span>
               <div class="metric_bar">
                 <div class="metric_fill" style="width: ${metric * 10}%;"></div>
               </div>
-              <div class="result_usage">${usageText}</div>
             </div>
           `;
       } catch (error) {
@@ -337,7 +330,6 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-
   async updateContentTextonSidePanel(text: string) {
     let running = await this.chrome.storage.local.get('running');
     if (running && running.running) {
