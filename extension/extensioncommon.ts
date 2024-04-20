@@ -55,6 +55,36 @@ export class AnalyzerExtensionCommon {
 
     this.analysis_display = document.querySelector(".analysis_display");
   }
+  generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    let paginationHtml = '';
+    paginationHtml = '<ul class="pagination pagination-sm mb-0">';
+    paginationHtml += `<li class="page-item ${currentPageIndex === 0 || totalPages === 0 ? 'buttondisabled' : ''}">
+        <a class="page-link" href="#" aria-label="Previous" data-entryindex="-1">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>`;
+    const startIndex = currentPageIndex * itemsPerPage;
+    const endIndex = Math.min((currentPageIndex + 1) * itemsPerPage, totalItems);
+    for (let i = startIndex; i < endIndex; i++) {
+        paginationHtml += `<li class="page-item ${currentEntryIndex === i ? 'selected' : ''}">
+        <a class="page-link" href="#" data-entryindex="${i}">
+            <span aria-hidden="true">${i + 1}</span>
+        </a>
+    </li>`;
+    }
+    paginationHtml += `<li class="page-item ${currentPageIndex === totalPages - 1 || totalPages === 0 ? 'buttondisabled' : ''}">
+        <a class="page-link" href="#" aria-label="Next" data-entryindex="-2">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    </li>`;
+    paginationHtml += `<li class="page-item count">
+               <span>${totalItems}<br>items</li>`;
+    paginationHtml += '</ul>';
+
+    return paginationHtml;
+}
   async processPromptUsingUnacogAPI(message: string): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');
     apiToken = apiToken.apiToken || '';

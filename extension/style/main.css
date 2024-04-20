@@ -51,6 +51,7 @@
   display: flex;
   padding-left: 0;
   list-style: none;
+  width: 340px;
 }
 
 
@@ -750,9 +751,10 @@ body {
   text-align: center;
 }
 
-.page-item.count {
-  font-size: .5em;
+.page-item.count span {
+  line-height: 1em;
+  font-size: .5em;  
   color: var(--secondary-color);
-  line-height: .9em;
   padding-top: 4px;
+  display: inline-block;
 }

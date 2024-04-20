@@ -499,7 +499,8 @@ export default class BulkHelper {
             document.body.classList.remove("bulk_history_item_selected");
             this.bulk_selected_last_run_date.innerHTML = "No selected entry";
         }
-        let paginationHtml = this.generateBulkPagination(bulkHistory.length);
+        let paginationHtml = this.extCommon
+                .generatePagination(bulkHistory.length, this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
         this.bulk_history_pagination.innerHTML = paginationHtml;
 
         this.bulkHistoryEntryListItems = document.querySelectorAll('.bulk_history_pagination li a') as NodeListOf<HTMLLIElement>;
@@ -536,41 +537,6 @@ export default class BulkHelper {
         });
         this.bulkResultsTabulator.setColumns(tabulatorColumns);
         this.bulkResultsTabulator.setData(csvData);
-    }
-    generateBulkPagination(totalItems: number) {
-        const currentEntryIndex = this.bulkSelectedIndex;
-        const totalPages = Math.ceil(totalItems / this.itemsPerView);
-
-
-        let paginationHtml = '';
-
-        paginationHtml = '<ul class="pagination pagination-sm mb-0">';
-
-        paginationHtml += `<li class="page-item ${this.currentPageIndex === 0 ? 'buttondisabled' : ''}">
-            <a class="page-link" href="#" aria-label="Previous" data-entryindex="-1">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>`;
-        const startIndex = this.currentPageIndex * this.itemsPerView;
-        const endIndex = Math.min((this.currentPageIndex + 1) * this.itemsPerView, totalItems);
-        for (let i = startIndex; i < endIndex; i++) {
-            paginationHtml += `<li class="page-item ${currentEntryIndex === i ? 'selected' : ''}">
-            <a class="page-link" href="#" data-entryindex="${i}">
-                <span aria-hidden="true">${i + 1}</span>
-            </a>
-        </li>`;
-        }
-        paginationHtml += `<li class="page-item ${this.currentPageIndex === totalPages - 1 ? 'buttondisabled' : ''}">
-            <a class="page-link" href="#" aria-label="Next" data-entryindex="-2">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>`;
-        paginationHtml += `<li class="page-item count">
-                   ${totalItems} items
-                   </li>`;
-        paginationHtml += '</ul>';
-
-        return paginationHtml;
     }
     async paintBulkURLList(forceUpdate = false) {
         //only continue if debounce timer is up
