@@ -13,7 +13,6 @@ export class AnalyzerExtensionCommon {
   constructor(chrome: any) {
     this.chrome = chrome;
   }
-
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -319,8 +318,6 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-
-
   async runMetrics() {
     let text = this.query_source_text.value;
     await this.runAnalysisPrompts(text, 'user input');
@@ -386,12 +383,15 @@ export class AnalyzerExtensionCommon {
     });
   }
   async openExentionSinglePage(url: string) {
-    const [tab] = await this.chrome.tabs.query({
+    const [extensionTab] = await this.chrome.tabs.query({
       url: `chrome-extension://${this.chrome.runtime.id}/main.html`,
+      lastFocusedWindow: true,
     });
 
-    if (tab) {
-      await this.chrome.tabs.update(tab.id, { active: true });
+    if (extensionTab && extensionTab.active !== true) {
+      await this.chrome.tabs.update(extensionTab.id, { active: true });
+    } else if (extensionTab) {
+      await this.chrome.tabs.remove(extensionTab.id);
     } else {
       await this.chrome.tabs.create({
         url

@@ -105,7 +105,6 @@ body {
   border: 1px solid var(--warning-color);
   border-radius: var(--border-radius);
   padding: var(--spacing-medium);
-  margin-bottom: var(--spacing-large);
 }
 
 .no_session_key .message {
@@ -782,4 +781,6 @@ body {
   border-left: solid 1px var(--border-color);
   margin-bottom: 16px;
   border-bottom: solid 1px var(--border-color);
+  margin-right: 4px;
+  margin-top: 4px;
 }
