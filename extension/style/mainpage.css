@@ -23,3 +23,12 @@
 .nav-link i {
     margin-right: var(--spacing-small);
 }
+
+.prompt_list_editor .tabulator-row.tabulator-group {
+    background-color: var(--background-color);
+    border-right: none;
+}
+
+.prompt_list_editor .tabulator-row.tabulator-group .tabulator-group-toggle {
+    padding: 8px;
+}

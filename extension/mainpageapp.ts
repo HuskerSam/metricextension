@@ -216,7 +216,7 @@ export default class MainPageApp {
         });
         const setNamesArray = Object.keys(setBasedResults);
         setNamesArray.forEach((setName: any) => {
-            resultsHTML += `<h6 class="">${setName}</h6>`;
+            resultsHTML += `<h6 class="history_entry_prompt_setname">${setName}</h6>`;
             let promptSetResults = setBasedResults[setName];
             promptSetResults.forEach((result: any) => {
                 try {
