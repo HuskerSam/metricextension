@@ -60,7 +60,7 @@ export default class SidePanelApp {
              });
 
         this.show_main_page_btn.addEventListener('click', () => {
-            chrome.tabs.create({ url: 'main.html', active: true });
+          this.extCommon.openExentionSinglePage("main.html");
         });
 
         this.run_analysis_btn.addEventListener('click', async () => {

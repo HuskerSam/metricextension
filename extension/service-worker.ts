@@ -1,7 +1,6 @@
 
 import { AnalyzerExtensionCommon } from "./extensioncommon";
 declare const chrome: any;
-
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
    if (reason.reason === 'install') {
     await chrome.tabs.create({
@@ -59,7 +58,8 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
 });
 
 chrome.action.onClicked.addListener(async (tab: any) => {
-    openExentionSinglePage("main.html");
+    chrome.storage.local.set({ lastPanelToggleDate: new Date().toISOString() });
+    chrome.sidePanel.open({ tabId: tab.id });
 });
 
 chrome.runtime.onMessageExternal.addListener(
@@ -78,22 +78,9 @@ chrome.runtime.onMessageExternal.addListener(
             chrome.sidePanel.open({ tabId: sender.tab.id });
         }
         if (request.specialAction === 'openMainPage') {
-            openExentionSinglePage("main.html");
+            let abc = new AnalyzerExtensionCommon(chrome);
+            abc.openExentionSinglePage("main.html");
         }
     }
 );
-
-async function  openExentionSinglePage(url: string) {
-    const [tab] = await chrome.tabs.query({
-       url: `chrome-extension://${chrome.runtime.id}/main.html`,
-    });
-
-    if (tab) {
-        await chrome.tabs.update(tab.id, { active: true });
-    } else {
-        await chrome.tabs.create({
-            url
-        });
-    }
-}
 

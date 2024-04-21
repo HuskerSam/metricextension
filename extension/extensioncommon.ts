@@ -27,7 +27,7 @@ export class AnalyzerExtensionCommon {
     const startIndex = currentPageIndex * itemsPerPage;
     const endIndex = Math.min((currentPageIndex + 1) * itemsPerPage, totalItems);
     for (let i = startIndex; i < endIndex; i++) {
-        paginationHtml += `<li class="page-item ${currentEntryIndex === i ? 'selected' : ''}">
+      paginationHtml += `<li class="page-item ${currentEntryIndex === i ? 'selected' : ''}">
         <a class="page-link" href="#" data-entryindex="${i}">
             <span aria-hidden="true">${i + 1}</span>
         </a>
@@ -43,7 +43,7 @@ export class AnalyzerExtensionCommon {
     paginationHtml += '</ul>';
 
     return paginationHtml;
-}
+  }
   async processPromptUsingUnacogAPI(message: string): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');
     apiToken = apiToken.apiToken || '';
@@ -384,5 +384,18 @@ export class AnalyzerExtensionCommon {
       month: "short",
       day: "numeric",
     });
+  }
+  async openExentionSinglePage(url: string) {
+    const [tab] = await this.chrome.tabs.query({
+      url: `chrome-extension://${this.chrome.runtime.id}/main.html`,
+    });
+
+    if (tab) {
+      await this.chrome.tabs.update(tab.id, { active: true });
+    } else {
+      await this.chrome.tabs.create({
+        url
+      });
+    }
   }
 }
