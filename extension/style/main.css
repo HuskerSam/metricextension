@@ -247,12 +247,6 @@ body {
   gap: var(--spacing-medium);
 }
 
-.analysis_content {
-  display: flex;
-  overflow: hidden;
-}
-
-.analysis_input,
 .analysis_output {
   display: flex;
   flex: 1;
@@ -475,6 +469,8 @@ body {
   background-color: var(--light-color);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: column;
 }
 
 .error_result {
@@ -609,15 +605,6 @@ body {
 
   .btn_text {
     display: none;
-  }
-
-  .analysis_input,
-  .analysis_output {
-    margin-right: 0;
-  }
-
-  .analysis_content {
-    flex-direction: column;
   }
 
   .analysis_actions {
@@ -757,4 +744,19 @@ body {
   color: var(--secondary-color);
   padding-top: 4px;
   display: inline-block;
+}
+
+.gutter {
+  background-color: #eee;
+
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter.gutter-vertical {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+}
+
+.gutter.gutter-horizontal {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
 }

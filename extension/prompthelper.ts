@@ -26,8 +26,6 @@ export default class PromptHelper {
     promptsTable: TabulatorFull;
 
     constructor() {
-        this.extCommon.initCommonDom();
-
         this.promptsTable = new TabulatorFull(".prompt_list_editor", {
             layout: "fitDataStretch",
             movableRows: true,

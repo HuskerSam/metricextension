@@ -6,6 +6,7 @@
     "mustache": "^4.2.0",
     "papaparse": "^5.4.1",
     "slim-select": "^2.8.2",
+    "split.js": "^1.6.5",
     "tabulator-tables": "^6.2.0"
   },
   "devDependencies": {

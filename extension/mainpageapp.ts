@@ -1,12 +1,16 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
+import SlimSelect from 'slim-select';
+import Split from 'split.js';
 declare const chrome: any;
 
 export default class MainPageApp {
     extCommon = new AnalyzerExtensionCommon(chrome);
     bulkHelper = new BulkHelper();
     promptHelper = new PromptHelper();
+    analysisSetsSlimSelect: SlimSelect;
+    viewSplitter: Split.Instance;
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
@@ -17,14 +21,16 @@ export default class MainPageApp {
     export_history = document.querySelector('.export_history') as HTMLButtonElement;
     clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
-    promptsTable: any;
     entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
+    analysis_set_select = document.querySelector('.analysis_set_select') as HTMLSelectElement;
     historyEntryListItems: any = null;
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
     history_date = document.querySelector('.history_date') as HTMLDivElement;
     manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
+    top_history_view_splitter = document.querySelector('.top_history_view_splitter') as HTMLDivElement;
+    bottom_history_view_splitter = document.querySelector('.bottom_history_view_splitter') as HTMLDivElement;
     activeTab: any = null;
     chromeTabListener: any = null;
     itemsPerView = 5;
@@ -33,8 +39,38 @@ export default class MainPageApp {
 
     constructor() {
         // helper constructors
-        this.extCommon.initCommonDom();
+        this.analysisSetsSlimSelect = new SlimSelect({
+            select: '.analysis_set_select',
+            settings: {
+                showSearch: false,
+                placeholderText: 'Select Analysis Set(s)',
+                keepOrder: true,
+                hideSelected: true,
+                minSelected: 1,
+                closeOnSelect: false,
+            },
+            events: {
+                afterChange: async (newVal) => {
+                    let selectedAnalysisSets: any[] = [];
+                    this.analysisSetsSlimSelect.render.main.values.querySelectorAll('.ss-value')
+                        .forEach((item: any) => {
+                            selectedAnalysisSets.push(item.innerText);
+                        });
+                    if (selectedAnalysisSets.length <= 1) {
+                        this.analysis_set_select.classList.add('slimselect_onevalue');
+                    } else {
+                        this.analysis_set_select.classList.remove('slimselect_onevalue');
+                    }
+                    await chrome.storage.local.set({ selectedAnalysisSets });
+                },
+            },
+        });
+        this.extCommon.initCommonDom(this.analysisSetsSlimSelect);
         this.initEventHandlers();
+
+        this.viewSplitter = Split([this.top_history_view_splitter, this.bottom_history_view_splitter], 
+            { sizes: [50, 50], direction: 'vertical',
+             });
 
         // list for changes to local storage and update the UI
         chrome.storage.local.onChanged.addListener(() => {
@@ -172,7 +208,7 @@ export default class MainPageApp {
         let paginationHtml = this.extCommon
             .generatePagination(history.length, this.baseHistoryIndex, this.itemsPerView, this.currentPageIndex);
         this.history_pagination.innerHTML = paginationHtml;
-        
+
         this.historyEntryListItems = document.querySelectorAll('.history_pagination li a') as NodeListOf<HTMLLIElement>;
         this.historyEntryListItems.forEach((item: any) => {
             item.addEventListener('click', async (e: any) => {
@@ -198,17 +234,17 @@ export default class MainPageApp {
         let resultHistory = entry.result;
         if (!resultHistory) resultHistory = entry.results[0];
 
-        let html = `
+        let headerHtml = `
         <div class="history_entry_header">
-        <div class="history_text">${this.extCommon.truncateText(entry.text, 500)}</div>
-        <div class="history_header">
-            <span class="url_display">(${this.extCommon.truncateText(entry.url, 100)})</span>
-            <button class="export_history_entry" data-index="${historyIndex}">
-                <i class="material-icons-outlined small_icon">download</i>
-            </button>
-        </div>
-        </div>
-            <div class="history_results">`;
+            <div class="history_text">${this.extCommon.truncateText(entry.text, 500)}</div>
+            <div class="history_header">
+                <span class="url_display">(${this.extCommon.truncateText(entry.url, 100)})</span>
+                <button class="export_history_entry" data-index="${historyIndex}">
+                    <i class="material-icons-outlined small_icon">download</i>
+                </button>
+            </div>
+        </div>`;
+        let resultsHTML = `<div class="history_results">`;
         let allResults = entry.results;
         let setBasedResults: any = {};
         allResults.forEach((result: any) => {
@@ -219,17 +255,18 @@ export default class MainPageApp {
         });
         const setNamesArray = Object.keys(setBasedResults);
         setNamesArray.forEach((setName: any) => {
-            html += `<h6 class="">${setName}</h6>`;
+            resultsHTML += `<h6 class="">${setName}</h6>`;
             let promptSetResults = setBasedResults[setName];
             promptSetResults.forEach((result: any) => {
                 usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
             });
 
             for (let result of promptSetResults) {
-                html += this.extCommon.getHTMLforPromptResult(result);
+                resultsHTML += this.extCommon.getHTMLforPromptResult(result);
             }
         });
-        html += `</div>`;
+        resultsHTML += `</div>`;
+        let html = `${resultsHTML}${headerHtml}`;
         return {
             html,
             usageCreditTotal,

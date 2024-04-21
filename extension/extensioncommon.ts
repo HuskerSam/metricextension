@@ -10,44 +10,17 @@ export class AnalyzerExtensionCommon {
   query_source_text_length: any;
   query_source_tokens_length: any;
   previousSlimOptions = '';
-  analysis_set_slimselect: any;
-  analysis_set_select: any;
   analysis_display: any;
+  analysisSetsSlimSelect: SlimSelect | null = null;
 
   constructor(chrome: any) {
     this.chrome = chrome;
   }
-  async initCommonDom() {
+  async initCommonDom(slimSelect: SlimSelect) {
+    this.analysisSetsSlimSelect = slimSelect;
     this.query_source_text = document.querySelector(".query_source_text");
     this.query_source_text_length = document.querySelector('.query_source_text_length');
     this.query_source_tokens_length = document.querySelector('.query_source_tokens_length');
-    this.analysis_set_select = document.querySelector('.analysis_set_select');
-    this.analysis_set_slimselect = new SlimSelect({
-      select: '.analysis_set_select',
-      settings: {
-        showSearch: false,
-        placeholderText: 'Select Analysis Set(s)',
-        keepOrder: true,
-        hideSelected: true,
-        minSelected: 1,
-        closeOnSelect: false,
-      },
-      events: {
-        afterChange: async (newVal) => {
-          let selectedAnalysisSets: any[] = [];
-          this.analysis_set_slimselect.render.main.values.querySelectorAll('.ss-value')
-            .forEach((item: any) => {
-              selectedAnalysisSets.push(item.innerText);
-            });
-          if (selectedAnalysisSets.length <= 1) {
-            this.analysis_set_select.classList.add('slimselect_onevalue');
-          } else {
-            this.analysis_set_select.classList.remove('slimselect_onevalue');
-          }
-          await this.chrome.storage.local.set({ selectedAnalysisSets });
-        },
-      },
-    });
 
     this.query_source_text.addEventListener('input', async (e: Event) => {
       this.updateQuerySourceDetails();
@@ -308,7 +281,7 @@ export class AnalyzerExtensionCommon {
     return historyEntry;
   }
   getHTMLforPromptResult(result: any) {
-    const usageText = `<span class="credits_usage_span">Credits: ${Math.round(result.result.promptResult.ticketResults.usage_credits)}</span>`;
+    const usageText = ``;
     if (result.prompt.promptType === 'text') {
       return `
           <div class="prompt_result text_result">
@@ -436,13 +409,13 @@ this.query_source_tokens_length.innerHTML = tokenCount;
     });
     const slimOptionsString = JSON.stringify(slimOptions);
     if (this.previousSlimOptions !== slimOptionsString) {
-      this.analysis_set_slimselect.setData(slimOptions);
+      this.analysisSetsSlimSelect?.setData(slimOptions);
       this.previousSlimOptions = slimOptionsString;
     }
 
     if (selectedAnalysisSets && selectedAnalysisSets.selectedAnalysisSets) {
-      this.analysis_set_slimselect.setSelected(selectedAnalysisSets.selectedAnalysisSets);
-      let domSelections = this.analysis_set_slimselect.render.main.values.querySelectorAll('.ss-value');
+      this.analysisSetsSlimSelect?.setSelected(selectedAnalysisSets.selectedAnalysisSets);
+      let domSelections = this.analysisSetsSlimSelect?.render.main.values.querySelectorAll('.ss-value') as NodeListOf<HTMLElement>;
       let indexMap: any = {};
       domSelections.forEach((item: any, index: any) => {
         indexMap[item.innerText] = index;
@@ -451,12 +424,12 @@ this.query_source_tokens_length.innerHTML = tokenCount;
       setOrder.forEach((setName: any, index: any) => {
         let domIndex = indexMap[setName];
         if (domSelections[domIndex]) {
-          this.analysis_set_slimselect.render.main.values.appendChild(domSelections[domIndex]);
+          this.analysisSetsSlimSelect?.render.main.values.appendChild(domSelections[domIndex]);
         }
       });
     }
-    if (this.analysis_set_slimselect.getSelected().length === 0) {
-      this.analysis_set_slimselect.setSelected([setNames[0]]);
+    if (this.analysisSetsSlimSelect?.getSelected().length === 0) {
+      this.analysisSetsSlimSelect.setSelected([setNames[0]]);
     }
   }
   async runMetrics() {
