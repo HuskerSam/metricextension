@@ -1,5 +1,4 @@
 import Mustache from 'mustache';
-import SlimSelect from 'slim-select';
 
 export class AnalyzerExtensionCommon {
   promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
@@ -10,24 +9,11 @@ export class AnalyzerExtensionCommon {
   query_source_text_length: any;
   query_source_tokens_length: any;
   previousSlimOptions = '';
-  analysis_display: any;
-  analysisSetsSlimSelect: SlimSelect | null = null;
 
   constructor(chrome: any) {
     this.chrome = chrome;
   }
-  async initCommonDom(slimSelect: SlimSelect) {
-    this.analysisSetsSlimSelect = slimSelect;
-    this.query_source_text = document.querySelector(".query_source_text");
-    this.query_source_text_length = document.querySelector('.query_source_text_length');
-    this.query_source_tokens_length = document.querySelector('.query_source_tokens_length');
 
-    this.query_source_text.addEventListener('input', async (e: Event) => {
-      this.updateQuerySourceDetails();
-    });
-
-    this.analysis_display = document.querySelector(".analysis_display");
-  }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -333,105 +319,8 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-  async updateContentTextonSidePanel(text: string) {
-    let running = await this.chrome.storage.local.get('running');
-    if (running && running.running) {
-      this.query_source_text.value = "Running...";
-    } else {
-      this.query_source_text.value = text;
-    }
-  }
-  async renderDisplay() {
-    let history = await this.chrome.storage.local.get('history');
-    history = history.history || [];
-    let entry = history[0];
-    let lastResult = null;
-    let lastSelection = '';
-    if (entry) {
-      lastResult = entry.results;
-      lastSelection = entry.text;
-    }
-    await this.updateContentTextonSidePanel(lastSelection);
-    let html = '';
-    if (lastResult) {
-      lastResult.forEach((result: any) => {
-        html += this.getHTMLforPromptResult(result);
-      });
-    }
-    if (this.analysis_display) {
-      this.analysis_display.innerHTML = html;
-    }
-  }
-  updateQuerySourceDetails() {
-    let lastSelection = this.query_source_text.value;
-    this.query_source_text_length.innerHTML = lastSelection.length + ' characters';
 
-    /*
-let tokenCount = "N/A";
-try {
-tokenCount = encode(text).length.toString() + " tokens";
-} catch (err) {
-let cleanText = "";
-if (text) cleanText = text;
-cleanText = cleanText.replace(/[^a-z0-9\s]/gi, "");
 
-tokenCount = encode(text).length.toString() + " tokens";
-}
-this.query_source_tokens_length.innerHTML = tokenCount;
-*/
-  }
-  async paintAnalysisTab() {
-    let running = await this.chrome.storage.local.get('running');
-    if (running && running.running) {
-      document.body.classList.add("extension_running");
-      document.body.classList.remove("extension_not_running");
-    } else {
-      document.body.classList.remove("extension_running");
-      document.body.classList.add("extension_not_running");
-    }
-
-    let lastSelection = await this.chrome.storage.local.get('lastSelection');
-    lastSelection = lastSelection.lastSelection || "";
-    this.updateContentTextonSidePanel(lastSelection);
-    this.updateQuerySourceDetails();
-
-    this.renderDisplay();
-
-    const setNames = await this.getAnalysisSetNames();
-    let html = "";
-    setNames.forEach((setName) => {
-      html += `<option value="${setName}">${setName}</option>`;
-    });
-    let selectedAnalysisSets = await this.chrome.storage.local.get("selectedAnalysisSets");
-    let slimOptions: any[] = [];
-    setNames.forEach((setName) => {
-      slimOptions.push({ text: setName, value: setName });
-    });
-    const slimOptionsString = JSON.stringify(slimOptions);
-    if (this.previousSlimOptions !== slimOptionsString) {
-      this.analysisSetsSlimSelect?.setData(slimOptions);
-      this.previousSlimOptions = slimOptionsString;
-    }
-
-    if (selectedAnalysisSets && selectedAnalysisSets.selectedAnalysisSets) {
-      this.analysisSetsSlimSelect?.setSelected(selectedAnalysisSets.selectedAnalysisSets);
-      let domSelections = this.analysisSetsSlimSelect?.render.main.values.querySelectorAll('.ss-value') as NodeListOf<HTMLElement>;
-      let indexMap: any = {};
-      domSelections.forEach((item: any, index: any) => {
-        indexMap[item.innerText] = index;
-      });
-      let setOrder = selectedAnalysisSets.selectedAnalysisSets;
-      setOrder.forEach((setName: any, index: any) => {
-        let domIndex = indexMap[setName];
-        if (domSelections[domIndex]) {
-          this.analysisSetsSlimSelect?.render.main.values.appendChild(domSelections[domIndex]);
-        }
-      });
-    }
-    if (this.analysisSetsSlimSelect?.getSelected().length === 0) {
-      this.analysisSetsSlimSelect.setSelected([setNames[0]]);
-    }
-  }
   async runMetrics() {
     let text = this.query_source_text.value;
     await this.runAnalysisPrompts(text, 'user input');

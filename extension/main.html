@@ -9,6 +9,7 @@
   <link href="lib/tabulator.css" rel="stylesheet">
   <link href="lib/tabsimple.css" rel="stylesheet">
   <link href="lib/slimselect.css" rel="stylesheet">
+  <link rel="stylesheet" href="lib/inter.css">
   <link rel="stylesheet" href="lib/hljs.min.css">
   <link href="style/output.css" rel="stylesheet">
   <script src="models/index.js"></script>
@@ -72,56 +73,24 @@
             </div>
           </div>
           <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
-            <div class="top_history_view_splitter" style="display:flex;flex-direction:column;overflow:hidden;">
-              <div class="flex justify-between items-center mt-4 gap-6 analysis_menu">
-                <div class="flex-1 flex relative mt-1 analysis_sets_configuration">
-                  <label class="absolute top-[-20px] text-base text-gray-600 positioned_label">Metrics for
-                    analysis</label>
-                  <select class="w-full analysis_set_select" multiple>
-                  </select>
-                </div>
-                <div class="flex flex-row gap-2 analysis_actions">
-                  <button class="btn copy_to_clipboard_btn">
-                    <i class="material-icons-outlined">content_paste</i></button>
-                  <button class="btn run_analysis_btn bg-green-500 text-white">
-                    <span class="relative bottom-1 btn_text">Run</span> <i
-                      class="material-icons-outlined">play_arrow</i>
-                  </button>
-                </div>
+            <div class="pt-0 mt-0 flex justify-between items-center history_header">
+              <div class="flex-1 flex justify-between items-center history_usage_stats">
+                <div class="text-xs text-green-500 bg-gray-100 entry_total_credit_usage"></div>
               </div>
-              <textarea class="w-full flex-1 p-2 text-base leading-normal border-none rounded bg-gray-100 resize-none 
-                    overflow-y-auto pb-6 my-2 query_source_text" id="floatingQueryTextarea"
-                placeholder="Analyze text to return a subjective rating, keywords, summary..."></textarea>
-              <div>
-                <div
-                  class="absolute bottom-[5%] right-[4%] text-xs text-gray-600 text-shadow query_source_text_length query_text_description">
-                </div>
-                <div
-                  class="absolute bottom-[5%] right-[4%] text-xs text-gray-600 text-shadow query_source_tokens_length query_text_description">
-                  &nbsp;</div>
-              </div>
+              <button type="button"
+                class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration"
+                data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+                <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
+              </button>
+              <span class="text-xs text-gray-600 pl-4 history_date"></span>
             </div>
-            <div
-              class="flex flex-col flex-1 overflow-hidden p-2 pb-0 history_display_container bottom_history_view_splitter">
-              <div class="pt-0 mt-0 flex justify-between items-center history_header">
-                <div class="flex-1 flex justify-between items-center history_usage_stats">
-                  <div class="text-xs text-green-500 bg-gray-100 entry_total_credit_usage"></div>
-                </div>
-                <button type="button"
-                  class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration"
-                  data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
-                  <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
-                </button>
-                <span class="text-xs text-gray-600 pl-4 history_date"></span>
-              </div>
-              <div class="overflow-hidden flex-1 flex flex-col p-0 px-2 rounded history_display">
-              </div>
-              <div class="hidden flex-col justify-center flex-1 history_display_results_running">
-                <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-48 h-48 self-center"
-                  loop autoplay></lottie-player>
-              </div>
-              <div class="flex justify-end items-center pt-1 pr-4 history_pagination"></div>
+            <div class="overflow-hidden flex-1 flex flex-col p-0 px-2 rounded history_display">
             </div>
+            <div class="hidden flex-col justify-center flex-1 history_display_results_running">
+              <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-48 h-48 self-center"
+                loop autoplay></lottie-player>
+            </div>
+            <div class="flex justify-end items-center pt-1 pr-4 history_pagination"></div>
           </div>
 
           <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">

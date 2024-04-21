@@ -1,3 +1,5 @@
+import defaultTheme from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -1062,6 +1064,11 @@ module.exports = {
       30: '30',
       40: '40',
       50: '50',
+    },
+  },
+  extend: {
+    fontFamily: {
+      sans: ['Inter var', ...defaultTheme.fontFamily.sans],
     },
   },
   plugins: [],
