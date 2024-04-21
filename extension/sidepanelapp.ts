@@ -57,6 +57,7 @@ export default class SidePanelApp {
         sizes: [50, 50],
         direction: 'vertical',
         minSize: 200, // min size of both panes
+        gutterSize: 16,
       });
 
     this.show_main_page_btn.addEventListener('click', () => {

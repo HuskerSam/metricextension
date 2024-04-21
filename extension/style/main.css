@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import './sidebar.css';
 
 :root {
   --ss-animation-timing: 0.05s;
@@ -52,6 +53,7 @@
   padding-left: 0;
   list-style: none;
   width: 340px;
+  margin-right: 2.5em;
 }
 
 
@@ -148,8 +150,6 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0 var(--spacing-medium);
-  border-radius: var(--border-radius);
 }
 
 .history_content {
@@ -501,7 +501,6 @@ body {
 
 
 .tab-content {
-  padding: var(--spacing-small);
   height: 100%;
   flex: 1;
   display: flex;
@@ -762,13 +761,7 @@ body {
 .main_page .footer_actions_bar {
   text-align: right;
   margin-right: 4px;
-}
-
-.show_main_page_btn {
-  position: relative;
-  top: 8px;
-  border: none;
-  left: -10px;
+  margin-top: -1.5em;
 }
 
 .open_side_panel_from_main {
@@ -781,6 +774,5 @@ body {
   border-left: solid 1px var(--border-color);
   margin-bottom: 16px;
   border-bottom: solid 1px var(--border-color);
-  margin-right: 4px;
   margin-top: 4px;
 }

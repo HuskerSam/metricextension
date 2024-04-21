@@ -13,6 +13,7 @@
     "@types/mustache": "^4.2.5",
     "@types/papaparse": "^5.3.14",
     "@types/tabulator-tables": "^6.2.0",
+    "postcss-import": "^16.1.0",
     "tailwindcss": "^3.4.3",
     "ts-loader": "^9.5.1"
   }

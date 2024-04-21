@@ -82,6 +82,8 @@ export default class MainPageApp {
             document.getElementById('history-tab')?.click();
         });
     }
+    getActiveTab() {
+    }
     async renderSettingsTab() {
         let sessionConfig = await chrome.storage.local.get('sessionId');
         if (sessionConfig && sessionConfig.sessionId) {
@@ -162,8 +164,26 @@ export default class MainPageApp {
                 const index = Number(item.dataset.entryindex);
                 if (index === -1) {
                     this.currentPageIndex = Math.max(this.currentPageIndex - 1, 0);
+                    if (this.baseHistoryIndex < this.currentPageIndex * this.itemsPerView) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    } else if (this.baseHistoryIndex > (this.currentPageIndex + 1) * this.itemsPerView - 1) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    }
                 } else if (index === -2) {
                     this.currentPageIndex = Math.min(this.currentPageIndex + 1, Math.ceil(history.length / this.itemsPerView) - 1);
+                    if (this.baseHistoryIndex < this.currentPageIndex * this.itemsPerView) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    } else if (this.baseHistoryIndex > (this.currentPageIndex + 1) * this.itemsPerView - 1) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    }
+                } else if (index === -10) {
+                    this.baseHistoryIndex -= 1;
+                    this.currentPageIndex = Math.floor(this.baseHistoryIndex / this.itemsPerView);
+                } else if (index === -20) {
+                    this.baseHistoryIndex += 1;
+                    if (this.baseHistoryIndex > history.length - 1) this.baseHistoryIndex = history.length - 1;
+                    if (this.baseHistoryIndex < 0) this.baseHistoryIndex = 0;
+                    this.currentPageIndex = Math.floor(this.baseHistoryIndex / this.itemsPerView);
                 } else {
                     this.baseHistoryIndex = index;
                     this.currentPageIndex = Math.floor(this.baseHistoryIndex / this.itemsPerView);
@@ -183,7 +203,7 @@ export default class MainPageApp {
         this.history_text.innerHTML = historyText;
         const url = entry.url;
         this.url_display.innerHTML = url;
-        this.url_display.href = url;        
+        this.url_display.href = url;
         let headerHtml = ``;
         let resultsHTML = `<div class="history_results">`;
         let allResults = entry.results;
