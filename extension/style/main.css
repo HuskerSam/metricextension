@@ -760,3 +760,21 @@ body {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
 }
 
+.main_page .footer_actions_bar {
+  text-align: right;
+  margin-bottom: 16px;
+  border-bottom: solid 1px var(--border-color);
+  border-radius: 24px;
+  margin-right: 4px;
+}
+
+.show_main_page_btn {
+  position: relative;
+  top: 8px;
+  border: none;
+  left: -10px;
+}
+
+.open_side_panel_from_main {
+  border: none;
+}

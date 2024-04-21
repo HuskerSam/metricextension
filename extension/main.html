@@ -16,7 +16,7 @@
   </link>
 </head>
 
-<body class="main_configuration_page">
+<body class="main_configuration_page main_page">
   <div class="flex flex-col h-full overflow-hidden">
     <div class="flex flex-1 flex-row overflow-hidden w-full">
       <div class="w-40 overflow-hidden flex flex-col h-full transition-all duration-600 p-2">
@@ -43,11 +43,6 @@
             <button class="nav-link" id="api-config-tab" data-bs-toggle="modal" data-bs-target="#configModal"
               type="button">
               <i class="material-icons-outlined">vpn_key</i> Access
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link open_side_panel_from_main">
-              <i class="material-icons-outlined">send_time_extension</i>
             </button>
           </li>
         </ul>
@@ -153,6 +148,11 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="footer_actions_bar">
+      <button class="btn open_side_panel_from_main">
+        <i class="material-icons-outlined">send_time_extension</i>
+      </button>
     </div>
     <!-- test modal -->
     <div class="modal fade test_modal" id="testModal" tabindex="-1" aria-labelledby="testModalLabel" aria-hidden="true">
