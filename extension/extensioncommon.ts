@@ -399,7 +399,6 @@ export class AnalyzerExtensionCommon {
     }
   }
   async toggleSidePanel(currentTab: any = null) {
-
     const lastPanelToggleDate = new Date().toISOString();
     if (currentTab) {
       this.chrome.sidePanel.open({ tabId: currentTab.id });

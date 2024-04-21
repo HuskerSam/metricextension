@@ -22,6 +22,8 @@ export default class MainPageApp {
     history_date = document.querySelector('.history_date') as HTMLDivElement;
     manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
+    history_text = document.querySelector('.history_text') as HTMLDivElement;
+    url_display = document.querySelector('.url_display') as HTMLAnchorElement;
     activeTab: any = null;
     chromeTabListener: any = null;
     itemsPerView = 5;
@@ -177,17 +179,12 @@ export default class MainPageApp {
         let usageCreditTotal = 0;
         let resultHistory = entry.result;
         if (!resultHistory) resultHistory = entry.results[0];
-
-        let headerHtml = `
-        <div class="history_entry_header">
-            <div class="history_text">${this.extCommon.truncateText(entry.text, 500)}</div>
-            <div class="history_header">
-                <span class="url_display">(${this.extCommon.truncateText(entry.url, 100)})</span>
-                <button class="export_history_entry" data-index="${historyIndex}">
-                    <i class="material-icons-outlined small_icon">download</i>
-                </button>
-            </div>
-        </div>`;
+        const historyText = entry.text;
+        this.history_text.innerHTML = historyText;
+        const url = entry.url;
+        this.url_display.innerHTML = url;
+        this.url_display.href = url;        
+        let headerHtml = ``;
         let resultsHTML = `<div class="history_results">`;
         let allResults = entry.results;
         let setBasedResults: any = {};
@@ -202,7 +199,11 @@ export default class MainPageApp {
             resultsHTML += `<h6 class="">${setName}</h6>`;
             let promptSetResults = setBasedResults[setName];
             promptSetResults.forEach((result: any) => {
-                usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+                try {
+                    usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+                } catch (err: any) {
+                    console.log("Usage total credit summming error", err);
+                }
             });
 
             for (let result of promptSetResults) {

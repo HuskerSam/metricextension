@@ -165,8 +165,7 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.history_footer,
-.history_header {
+.history_footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -179,6 +178,10 @@ body {
   background-color: var(--light-color);
 }
 
+.entry_total_credit_usage img {
+  display: inline-block;
+}
+
 .history_date {
   font-size: var(--font-size-small);
   color: var(--secondary-color);
@@ -186,10 +189,7 @@ body {
 }
 
 .history_usage_stats {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex:1;
+  text-align: right;
 }
 
 .bulk_history_pagination,
