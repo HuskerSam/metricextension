@@ -1,0 +1,35 @@
+.bulk_analysis_results_history {
+    display: none;
+}
+
+.bulk_history_item_selected .bulk_analysis_results_history {
+    display: flex;
+}
+
+.no_bulk_result_history_entry {
+    display: none
+}
+
+.no_bulk_history_item_selected .no_bulk_result_history_entry {
+    display: flex;
+}
+
+.bulk_analysis_history_placeholder {
+    display: none;
+}
+
+.extension_running .bulk_analysis_history_placeholder {
+    display: block;
+}
+
+.bulk_analysis_progress {
+  display: inline-block;
+}
+
+.bulk_analysis_running .bulk_analysis_progress {
+  display: none;
+}
+
+.bulk_url_list_tabulator {
+  margin-top: var(--spacing-large);
+}
