@@ -2,9 +2,9 @@
 import { AnalyzerExtensionCommon } from "./extensioncommon";
 declare const chrome: any;
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
-   if (reason.reason === 'install') {
-    await chrome.tabs.create({
-          url: "https://unacog.com/klyde/"
+    if (reason.reason === 'install') {
+        await chrome.tabs.create({
+            url: "https://unacog.com/klyde/"
         });
     }
 
@@ -58,8 +58,8 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
 });
 
 chrome.action.onClicked.addListener(async (tab: any) => {
-    chrome.storage.local.set({ lastPanelToggleDate: new Date().toISOString() });
-    chrome.sidePanel.open({ tabId: tab.id });
+    const extCommon = new AnalyzerExtensionCommon(chrome);
+    await extCommon.toggleSidePanel(tab);
 });
 
 chrome.runtime.onMessageExternal.addListener(
@@ -79,7 +79,7 @@ chrome.runtime.onMessageExternal.addListener(
         }
         if (request.specialAction === 'openMainPage') {
             let abc = new AnalyzerExtensionCommon(chrome);
-            abc.openExentionSinglePage("main.html");
+            abc.toggleExentionPage("main.html");
         }
     }
 );

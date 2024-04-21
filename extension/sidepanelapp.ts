@@ -60,7 +60,7 @@ export default class SidePanelApp {
       });
 
     this.show_main_page_btn.addEventListener('click', () => {
-      this.extCommon.openExentionSinglePage("main.html");
+      this.extCommon.toggleExentionPage("main.html");
     });
 
     this.run_analysis_btn.addEventListener('click', async () => {
@@ -86,8 +86,12 @@ export default class SidePanelApp {
   async handleStorageChange() {
     let lastPanelToggleDate = await chrome.storage.local.get('lastPanelToggleDate');
     if (lastPanelToggleDate && lastPanelToggleDate.lastPanelToggleDate) lastPanelToggleDate = lastPanelToggleDate.lastPanelToggleDate;
+    
+    let lastPanelToggleWindowId = await chrome.storage.local.get('lastPanelToggleWindowId');
+    if (lastPanelToggleWindowId && lastPanelToggleWindowId.lastPanelToggleWindowId) lastPanelToggleWindowId = lastPanelToggleWindowId.lastPanelToggleWindowId;
 
-    if (lastPanelToggleDate > this.lastPanelToggleDate) {
+    let currentWindow = await chrome.windows.getCurrent();
+    if (lastPanelToggleDate > this.lastPanelToggleDate && lastPanelToggleWindowId === currentWindow.id) {
       window.close();
       return;
     }

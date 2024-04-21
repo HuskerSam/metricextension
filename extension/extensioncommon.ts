@@ -382,7 +382,7 @@ export class AnalyzerExtensionCommon {
       day: "numeric",
     });
   }
-  async openExentionSinglePage(url: string) {
+  async toggleExentionPage(url: string) {
     const [extensionTab] = await this.chrome.tabs.query({
       url: `chrome-extension://${this.chrome.runtime.id}/main.html`,
       lastFocusedWindow: true,
@@ -397,5 +397,23 @@ export class AnalyzerExtensionCommon {
         url
       });
     }
+  }
+  async toggleSidePanel(currentTab: any = null) {
+
+    const lastPanelToggleDate = new Date().toISOString();
+    if (currentTab) {
+      this.chrome.sidePanel.open({ tabId: currentTab.id });
+    } else {
+      [currentTab] = await this.chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+      this.chrome.sidePanel.open({ tabId: currentTab.id });
+    }
+
+    await this.chrome.storage.local.set({
+      lastPanelToggleDate,
+      lastPanelToggleWindowId: currentTab.windowId,
+    });
   }
 }

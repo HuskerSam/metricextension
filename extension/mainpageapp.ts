@@ -38,11 +38,7 @@ export default class MainPageApp {
         this.paintData(true);
     }
     initEventHandlers() {
-        this.open_side_panel_from_main.addEventListener('click', async () => {
-            chrome.storage.local.set({ lastPanelToggleDate: new Date().toISOString() });
-            this.activeTab = await chrome.tabs.getCurrent();
-            chrome.sidePanel.open({ tabId: this.activeTab.id });
-        });
+        this.open_side_panel_from_main.addEventListener('click', async () => this.extCommon.toggleSidePanel());
         this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });
