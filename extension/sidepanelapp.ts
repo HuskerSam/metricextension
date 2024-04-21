@@ -198,4 +198,8 @@ this.query_source_tokens_length.innerHTML = tokenCount;
       this.analysis_display.innerHTML = html;
     }
   }
+  async runMetrics() {
+    let text = this.query_source_text.value;
+    await this.extCommon.runAnalysisPrompts(text, 'user input');
+  }
 }
