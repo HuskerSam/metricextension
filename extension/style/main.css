@@ -762,9 +762,6 @@ body {
 
 .main_page .footer_actions_bar {
   text-align: right;
-  margin-bottom: 16px;
-  border-bottom: solid 1px var(--border-color);
-  border-radius: 24px;
   margin-right: 4px;
 }
 
@@ -777,4 +774,12 @@ body {
 
 .open_side_panel_from_main {
   border: none;
+}
+
+.content_wrapper {
+  margin-left: 8px;
+  border-radius: 24px;
+  border-left: solid 1px var(--border-color);
+  margin-bottom: 16px;
+  border-bottom: solid 1px var(--border-color);
 }

@@ -17,317 +17,320 @@
 </head>
 
 <body class="main_configuration_page main_page">
-  <div class="flex flex-col h-full overflow-hidden">
-    <div class="flex flex-1 flex-row overflow-hidden w-full">
-      <div class="w-40 overflow-hidden flex flex-col h-full transition-all duration-600 p-2">
-        <ul class="flex flex-col" id="myTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis"
-              type="button" role="tab" aria-controls="analysis" aria-selected="true">
-              <i class="material-icons-outlined">assistant</i> Results
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button"
-              role="tab" aria-controls="config" aria-selected="false">
-              <i class="material-icons-outlined">integration_instructions</i> Prompts
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button" role="tab"
-              aria-controls="bulk" aria-selected="false">
-              <i class="material-icons-outlined">batch_prediction</i> Bulk
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="api-config-tab" data-bs-toggle="modal" data-bs-target="#configModal"
-              type="button">
-              <i class="material-icons-outlined">vpn_key</i> Access
-            </button>
-          </li>
-        </ul>
-        <div class="hidden bg-yellow-400 border border-yellow-400 rounded p-2 mb-4 no_session_key">
-          <div class="flex items-center message">
-            <i class="material-icons-outlined text-gray-800 text-lg mr-2">warning</i>
-            <span class="text-gray-800 text-base">No session key. Please visit <a href="https://unacog.com"
-                target="_blank" class="text-blue-600 hover:underline">unacog.com</a> to get
-              started.</span>
+  <div class="flex flex-1 flex-col overflow-hidden h-full">
+    <div class="flex flex-col overflow-hidden content_wrapper">
+      <div class="flex flex-1 flex-row overflow-hidden w-full">
+        <div class="w-40 overflow-hidden flex flex-col h-full transition-all duration-600 p-2">
+          <ul class="flex flex-col" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis"
+                type="button" role="tab" aria-controls="analysis" aria-selected="true">
+                <i class="material-icons-outlined">assistant</i> Results
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button"
+                role="tab" aria-controls="config" aria-selected="false">
+                <i class="material-icons-outlined">integration_instructions</i> Prompts
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button" role="tab"
+                aria-controls="bulk" aria-selected="false">
+                <i class="material-icons-outlined">batch_prediction</i> Bulk
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="api-config-tab" data-bs-toggle="modal" data-bs-target="#configModal"
+                type="button">
+                <i class="material-icons-outlined">vpn_key</i> Access
+              </button>
+            </li>
+          </ul>
+          <div class="hidden bg-yellow-400 border border-yellow-400 rounded p-2 mb-4 no_session_key">
+            <div class="flex items-center message">
+              <i class="material-icons-outlined text-gray-800 text-lg mr-2">warning</i>
+              <span class="text-gray-800 text-base">No session key. Please visit <a href="https://unacog.com"
+                  target="_blank" class="text-blue-600 hover:underline">unacog.com</a> to get
+                started.</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="flex-1 flex flex-col overflow-hidden h-full right_panel_view">
-        <div class="tab-content" id="myTabContent">
-          <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
-            <div class="prompt_list_editor"></div>
-            <div class="flex gap-2 data_controls">
-              <button class="add_prompt_modal btn" id="add_prompt_btn" data-bs-toggle="modal"
-                data-bs-target="#promptWizard" type="button">Add Metric</button>
-              <button class="prompt_list_export_rows btn">Export</button>
-              <button class="prompt_list_import_rows btn">Import</button>
-              <input type="file" id="prompt_list_file_input" accept=".json" class="hidden">
-            </div>
-          </div>
-          <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
-            <div class="pt-0 mt-0 flex justify-between items-center history_header">
-              <div class="flex-1 flex justify-between items-center history_usage_stats">
-                <div class="text-xs text-green-500 bg-gray-100 entry_total_credit_usage"></div>
-              </div>
-              <button type="button"
-                class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration"
-                data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
-                <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
-              </button>
-              <span class="text-xs text-gray-600 pl-4 history_date"></span>
-            </div>
-            <div class="overflow-hidden flex-1 flex flex-col p-0 px-2 rounded history_display">
-            </div>
-            <div class="hidden flex-col justify-center flex-1 history_display_results_running">
-              <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-48 h-48 self-center"
-                loop autoplay></lottie-player>
-            </div>
-            <div class="flex justify-end items-center pt-1 pr-4 history_pagination"></div>
-          </div>
-
-          <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
-            <div class="flex justify-between items-center mt-4 gap-2 analysis_actions">
-              <div class="flex-1 flex relative mt-1 analysis_sets_configuration">
-                <label class="absolute top-[-20px] text-base text-gray-600 positioned_label">Metrics for
-                  analysis</label>
-                <select class="w-full bulk_analysis_sets_select" multiple></select>
-              </div>
-              <button class="btn run_bulk_analysis_btn bg-green-500 text-white w-32">
-                <span class="relative bottom-1 btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
-              </button>
-            </div>
-            <div class="flex-1 mt-4 bulk_url_list_tabulator"></div>
-            <div class="flex justify-between items-center analysis_menu">
-              <div class="bulk_analysis_progress">
-                <button class="upload_url_list btn">upload url list</button>
-                <button class="download_url_list btn">download url list</button>
-                <input type="file" id="url_file_input" accept=".csv" class="hidden">
-              </div>
-              <div class="">
-                <button class="add_bulk_url_row btn">
-                  <span class="relative bottom-1 btn_text">Add</span> <i class="material-icons-outlined">add</i>
-                </button>
+        <div class="flex-1 flex flex-col overflow-hidden h-full right_panel_view">
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+              <div class="prompt_list_editor"></div>
+              <div class="flex gap-2 data_controls">
+                <button class="add_prompt_modal btn" id="add_prompt_btn" data-bs-toggle="modal"
+                  data-bs-target="#promptWizard" type="button">Add Metric</button>
+                <button class="prompt_list_export_rows btn">Export</button>
+                <button class="prompt_list_import_rows btn">Import</button>
+                <input type="file" id="prompt_list_file_input" accept=".json" class="hidden">
               </div>
             </div>
-            <hr>
-            <div class="hidden bulk_analysis_history_placeholder">
-              New Analysis Running...<br>
-              <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-48 h-48" loop
-                autoplay></lottie-player>
-            </div>
-            <div class="overflow-auto bulk_analysis_results_history flex-column flex-2">
-              <div class="bulk_action_bar">
-                <span class="bulk_selected_last_run_date"></span>
-                <button class="download_full_json btn">
-                  <span class="relative bottom-1 btn_text">Full JSON</span> <i
-                    class="material-icons-outlined">download</i>
-                </button>
-                <button class="view_bulk_json_file btn">
-                  <span class="relative bottom-1 btn_text">View</span> <i class="material-icons-outlined">launch</i>
-                </button>
-                <button class="download_compact_csv btn">
-                  <span class="relative bottom-1 btn_text">CSV</span> <i class="material-icons-outlined">download</i>
-                </button>
+            <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
+              <div class="pt-0 mt-0 flex justify-between items-center history_header">
+                <div class="flex-1 flex justify-between items-center history_usage_stats">
+                  <div class="text-xs text-green-500 bg-gray-100 entry_total_credit_usage"></div>
+                </div>
                 <button type="button"
-                  class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_bulk_history_configuration"
+                  class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration"
                   data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
                   <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
                 </button>
+                <span class="text-xs text-gray-600 pl-4 history_date"></span>
               </div>
-              <div class="flex-1 bulk_analysis_results_tabulator"></div>
-              <div class="flex justify-end items-center pt-1 pr-4 bulk_history_pagination"></div>
+              <div class="overflow-hidden flex-1 flex flex-col p-0 px-2 rounded history_display">
+              </div>
+              <div class="hidden flex-col justify-center flex-1 history_display_results_running">
+                <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-48 h-48 self-center"
+                  loop autoplay></lottie-player>
+              </div>
+              <div class="flex justify-end items-center pt-1 pr-4 history_pagination"></div>
             </div>
-            <div class="no_bulk_result_history_entry flex-2 flex-column">
-              <div class="flex flex-col justify-center items-center h-full">
-                <div class="text-gray-600 text-lg">No bulk analysis results found.</div>
+  
+            <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
+              <div class="flex justify-between items-center mt-4 gap-2 analysis_actions">
+                <div class="flex-1 flex relative mt-1 analysis_sets_configuration">
+                  <label class="absolute top-[-20px] text-base text-gray-600 positioned_label">Metrics for
+                    analysis</label>
+                  <select class="w-full bulk_analysis_sets_select" multiple></select>
+                </div>
+                <button class="btn run_bulk_analysis_btn bg-green-500 text-white w-32">
+                  <span class="relative bottom-1 btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
+                </button>
+              </div>
+              <div class="flex-1 mt-4 bulk_url_list_tabulator"></div>
+              <div class="flex justify-between items-center analysis_menu">
+                <div class="bulk_analysis_progress">
+                  <button class="upload_url_list btn">upload url list</button>
+                  <button class="download_url_list btn">download url list</button>
+                  <input type="file" id="url_file_input" accept=".csv" class="hidden">
+                </div>
+                <div class="">
+                  <button class="add_bulk_url_row btn">
+                    <span class="relative bottom-1 btn_text">Add</span> <i class="material-icons-outlined">add</i>
+                  </button>
+                </div>
+              </div>
+              <hr>
+              <div class="hidden bulk_analysis_history_placeholder">
+                New Analysis Running...<br>
+                <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-48 h-48" loop
+                  autoplay></lottie-player>
+              </div>
+              <div class="overflow-auto bulk_analysis_results_history flex-column flex-2">
+                <div class="bulk_action_bar">
+                  <span class="bulk_selected_last_run_date"></span>
+                  <button class="download_full_json btn">
+                    <span class="relative bottom-1 btn_text">Full JSON</span> <i
+                      class="material-icons-outlined">download</i>
+                  </button>
+                  <button class="view_bulk_json_file btn">
+                    <span class="relative bottom-1 btn_text">View</span> <i class="material-icons-outlined">launch</i>
+                  </button>
+                  <button class="download_compact_csv btn">
+                    <span class="relative bottom-1 btn_text">CSV</span> <i class="material-icons-outlined">download</i>
+                  </button>
+                  <button type="button"
+                    class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_bulk_history_configuration"
+                    data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+                    <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
+                  </button>
+                </div>
+                <div class="flex-1 bulk_analysis_results_tabulator"></div>
+                <div class="flex justify-end items-center pt-1 pr-4 bulk_history_pagination"></div>
+              </div>
+              <div class="no_bulk_result_history_entry flex-2 flex-column">
+                <div class="flex flex-col justify-center items-center h-full">
+                  <div class="text-gray-600 text-lg">No bulk analysis results found.</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="footer_actions_bar">
+        <button class="btn open_side_panel_from_main">
+          <i class="material-icons-outlined">send_time_extension</i>
+        </button>
+      </div>
     </div>
-    <div class="footer_actions_bar">
-      <button class="btn open_side_panel_from_main">
-        <i class="material-icons-outlined">send_time_extension</i>
-      </button>
-    </div>
-    <!-- test modal -->
-    <div class="modal fade test_modal" id="testModal" tabindex="-1" aria-labelledby="testModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="testModalLabel">Test Metric</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="test_metric_container flex justify-center items-center"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
+  </div>
+  <!-- test modal -->
+  <div class="modal fade test_modal" id="testModal" tabindex="-1" aria-labelledby="testModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="testModalLabel">Test Metric</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="test_metric_container flex justify-center items-center"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
-    <!-- json display modal -->
-    <div class="modal fade json_display_modal" tabindex="-1" aria-labelledby="jsonDisplayModal" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="jsonDisplayModal">Bulk Analysis Result Viewer</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <pre style="height:50vh">
+  </div>
+  <!-- json display modal -->
+  <div class="modal fade json_display_modal" tabindex="-1" aria-labelledby="jsonDisplayModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="jsonDisplayModal">Bulk Analysis Result Viewer</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <pre style="height:50vh">
                 <code class="language-json json_display_modal_content"></code>
             </pre>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
-    <!-- create prompt wizard -->
-    <div class="modal fade" id="promptWizard" tabindex="-1" aria-labelledby="promptWizardLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <ul class="nav nav-tabs" id="myTab" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="wizard-config-tab" data-bs-toggle="tab"
-                  data-bs-target="#wizard-config" type="button" role="tab" aria-controls="wizard-config"
-                  aria-selected="true">
-                  Configurations
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="wizard-prompt-tab" data-bs-toggle="tab" data-bs-target="#wizard-prompt"
-                  type="button" role="tab" aria-controls="wizard-prompt" aria-selected="false">
-                  Create Prompt
-                </button>
-              </li>
-            </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="tab-content" id="wizardTabs">
-              <div class="tab-pane fade show active" id="wizard-config" role="tabpanel"
-                aria-labelledby="wizard-config-tab">
-                <form class="mt-4 prompt_template_form">
-                  <div class="mb-4 form_group">
-                    <label for="prompt_setname_input" class="text-base block font-bold mb-1">Set Name:</label>
-                    <input type="text" class="w-full p-2 text-base border border-gray-300 rounded prompt_setname_input"
-                      list="input_datalist_prompt_list" name="prompt_setname_input" required value="">
-                    <datalist id="input_datalist_prompt_list"></datalist>
-                  </div>
-                  <div class="mb-4 form_group">
-                    <label for="prompt_id_input" class="text-base block font-bold mb-1">Name/Id:</label>
-                    <input type="text" class="w-full p-2 text-base border border-gray-300 rounded prompt_id_input"
-                      name="prompt_id_input" required>
-                    <input type="hidden" class="prompt_row_index">
-                  </div>
-                  <div class="mb-4 form_group">
-                    <label for="prompt_description" class="text-base block font-bold mb-1">Description:</label>
-                    <input class="w-full p-2 text-base border border-gray-300 rounded prompt_description"
-                      name="prompt_description">
-                  </div>
-                  <div class="mb-4 form_group">
-                    <label for="prompt_type" class="text-base block font-bold mb-1">Type:</label>
-                    <select class="w-full p-2 text-base border border-gray-300 rounded prompt_type" name="prompt_type"
-                      required>
-                      <option value="metric">Metric*</option>
-                      <option value="keywords">Keyword*</option>
-                      <option value="shortsummary">50 Word Summary*</option>
-                      <option value="json">JSON</option>
-                      <option value="prompt">Text</option>
-                    </select>
-                  </div>
-                </form>
-                <br>
-                <label>generate prompt like</label>
-                <textarea class="w-full wizard_input_prompt" rows="4"></textarea>
-              </div>
-              <div class="tab-pane fade" id="wizard-prompt" role="tabpanel" aria-labelledby="wizard-prompt-tab">
-                <label for="prompt_template_text" class="block">Prompt Output:</label><br>
-                <textarea class="w-full whitespace-pre-wrap h-60 prompt_template_text" name="prompt_template_text"
-                  required></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="generate_metric_prompt btn bg-green-500 text-white">Generate</button>
-            <div class="flex-1"></div>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button class="save_to_library_button btn bg-blue-500 text-white">Save</button>
-          </div>
+  </div>
+  <!-- create prompt wizard -->
+  <div class="modal fade" id="promptWizard" tabindex="-1" aria-labelledby="promptWizardLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="wizard-config-tab" data-bs-toggle="tab"
+                data-bs-target="#wizard-config" type="button" role="tab" aria-controls="wizard-config"
+                aria-selected="true">
+                Configurations
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="wizard-prompt-tab" data-bs-toggle="tab" data-bs-target="#wizard-prompt"
+                type="button" role="tab" aria-controls="wizard-prompt" aria-selected="false">
+                Create Prompt
+              </button>
+            </li>
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>
-    </div>
-    <!-- Config Modal -->
-    <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <ul class="nav nav-tabs" id="configTabs" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access"
-                  type="button" role="tab" aria-controls="access" aria-selected="true">Access</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button"
-                  role="tab" aria-controls="history" aria-selected="false">History</button>
-              </li>
-            </ul>
-          </div>
-          <div class="modal-body">
-            <div class="tab-content" id="configTabsContent">
-              <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
-                <div class="mt-4 api_config">
-                  <div class="flex items-center mb-2 form_row">
-                    <label for="api_token_input" class="w-20 font-bold text-xs mr-1">API Key:
-                      <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded api_token_input">
-                    </label>
-                  </div>
-                  <div class="flex items-center mb-2 form_row">
-                    <label for="session_id_input" class="w-20 font-bold text-xs mr-1">Session:
-                      <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded session_id_input">
-                    </label>
-                  </div>
-                  <div class="flex items-center mb-2 form_row">
-                    <label class="session_anchor_label"></label>
-                    <a class="session_anchor" href="" target="_blank"></a>
-                  </div>
-                  <button class="btn reset_chrome_storage">Clear Storage</button>
+        <div class="modal-body">
+          <div class="tab-content" id="wizardTabs">
+            <div class="tab-pane fade show active" id="wizard-config" role="tabpanel"
+              aria-labelledby="wizard-config-tab">
+              <form class="mt-4 prompt_template_form">
+                <div class="mb-4 form_group">
+                  <label for="prompt_setname_input" class="text-base block font-bold mb-1">Set Name:</label>
+                  <input type="text" class="w-full p-2 text-base border border-gray-300 rounded prompt_setname_input"
+                    list="input_datalist_prompt_list" name="prompt_setname_input" required value="">
+                  <datalist id="input_datalist_prompt_list"></datalist>
                 </div>
-              </div>
-              <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-                <div class="flex flex-column gap-2">
-                  <button class="btn clear_history">Clear History</button>
-                  <button class="btn clear_bulk_history">Clear Bulk History</button>
-                  <button class="btn export_history">Export</button>
-                  <select class="history_range_amount_select">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="100">100</option>
-                    <option value="500">500</option>
+                <div class="mb-4 form_group">
+                  <label for="prompt_id_input" class="text-base block font-bold mb-1">Name/Id:</label>
+                  <input type="text" class="w-full p-2 text-base border border-gray-300 rounded prompt_id_input"
+                    name="prompt_id_input" required>
+                  <input type="hidden" class="prompt_row_index">
+                </div>
+                <div class="mb-4 form_group">
+                  <label for="prompt_description" class="text-base block font-bold mb-1">Description:</label>
+                  <input class="w-full p-2 text-base border border-gray-300 rounded prompt_description"
+                    name="prompt_description">
+                </div>
+                <div class="mb-4 form_group">
+                  <label for="prompt_type" class="text-base block font-bold mb-1">Type:</label>
+                  <select class="w-full p-2 text-base border border-gray-300 rounded prompt_type" name="prompt_type"
+                    required>
+                    <option value="metric">Metric*</option>
+                    <option value="keywords">Keyword*</option>
+                    <option value="shortsummary">50 Word Summary*</option>
+                    <option value="json">JSON</option>
+                    <option value="prompt">Text</option>
                   </select>
                 </div>
-              </div>
+              </form>
+              <br>
+              <label>generate prompt like</label>
+              <textarea class="w-full wizard_input_prompt" rows="4"></textarea>
+            </div>
+            <div class="tab-pane fade" id="wizard-prompt" role="tabpanel" aria-labelledby="wizard-prompt-tab">
+              <label for="prompt_template_text" class="block">Prompt Output:</label><br>
+              <textarea class="w-full whitespace-pre-wrap h-60 prompt_template_text" name="prompt_template_text"
+                required></textarea>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="generate_metric_prompt btn bg-green-500 text-white">Generate</button>
+          <div class="flex-1"></div>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="save_to_library_button btn bg-blue-500 text-white">Save</button>
         </div>
       </div>
     </div>
+  </div>
+  <!-- Config Modal -->
+  <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <ul class="nav nav-tabs" id="configTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access"
+                type="button" role="tab" aria-controls="access" aria-selected="true">Access</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button"
+                role="tab" aria-controls="history" aria-selected="false">History</button>
+            </li>
+          </ul>
+        </div>
+        <div class="modal-body">
+          <div class="tab-content" id="configTabsContent">
+            <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
+              <div class="mt-4 api_config">
+                <div class="flex items-center mb-2 form_row">
+                  <label for="api_token_input" class="w-20 font-bold text-xs mr-1">API Key:
+                    <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded api_token_input">
+                  </label>
+                </div>
+                <div class="flex items-center mb-2 form_row">
+                  <label for="session_id_input" class="w-20 font-bold text-xs mr-1">Session:
+                    <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded session_id_input">
+                  </label>
+                </div>
+                <div class="flex items-center mb-2 form_row">
+                  <label class="session_anchor_label"></label>
+                  <a class="session_anchor" href="" target="_blank"></a>
+                </div>
+                <button class="btn reset_chrome_storage">Clear Storage</button>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+              <div class="flex flex-column gap-2">
+                <button class="btn clear_history">Clear History</button>
+                <button class="btn clear_bulk_history">Clear Bulk History</button>
+                <button class="btn export_history">Export</button>
+                <select class="history_range_amount_select">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="100">100</option>
+                  <option value="500">500</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
