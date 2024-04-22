@@ -27,8 +27,14 @@
 .prompt_list_editor .tabulator-row.tabulator-group {
     background-color: var(--background-color);
     border-right: none;
+    height: 38px;
+    border-top: none;
 }
 
 .prompt_list_editor .tabulator-row.tabulator-group .tabulator-group-toggle {
-    padding: 8px;
+    padding: 4px;
+}
+
+.prompt_list_editor .tabulator-header {
+    display: none;
 }

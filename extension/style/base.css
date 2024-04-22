@@ -196,26 +196,6 @@ body {
   padding-bottom: var(--spacing-medium);
 }
 
-.data_controls {
-  display: flex;
-  gap: var(--spacing-medium);
-}
-
-.btn {
-  line-height: 1em;
-  font-size: var(--font-size-large);
-  padding: var(--spacing-small) var(--spacing-large);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  position: relative;
-  border-color: var(--text-color);
-}
-
-.btn:hover {
-  filter: brightness(50%);
-}
-
 .run_bulk_analysis_btn {
   width: 125px;
 }
@@ -243,7 +223,6 @@ body {
 .export_metric_set .material-icons-outlined {
   font-size: 20px;
   position: relative;
-  top: -4px;
 }
 
 .api_config {
@@ -540,8 +519,6 @@ body {
 }
 
 .gutter {
-  background-color: #eee;
-
   background-repeat: no-repeat;
   background-position: 50%;
 }
