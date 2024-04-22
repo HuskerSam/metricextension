@@ -552,3 +552,8 @@ body {
   border-bottom: solid 1px var(--border-color);
   margin-top: 4px;
 }
+
+.nav-item button.active {
+  background: blue;
+  color: white;
+}
