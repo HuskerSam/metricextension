@@ -330,7 +330,7 @@ export class AnalyzerExtensionCommon {
               <span class="prompt_id">${result.prompt.id}</span>
               <span class="metric_score">${metric}<span class="outofscore">/10</span></span>
               <div class="metric_bar">
-                <div class="metric_fill" style="width: ${metric * 10}%;"></div>
+              <div class="metric_fill" style="width: ${metric * 10}%;"></div>
               </div>
             </div>
           `;
@@ -340,7 +340,7 @@ export class AnalyzerExtensionCommon {
               <div class="prompt_header">
                 <span class="prompt_id">${result.prompt.id}</span>
               </div>
-              <pre class="result_content">${result.result.resultMessage}</pre>
+              <div class="result_content">${result.result.resultMessage}</div>
             </div>
           `;
       }
@@ -356,7 +356,7 @@ export class AnalyzerExtensionCommon {
             <div class="prompt_header">
               <span class="prompt_id">${result.prompt.id}</span>
             </div>
-            <pre class="result_content">${resultDisplay}</pre>
+            <div class="result_content">${resultDisplay}</div>
             <div class="result_usage">${usageText}</div>
           </div>
         `;

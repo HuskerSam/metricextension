@@ -268,6 +268,7 @@ body {
   width: 150px;
   overflow: hidden;
   align-self: center;
+  font-size: 0.75em;
 }
 
 
@@ -284,7 +285,6 @@ body {
   width: 80px;
   overflow: hidden;
   align-self: center;
-  font-size: var(--font-size-large);
   color: var(--primary-color);
   margin-left: var(--spacing-small);
 }
@@ -317,9 +317,15 @@ body {
 
 .text_result,
 .json_result {
-  padding: var(--spacing-medium);
   display: flex;
   flex-direction: column;
+  padding-bottom: 8px;
+}
+.text_result .prompt_id,
+.json_result .prompt_id {
+  padding-top:4px;
+  padding-bottom: 4px;
+  display: inline-block;
 }
 
 .error_result {
