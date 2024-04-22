@@ -281,7 +281,7 @@ body {
 }
 
 .metric_result .metric_score {
-  width: 50px;
+  width: 80px;
   overflow: hidden;
   align-self: center;
   font-size: var(--font-size-large);
@@ -299,7 +299,7 @@ body {
 }
 
 .metric_bar {
-  height: 10px;
+  height: 15px;
   background-color: white;
   border: solid 1px var(--border-color);
   border-radius: 5px;
@@ -307,6 +307,7 @@ body {
   flex: 1;
   max-width: 250px;
   align-self: center;
+  margin-right: 12px;
 }
 
 .metric_fill {
