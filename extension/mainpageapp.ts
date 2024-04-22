@@ -1,6 +1,7 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
+import Split from "split.js";
 declare const chrome: any;
 
 export default class MainPageApp {
@@ -22,6 +23,11 @@ export default class MainPageApp {
     history_date = document.querySelector('.history_date') as HTMLDivElement;
     manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
+    history_text = document.querySelector('.history_text') as HTMLDivElement;
+    url_display = document.querySelector('.url_display') as HTMLAnchorElement;
+    main_history_upper_panel = document.querySelector('.main_history_upper_panel') as HTMLDivElement;
+    main_history_lower_panel = document.querySelector('.main_history_lower_panel') as HTMLDivElement;
+    viewSplitter: Split.Instance;
     activeTab: any = null;
     chromeTabListener: any = null;
     itemsPerView = 5;
@@ -29,6 +35,15 @@ export default class MainPageApp {
     currentPageIndex = 0;
 
     constructor() {
+        
+    this.viewSplitter = Split([this.main_history_upper_panel, this.main_history_lower_panel],
+        {
+          sizes: [50, 50],
+          direction: 'vertical',
+          minSize: 100, // min size of both panes
+          gutterSize: 16,
+        });
+
         this.initEventHandlers();
 
         // list for changes to local storage and update the UI
@@ -38,11 +53,7 @@ export default class MainPageApp {
         this.paintData(true);
     }
     initEventHandlers() {
-        this.open_side_panel_from_main.addEventListener('click', async () => {
-            chrome.storage.local.set({ lastPanelToggleDate: new Date().toISOString() });
-            this.activeTab = await chrome.tabs.getCurrent();
-            chrome.sidePanel.open({ tabId: this.activeTab.id });
-        });
+        this.open_side_panel_from_main.addEventListener('click', async () => this.extCommon.toggleSidePanel());
         this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });
@@ -83,6 +94,8 @@ export default class MainPageApp {
         this.manage_history_configuration.addEventListener('click', async () => {
             document.getElementById('history-tab')?.click();
         });
+    }
+    getActiveTab() {
     }
     async renderSettingsTab() {
         let sessionConfig = await chrome.storage.local.get('sessionId');
@@ -164,8 +177,26 @@ export default class MainPageApp {
                 const index = Number(item.dataset.entryindex);
                 if (index === -1) {
                     this.currentPageIndex = Math.max(this.currentPageIndex - 1, 0);
+                    if (this.baseHistoryIndex < this.currentPageIndex * this.itemsPerView) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    } else if (this.baseHistoryIndex > (this.currentPageIndex + 1) * this.itemsPerView - 1) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    }
                 } else if (index === -2) {
                     this.currentPageIndex = Math.min(this.currentPageIndex + 1, Math.ceil(history.length / this.itemsPerView) - 1);
+                    if (this.baseHistoryIndex < this.currentPageIndex * this.itemsPerView) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    } else if (this.baseHistoryIndex > (this.currentPageIndex + 1) * this.itemsPerView - 1) {
+                        this.baseHistoryIndex = this.currentPageIndex * this.itemsPerView;
+                    }
+                } else if (index === -10) {
+                    this.baseHistoryIndex -= 1;
+                    this.currentPageIndex = Math.floor(this.baseHistoryIndex / this.itemsPerView);
+                } else if (index === -20) {
+                    this.baseHistoryIndex += 1;
+                    if (this.baseHistoryIndex > history.length - 1) this.baseHistoryIndex = history.length - 1;
+                    if (this.baseHistoryIndex < 0) this.baseHistoryIndex = 0;
+                    this.currentPageIndex = Math.floor(this.baseHistoryIndex / this.itemsPerView);
                 } else {
                     this.baseHistoryIndex = index;
                     this.currentPageIndex = Math.floor(this.baseHistoryIndex / this.itemsPerView);
@@ -181,17 +212,12 @@ export default class MainPageApp {
         let usageCreditTotal = 0;
         let resultHistory = entry.result;
         if (!resultHistory) resultHistory = entry.results[0];
-
-        let headerHtml = `
-        <div class="history_entry_header">
-            <div class="history_text">${this.extCommon.truncateText(entry.text, 500)}</div>
-            <div class="history_header">
-                <span class="url_display">(${this.extCommon.truncateText(entry.url, 100)})</span>
-                <button class="export_history_entry" data-index="${historyIndex}">
-                    <i class="material-icons-outlined small_icon">download</i>
-                </button>
-            </div>
-        </div>`;
+        const historyText = entry.text;
+        this.history_text.innerHTML = historyText;
+        const url = entry.url;
+        this.url_display.innerHTML = url;
+        this.url_display.href = url;
+        let headerHtml = ``;
         let resultsHTML = `<div class="history_results">`;
         let allResults = entry.results;
         let setBasedResults: any = {};
@@ -203,15 +229,20 @@ export default class MainPageApp {
         });
         const setNamesArray = Object.keys(setBasedResults);
         setNamesArray.forEach((setName: any) => {
-            resultsHTML += `<h6 class="">${setName}</h6>`;
+            resultsHTML += `<div class="p-2 history_entry_set_wrapper"><h6 class="history_entry_prompt_setname">${setName}</h6>`;
             let promptSetResults = setBasedResults[setName];
             promptSetResults.forEach((result: any) => {
-                usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+                try {
+                    usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+                } catch (err: any) {
+                    console.log("Usage total credit summming error", err);
+                }
             });
 
             for (let result of promptSetResults) {
                 resultsHTML += this.extCommon.getHTMLforPromptResult(result);
             }
+            resultsHTML += `</div>`;
         });
         resultsHTML += `</div>`;
         let html = `${resultsHTML}${headerHtml}`;

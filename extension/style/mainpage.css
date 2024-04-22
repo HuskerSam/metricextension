@@ -1,0 +1,44 @@
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-link {
+    font-size: var(--font-size-large);
+    color: var(--text-color);
+    padding: var(--spacing-medium);
+    transition: background-color 0.3s ease;
+    margin: var(--spacing-small) 0;
+}
+
+.nav-link:hover {
+    background-color: var(--background-color);
+}
+
+.nav-link.active {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.nav-link i {
+    margin-right: var(--spacing-small);
+}
+
+.prompt_list_editor .tabulator-row.tabulator-group {
+    background-color: var(--background-color);
+    border-right: none;
+    border-top: none;
+    height: 44px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 6px;
+    align-items: center;
+}
+
+.prompt_list_editor .tabulator-row.tabulator-group .tabulator-group-toggle {
+    padding: 4px;
+}
+
+.prompt_list_editor .tabulator-header {
+    display: none;
+}

@@ -13,8 +13,7 @@ export class AnalyzerExtensionCommon {
   constructor(chrome: any) {
     this.chrome = chrome;
   }
-
-  generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
+  generatePagination2(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     let paginationHtml = '';
@@ -34,6 +33,50 @@ export class AnalyzerExtensionCommon {
     </li>`;
     }
     paginationHtml += `<li class="page-item ${currentPageIndex === totalPages - 1 || totalPages === 0 ? 'buttondisabled' : ''}">
+        <a class="page-link" href="#" aria-label="Next" data-entryindex="-2">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    </li>`;
+    paginationHtml += `<li class="page-item count">
+               <span>${totalItems}<br>items</li>`;
+    paginationHtml += '</ul>';
+
+    return paginationHtml;
+  }
+  generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    let paginationHtml = '';
+    paginationHtml = '<ul class="pagination pagination-sm mb-0">';
+    paginationHtml += `
+    <li class="page-item ${currentPageIndex === 0 || totalPages === 0 ? 'buttondisabled' : ''}">
+        <a class="page-link" href="#" aria-label="Previous" data-entryindex="-1">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>
+    <li class="page-item ${currentEntryIndex === 0 ? 'buttondisabled' : ''}">
+      <a class="page-link" href="#" data-entryindex="-10">
+          <span aria-hidden="true">
+           &#x2190; 
+          </span>
+      </a>
+    </li>`;
+    const startIndex = currentPageIndex * itemsPerPage;
+    const endIndex = Math.min((currentPageIndex + 1) * itemsPerPage, totalItems);
+    for (let i = startIndex; i < endIndex; i++) {
+      paginationHtml += `<li class="page-item ${currentEntryIndex === i ? 'selected' : ''}">
+        <a class="page-link" href="#" data-entryindex="${i}">
+            <span aria-hidden="true">${i + 1}</span>
+        </a>
+    </li>`;
+    }
+    paginationHtml += `
+    <li class="page-item ${currentEntryIndex === totalItems - 1 ? 'buttondisabled' : ''}">
+      <a class="page-link" href="#" data-entryindex="-20">
+        <span aria-hidden="true">&#x2192;</span>
+      </a>
+    </li>
+    <li class="page-item ${currentPageIndex === totalPages - 1 || totalPages === 0 ? 'buttondisabled' : ''}">
         <a class="page-link" href="#" aria-label="Next" data-entryindex="-2">
             <span aria-hidden="true">&raquo;</span>
         </a>
@@ -287,7 +330,7 @@ export class AnalyzerExtensionCommon {
               <span class="prompt_id">${result.prompt.id}</span>
               <span class="metric_score">${metric}<span class="outofscore">/10</span></span>
               <div class="metric_bar">
-                <div class="metric_fill" style="width: ${metric * 10}%;"></div>
+              <div class="metric_fill" style="width: ${metric * 10}%;"></div>
               </div>
             </div>
           `;
@@ -297,7 +340,7 @@ export class AnalyzerExtensionCommon {
               <div class="prompt_header">
                 <span class="prompt_id">${result.prompt.id}</span>
               </div>
-              <pre class="result_content">${result.result.resultMessage}</pre>
+              <div class="result_content">${result.result.resultMessage}</div>
             </div>
           `;
       }
@@ -313,17 +356,11 @@ export class AnalyzerExtensionCommon {
             <div class="prompt_header">
               <span class="prompt_id">${result.prompt.id}</span>
             </div>
-            <pre class="result_content">${resultDisplay}</pre>
+            <div class="result_content">${resultDisplay}</div>
             <div class="result_usage">${usageText}</div>
           </div>
         `;
     }
-  }
-
-
-  async runMetrics() {
-    let text = this.query_source_text.value;
-    await this.runAnalysisPrompts(text, 'user input');
   }
   async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');
@@ -385,17 +422,37 @@ export class AnalyzerExtensionCommon {
       day: "numeric",
     });
   }
-  async openExentionSinglePage(url: string) {
-    const [tab] = await this.chrome.tabs.query({
+  async toggleExentionPage(url: string) {
+    const [extensionTab] = await this.chrome.tabs.query({
       url: `chrome-extension://${this.chrome.runtime.id}/main.html`,
+      lastFocusedWindow: true,
     });
 
-    if (tab) {
-      await this.chrome.tabs.update(tab.id, { active: true });
+    if (extensionTab && extensionTab.active !== true) {
+      await this.chrome.tabs.update(extensionTab.id, { active: true });
+    } else if (extensionTab) {
+      await this.chrome.tabs.remove(extensionTab.id);
     } else {
       await this.chrome.tabs.create({
         url
       });
     }
+  }
+  async toggleSidePanel(currentTab: any = null) {
+    const lastPanelToggleDate = new Date().toISOString();
+    if (currentTab) {
+      this.chrome.sidePanel.open({ tabId: currentTab.id });
+    } else {
+      [currentTab] = await this.chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+      this.chrome.sidePanel.open({ tabId: currentTab.id });
+    }
+
+    await this.chrome.storage.local.set({
+      lastPanelToggleDate,
+      lastPanelToggleWindowId: currentTab.windowId,
+    });
   }
 }

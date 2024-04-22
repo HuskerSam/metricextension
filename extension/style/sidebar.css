@@ -1,0 +1,33 @@
+
+.btn.show_main_page_btn {
+    margin-bottom: 8px;  
+    position: relative;
+    top: 8px;
+    border: none;
+    left: -10px;
+}
+
+.query_source_text {
+  width: 100%;
+  padding: var(--spacing-medium);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  border: none;
+  border-radius: var(--border-radius);
+  resize: none;
+  overflow-y: auto;
+  padding-bottom: 24px;
+  margin: var(--spacing-medium) 0;
+}
+
+.history_display_container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.extension_running .analysis_display {
+  display: none;
+}
