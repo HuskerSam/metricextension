@@ -32,7 +32,7 @@ export default class PromptHelper {
             groupBy: "setName",
             //            groupStartOpen: [false],
             groupHeader: (value: any, count: number, data: any, group: any) => {
-                return value + `<span style='margin-left:10px'>(${count} item)</span><button class='export_metric_set btn' style='float:right;' data-setname='${value}'><i class="material-icons-outlined">download</i> </button>`;
+                return `<span style='margin-left:10px'>${value} (${count} item)</span><button class='export_metric_set btn' style='float:right;' data-setname='${value}'><i class="material-icons-outlined">download</i> </button>`;
             },
             columns: [
                 { title: "Id", field: "id", headerSort: false, width: 100 },
