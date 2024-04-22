@@ -42,7 +42,8 @@ export default class PromptHelper {
             layout: "fitDataStretch",
             movableRows: true,
             groupBy: "setName",
-            //            groupStartOpen: [false],
+            resizableColumnGuide:true,
+            selectableRows: 1,
             groupHeader: (value: any, count: number, data: any, group: any) => {
                 return `
                 <div class='inline-flex flex-1 justify-between'>
@@ -220,8 +221,16 @@ export default class PromptHelper {
                 `;
                 this.test_metric_container.innerHTML = html;
             }
-            /*
-            const row = cell.getRow();
+            if (cell.getColumn().getField() === "clone") {
+                const row = cell.getRow();
+                const prompt = row.getData();
+                let promptTemplateList = await this.promptsTable.getData();
+                promptTemplateList.push(prompt);
+                await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
+                this.hydrateAllPromptRows();
+            }
+        });
+        this.promptsTable.on("rowSelected", (row: any) => {      
             const prompt = row.getData();
             this.add_prompt_modal.click();
             this.prompt_id_input.value = prompt.id;
@@ -233,17 +242,7 @@ export default class PromptHelper {
             let rowIndex = row.getPosition();
             this.prompt_row_index.value = rowIndex;
             this.getAnalysisSetNameList();
-            */
-            if (cell.getColumn().getField() === "clone") {
-                const row = cell.getRow();
-                const prompt = row.getData();
-                let promptTemplateList = await this.promptsTable.getData();
-                promptTemplateList.push(prompt);
-                await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-                this.hydrateAllPromptRows();
-            }
         });
-
         this.promptsTable.on("rowMoved", async (cell: any) => {
             this.savePromptTableData();
         });
