@@ -1,6 +1,9 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
+import {
+  encode,
+} from 'gpt-tokenizer';
 declare const chrome: any;
 
 export default class SidePanelApp {
@@ -87,7 +90,7 @@ export default class SidePanelApp {
   async handleStorageChange() {
     let lastPanelToggleDate = await chrome.storage.local.get('lastPanelToggleDate');
     if (lastPanelToggleDate && lastPanelToggleDate.lastPanelToggleDate) lastPanelToggleDate = lastPanelToggleDate.lastPanelToggleDate;
-    
+
     let lastPanelToggleWindowId = await chrome.storage.local.get('lastPanelToggleWindowId');
     if (lastPanelToggleWindowId && lastPanelToggleWindowId.lastPanelToggleWindowId) lastPanelToggleWindowId = lastPanelToggleWindowId.lastPanelToggleWindowId;
 
@@ -111,7 +114,6 @@ export default class SidePanelApp {
     let lastSelection = await chrome.storage.local.get('lastSelection');
     lastSelection = lastSelection.lastSelection || "";
     this.updateContentTextonSidePanel(lastSelection);
-    this.updateQuerySourceDetails();
 
     this.renderDisplay();
 
@@ -149,6 +151,8 @@ export default class SidePanelApp {
     if (this.analysisSetsSlimSelect?.getSelected().length === 0) {
       this.analysisSetsSlimSelect.setSelected([setNames[0]]);
     }
+
+    this.updateQuerySourceDetails();
   }
   async updateContentTextonSidePanel(text: string) {
     let running = await chrome.storage.local.get('running');
@@ -159,22 +163,20 @@ export default class SidePanelApp {
     }
   }
   updateQuerySourceDetails() {
-    let lastSelection = this.query_source_text.value;
-    this.query_source_text_length.innerHTML = lastSelection.length + ' characters';
+    let text = this.query_source_text.value;
+    this.query_source_text_length.innerHTML = text.length + ' characters';
 
-    /*
-let tokenCount = "N/A";
-try {
-tokenCount = encode(text).length.toString() + " tokens";
-} catch (err) {
-let cleanText = "";
-if (text) cleanText = text;
-cleanText = cleanText.replace(/[^a-z0-9\s]/gi, "");
- 
-tokenCount = encode(text).length.toString() + " tokens";
-}
-this.query_source_tokens_length.innerHTML = tokenCount;
-*/
+    let tokenCount = "N/A";
+    try {
+      tokenCount = encode(text).length.toString() + " tokens";
+    } catch (err) {
+      let cleanText = "";
+      if (text) cleanText = text;
+      cleanText = cleanText.replace(/[^a-z0-9\s]/gi, "");
+
+      tokenCount = encode(text).length.toString() + " tokens";
+    }
+    this.query_source_tokens_length.innerHTML = tokenCount;
   }
 
   async renderDisplay() {
