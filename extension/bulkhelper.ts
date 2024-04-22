@@ -2,6 +2,7 @@ import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
+import Split from 'split.js';
 import hljs from 'highlight.js';
 import json from 'highlight.js/lib/languages/json';
 declare const chrome: any;
@@ -32,12 +33,15 @@ export default class BulkHelper {
     view_bulk_json_file = document.querySelector('.view_bulk_json_file') as HTMLButtonElement;
     json_display_modal = document.querySelector('.json_display_modal') as HTMLDivElement;
     json_display_modal_content = document.querySelector('.json_display_modal_content') as HTMLDivElement;
+    top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
+    bottom_bulk_view_splitter = document.querySelector('.bottom_bulk_view_splitter') as HTMLDivElement;
+    viewSplitter: Split.Instance;
     previousSlimOptions = "";
     lastTableEdit = new Date();
 
     constructor() {
         this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
-    //        layout: "fitColumns",
+            //        layout: "fitColumns",
             columns: [
                 { title: "URL", field: "url", editor: "input", headerSort: false },
                 {
@@ -118,6 +122,14 @@ export default class BulkHelper {
                 },
             },
         });
+
+        this.viewSplitter = Split([this.top_bulk_view_splitter, this.bottom_bulk_view_splitter],
+            {
+                sizes: [50, 50],
+                direction: 'vertical',
+                minSize: 100, // min size of both panes
+                gutterSize: 16,
+            });
 
         // for detecting in browser scraping completion
         chrome.tabs.onUpdated.addListener(
@@ -206,7 +218,7 @@ export default class BulkHelper {
             this.url_file_input.click();
         });
         this.url_file_input.addEventListener('change', async () => {
-            if (!this.url_file_input.files || (this.url_file_input.files as any).length === 0) {    
+            if (!this.url_file_input.files || (this.url_file_input.files as any).length === 0) {
                 return;
             }
             let file = (this.url_file_input.files as any)[0];
@@ -337,7 +349,7 @@ export default class BulkHelper {
                 title: "",
             };
         } else if (scrape === "browser scrape") {
-            let results =  this.scrapeTabPage(url, defaultTabId);
+            let results = this.scrapeTabPage(url, defaultTabId);
             console.log("active scrape results", results);
             return results;
         } else if (scrape === "override content") {
@@ -501,22 +513,20 @@ export default class BulkHelper {
             this.bulk_selected_last_run_date.innerHTML = "No selected entry";
         }
         let paginationHtml = this.extCommon
-                .generatePagination(bulkHistory.length, this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
+            .generatePagination(bulkHistory.length, this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
         this.bulk_history_pagination.innerHTML = paginationHtml;
 
         this.bulkHistoryEntryListItems = document.querySelectorAll('.bulk_history_pagination li a') as NodeListOf<HTMLLIElement>;
         this.bulkHistoryEntryListItems.forEach((item: any) => {
             item.addEventListener('click', async (e: any) => {
                 e.preventDefault();
-                const index = Number(item.dataset.entryindex);
-                if (index === -1) {
-                    this.currentPageIndex = Math.max(this.currentPageIndex - 1, 0);
-                } else if (index === -2) {
-                    this.currentPageIndex = Math.min(this.currentPageIndex + 1, Math.ceil(bulkHistory.length / this.itemsPerView) - 1);
-                } else {
-                    this.bulkSelectedIndex = index;
-                    this.currentPageIndex = Math.floor(this.bulkSelectedIndex / this.itemsPerView);
-                }
+                const newIndex = Number(item.dataset.entryindex);
+
+                const eventResult: any = this.extCommon
+                    .handlePaginationClick(newIndex, bulkHistory.length,
+                        this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
+                this.bulkSelectedIndex = eventResult.selectedIndex;
+                this.currentPageIndex = eventResult.pageIndex;
                 this.paintAnalysisHistory();
             });
         });
