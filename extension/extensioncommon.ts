@@ -362,10 +362,6 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-  async runMetrics() {
-    let text = this.query_source_text.value;
-    await this.runAnalysisPrompts(text, 'user input');
-  }
   async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');
     apiToken = apiToken.apiToken || '';
