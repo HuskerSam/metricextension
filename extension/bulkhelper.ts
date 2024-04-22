@@ -37,7 +37,7 @@ export default class BulkHelper {
 
     constructor() {
         this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
-            layout: "fitColumns",
+    //        layout: "fitColumns",
             columns: [
                 { title: "URL", field: "url", editor: "input", headerSort: false },
                 {
@@ -401,6 +401,7 @@ export default class BulkHelper {
                     };
                 });
             } else {
+                text = text.slice(0, 20000);
                 analysisPromises.push(this.extCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
             }
 
