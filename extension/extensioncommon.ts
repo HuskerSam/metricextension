@@ -13,36 +13,6 @@ export class AnalyzerExtensionCommon {
   constructor(chrome: any) {
     this.chrome = chrome;
   }
-  generatePagination2(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-    let paginationHtml = '';
-    paginationHtml = '<ul class="pagination pagination-sm mb-0">';
-    paginationHtml += `<li class="page-item ${currentPageIndex === 0 || totalPages === 0 ? 'buttondisabled' : ''}">
-        <a class="page-link" href="#" aria-label="Previous" data-entryindex="-1">
-            <span aria-hidden="true">&laquo;</span>
-        </a>
-    </li>`;
-    const startIndex = currentPageIndex * itemsPerPage;
-    const endIndex = Math.min((currentPageIndex + 1) * itemsPerPage, totalItems);
-    for (let i = startIndex; i < endIndex; i++) {
-      paginationHtml += `<li class="page-item ${currentEntryIndex === i ? 'selected' : ''}">
-        <a class="page-link" href="#" data-entryindex="${i}">
-            <span aria-hidden="true">${i + 1}</span>
-        </a>
-    </li>`;
-    }
-    paginationHtml += `<li class="page-item ${currentPageIndex === totalPages - 1 || totalPages === 0 ? 'buttondisabled' : ''}">
-        <a class="page-link" href="#" aria-label="Next" data-entryindex="-2">
-            <span aria-hidden="true">&raquo;</span>
-        </a>
-    </li>`;
-    paginationHtml += `<li class="page-item count">
-               <span>${totalItems}<br>items</li>`;
-    paginationHtml += '</ul>';
-
-    return paginationHtml;
-  }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -86,6 +56,39 @@ export class AnalyzerExtensionCommon {
     paginationHtml += '</ul>';
 
     return paginationHtml;
+  }
+  handlePaginationClick(newIndex: number, totalItems: number, selectedIndex: number, itemsPerPage: number, pageIndex: number) {
+    if (newIndex === -1) {
+      pageIndex = Math.max(pageIndex - 1, 0);
+      if (selectedIndex < pageIndex * itemsPerPage) {
+        selectedIndex = pageIndex * itemsPerPage;
+      } else if (selectedIndex > (pageIndex + 1) * itemsPerPage - 1) {
+        selectedIndex = pageIndex * itemsPerPage;
+      }
+    } else if (newIndex === -2) {
+      pageIndex = Math.min(pageIndex + 1, Math.ceil(totalItems / itemsPerPage) - 1);
+      if (selectedIndex < pageIndex * itemsPerPage) {
+        selectedIndex = pageIndex * itemsPerPage;
+      } else if (selectedIndex > (pageIndex + 1) * itemsPerPage - 1) {
+        selectedIndex = pageIndex * itemsPerPage;
+      }
+    } else if (newIndex === -10) {
+      selectedIndex -= 1;
+      pageIndex = Math.floor(selectedIndex / itemsPerPage);
+    } else if (newIndex === -20) {
+      selectedIndex += 1;
+      if (selectedIndex > totalItems - 1) selectedIndex = totalItems - 1;
+      if (selectedIndex < 0) selectedIndex = 0;
+      pageIndex = Math.floor(selectedIndex / itemsPerPage);
+    } else {
+      selectedIndex = newIndex;
+      pageIndex = Math.floor(selectedIndex / itemsPerPage);
+    }
+
+    return {
+      selectedIndex,
+      pageIndex,
+    }
   }
   async processPromptUsingUnacogAPI(message: string): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');

@@ -508,15 +508,13 @@ export default class BulkHelper {
         this.bulkHistoryEntryListItems.forEach((item: any) => {
             item.addEventListener('click', async (e: any) => {
                 e.preventDefault();
-                const index = Number(item.dataset.entryindex);
-                if (index === -1) {
-                    this.currentPageIndex = Math.max(this.currentPageIndex - 1, 0);
-                } else if (index === -2) {
-                    this.currentPageIndex = Math.min(this.currentPageIndex + 1, Math.ceil(bulkHistory.length / this.itemsPerView) - 1);
-                } else {
-                    this.bulkSelectedIndex = index;
-                    this.currentPageIndex = Math.floor(this.bulkSelectedIndex / this.itemsPerView);
-                }
+                const newIndex = Number(item.dataset.entryindex);
+
+                const eventResult: any = this.extCommon
+                    .handlePaginationClick(newIndex, bulkHistory.length,
+                        this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
+                this.bulkSelectedIndex = eventResult.selectedIndex;
+                this.currentPageIndex = eventResult.pageIndex;
                 this.paintAnalysisHistory();
             });
         });
