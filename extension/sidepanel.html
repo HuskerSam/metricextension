@@ -4,8 +4,8 @@
   <link rel="stylesheet" href="lib/materialiconsoutlined.css">
   <link href="lib/bootstrap.min.css" rel="stylesheet">
   <script src="lib/bootstrap.bundle.min.js"></script>
-  <link href="style/output.css" rel="stylesheet">
   <link href="lib/slimselect.css" rel="stylesheet">
+  <link href="style/output.css" rel="stylesheet">
   <script src="lib/lottieplayer.js"></script>
   <script src="models/index.js"></script>
   </link>
@@ -22,6 +22,9 @@
   </div>
   <div class="flex flex-col h-full">
     <div class="top_history_view_splitter" style="display:flex;flex-direction:column;overflow:hidden;">
+
+
+
       <label class="pt-1" style="text-align:center;padding-bottom:3px;font-size:.75em;font-weight:bold;">
         Select Metrics for analysis</label>
       <div class="flex justify-between">
@@ -30,20 +33,63 @@
           </select>
         </div>
         <div class="p-1">
-          <button class="btn run_analysis_btn bg-green-500 text-white">
-            <span class="relative bottom-1 btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
-          </button>
-          <button class="btn copy_to_clipboard_btn" style="display:none">
-            <i class="material-icons-outlined">content_paste</i>
+          <button class="btn-ts-success run_analysis_btn">
+            <span class="relative bottom-1 btn_text">Run</span> 
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+            </svg>            
           </button>
         </div>
       </div>
-      <textarea class="query_source_text w-full h-full p-2 text-base leading-6 border border-gray-300 rounded resize-y"
-        placeholder="Enter text for analysis..."></textarea>
-      <div class="flex flex-row text-sm text-slate-500 pl-2 pr-2">
-        <div class="query_source_text_length mr-4"></div>
-        <div class="flex-1"></div>
-        <div class="query_source_tokens_length">&nbsp;</div>
+      <div class="p-1 pt-2 h-full">
+        <div class="flex items-center mb-1" aria-orientation="horizontal" role="tablist">
+          <button id="tabs-input-textarea-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-textarea-panel"
+            class="bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-transparent px-3 py-1.5 text-sm font-medium active"
+            aria-controls="tabs-input-textarea-panel" role="tab" type="button">Text Input</button>
+          <button id="tabs-input-url-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-url-panel"
+            class="bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1.5 text-sm font-medium"
+            aria-controls="tabs-input-url-panel" role="tab" type="button">Site Scrape</button>
+  
+          <div class="ml-auto flex items-center mr-2">
+            <div class="flex items-center">
+              <button
+                class="copy_to_clipboard_btn -m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-400 hover:text-gray-500">
+                <span class="sr-only">copy text</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content h-full">
+          <div id="tabs-input-textarea-panel" class="tab-pane fade show active -m-0.5 rounded-lg p-0.5 h-full"
+            aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
+            <textarea class="query_source_text textarea-ts h-full"
+            placeholder="Enter text for analysis..."></textarea>
+            <div class="flex flex-row text-xs text-slate-500 px-3 mb-4 pt-1">
+              <div class="query_source_text_length mr-4"></div>
+              <div class="flex-1"></div>
+              <div class="query_source_tokens_length">&nbsp;</div>
+            </div>
+          </div>
+          <div id="tabs-input-url-panel" class="tab-pane fade -m-0.5 rounded-lg p-0.5"
+            aria-labelledby="tabs-input-url-tab" role="tabpanel" tabindex="0">
+            <div class="border-b">
+              <div class="mt-2">
+                <div
+                  class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+                  <span class="flex select-none items-center pl-3 text-gray-500 sm:text-sm">http://</span>
+                  <input type="text" name="scrape-website" id="scrape-website"
+                    class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                    placeholder="www.example.com">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex flex-col flex-1 overflow-hidden pb-0 history_display_container bottom_history_view_splitter">

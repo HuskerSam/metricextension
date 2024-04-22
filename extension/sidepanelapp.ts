@@ -76,7 +76,7 @@ export default class SidePanelApp {
       }
     });
     this.copy_to_clipboard_btn.addEventListener('click', async () => {
-      let text = this.extCommon.query_source_text.value;
+      let text = this.query_source_text.value;
       navigator.clipboard.writeText(text);
     });
 

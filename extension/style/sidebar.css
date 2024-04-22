@@ -16,8 +16,6 @@
   border-radius: var(--border-radius);
   resize: none;
   overflow-y: auto;
-  padding-bottom: 24px;
-  margin: var(--spacing-medium) 0;
 }
 
 .history_display_container {
