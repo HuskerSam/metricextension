@@ -1,34 +1,18 @@
-<div class="md:flex md:items-center md:justify-between">
-    <div class="min-w-0 flex-1">
-        <h2 class="text-2xl font-bold leading-7 text-white sm:truncate sm:text-3xl sm:tracking-tight">Manage Prompts
-        </h2>
+<div class="-ml-4 -mt-2 flex flex-wrap items-center justify-between sm:flex-nowrap">
+    <div class="ml-4 mt-2">
+        <h3 class="text-base font-semibold leading-6 text-gray-900">Job Postings</h3>
     </div>
-    <div class="mt-4 flex md:ml-4 md:mt-0">
+    <div class="ml-4 mt-2 flex-shrink-0">
         <button type="button"
-            class="prompt_list_import_rows inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            Import
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-            </svg>
-        </button>
-        <button type="button"
-            class="prompt_list_export_rows inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            Export
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-            </svg>
-            <button type="button"
-                class="add_prompt_modal inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white  hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                New
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
+            class="relative inline-flex items-center rounded-md bg-indigo-600 px-3
+             py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 
+             focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+              focus-visible:outline-indigo-600">
+              Create new job
             </button>
-            <input type="file" id="prompt_list_file_input" accept=".json" class="hidden">
     </div>
 </div>
+
+
+<span style='margin-left:10px'>(${count} item)</span><button class='export_metric_set btn' style='float:right;'
+    data-setname='${value}'><i class="material-icons-outlined">download</i> </button>
