@@ -245,18 +245,6 @@ export default class BulkHelper {
             a.click();
             document.body.removeChild(a);
         });
-    /*    this.view_bulk_json_file.addEventListener('click', async () => {
-            let bulkHistory = await chrome.storage.local.get('bulkHistory');
-            bulkHistory = bulkHistory.bulkHistory || [];
-            let historyItem = bulkHistory[this.bulkSelectedIndex];
-            this.json_display_modal_content.innerHTML = "Loading...";
-            (new (<any>window).bootstrap.Modal(this.json_display_modal)).show();
-            let jsonFetchResult = await fetch(historyItem.analysisResultPath);
-            let jsonText = await jsonFetchResult.text();
-            jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
-            this.json_display_modal_content.innerHTML = jsonText;
-            hljs.highlightElement(this.json_display_modal_content);
-        }); */
         this.download_compact_csv.addEventListener('click', async () => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
             bulkHistory = bulkHistory.bulkHistory || [];
@@ -546,6 +534,13 @@ export default class BulkHelper {
         });
         this.bulkResultsTabulator.setColumns(tabulatorColumns);
         this.bulkResultsTabulator.setData(csvData);
+
+        this.json_display_modal_content.innerHTML = "Loading...";
+        let jsonFetchResult = await fetch(bulkHistoryItem.analysisResultPath);
+        let jsonText = await jsonFetchResult.text();
+        jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
+        this.json_display_modal_content.innerHTML = jsonText;
+        hljs.highlightElement(this.json_display_modal_content);
     }
     async paintBulkURLList(forceUpdate = false) {
         //only continue if debounce timer is up
