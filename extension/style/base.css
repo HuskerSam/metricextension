@@ -18,6 +18,9 @@
   .textarea-ts {
     @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 resize-y;
   }
+  .btn-ts-action-menu {
+    @apply bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1 text-sm font-medium border-gray-300;
+  }
 }
 
 :root {
@@ -128,18 +131,12 @@ body {
   text-decoration: underline;
 }
 
-.bulk_history_pagination,
 .history_pagination {
   display: flex;
   justify-content: end;
   align-items: center;
   padding-top: var(--spacing-small);
   padding-right: var(--spacing-large);
-}
-
-.small_icon {
-  font-size: 20px;
-  color: var(--text-color);
 }
 
 .footer_row {
@@ -153,16 +150,8 @@ body {
   flex: 1;
 }
 
-.analysis_menu {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: var(--spacing-large);
-  gap: 24px;
-}
-
 .ss-main {
-  min-height: 38px;
+  min-height: 44px;
 }
 
 .analysis_sets_configuration {
@@ -214,10 +203,6 @@ body {
 
 .template_controls {
   padding-bottom: var(--spacing-medium);
-}
-
-.run_bulk_analysis_btn {
-  width: 125px;
 }
 
 .btn-danger {

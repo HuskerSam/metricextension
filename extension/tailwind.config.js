@@ -4,6 +4,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 module.exports = {
   content: [
     './main.html',
+    './pages/*.html',
     './mainpageapp.ts',
     './sidepanel.html',
     './sidepanelapp.ts',

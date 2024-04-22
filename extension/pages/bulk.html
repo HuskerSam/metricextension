@@ -1,89 +1,125 @@
-<div class="top_bulk_view_splitter flex flex-col overflow-hidden">
-  <div class="flex justify-between items-center mt-4 gap-2 analysis_actions">
-    <div class="flex-1 flex relative mt-1 analysis_sets_configuration">
-      <label class="absolute top-[-20px] text-base text-gray-600 positioned_label">Metrics for
-        analysis</label>
-      <select class="w-full bulk_analysis_sets_select" multiple></select>
-    </div>
-    <button class="btn run_bulk_analysis_btn bg-green-500 text-white w-32">
-      <span class="relative bottom-1 btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
-    </button>
-  </div>
-  <div class="flex justify-between items-center analysis_menu">
+<div class="top_bulk_view_splitter flex flex-col overflow-hidden px-1">
+  <div class="flex justify-start items-center gap-2 mt-2">
     <div class="bulk_analysis_progress">
-      <button class="upload_url_list btn">upload url list</button>
-      <button class="download_url_list btn">download url list</button>
+      <button class="add_bulk_url_row btn-ts-secondary">
+        <span class="inline-flex items-center">
+          New&nbsp;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </span>
+      </button>
+      <button class="upload_url_list btn-ts-secondary">
+        <span class="inline-flex items-center">
+          URL &nbsp;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+        </span>
+      </button>
+      <button class="download_url_list btn-ts-secondary">
+        <span class="inline-flex items-center">
+          URL &nbsp;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>
+        </span>
+      </button>
       <input type="file" id="url_file_input" accept=".csv" class="hidden">
     </div>
-    <div class="">
-      <button class="add_bulk_url_row btn">
-        <span class="relative bottom-1 btn_text">Add</span> <i class="material-icons-outlined">add</i>
-      </button>
-    </div>
   </div>
-  <div class="flex-1 mt-4 bulk_url_list_tabulator border border-gray-300 rounded"></div>
+  <div class="flex justify-between items-center mt-2 gap-2 analysis_actions">
+    <div class="flex-1 flex relative mt-1 analysis_sets_configuration">
+      <label class=""></label>
+      <select class="w-full bulk_analysis_sets_select" multiple></select>
+    </div>
+    <button class="run_bulk_analysis_btn btn-ts-primary self-end">
+      Run&nbsp;
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+      </svg>
+    </button>
+  </div>
+  <div class="flex-1 mt-2 bulk_url_list_tabulator border border-gray-300 rounded"></div>
 </div>
-<div class="bottom_bulk_view_splitter flex flex-col overflow-hidden">
-  <div class="flex items-center mb-1" aria-orientation="horizontal" role="tablist">
-    <button id="bulk-analysis-display-tab" data-bs-toggle="tab" data-bs-target="#tabs-bulk-analysis-display-panel"
-      class="block bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-transparent px-3 py-1 text-sm font-medium active"
-      aria-controls="tabs-bulk-analysis-display-panel" role="tab" type="button">
-      <span class="inline-flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-        </svg>
-        <span>Analysis Results</span>
-      </span>
-    </button>
-    <button id="bulk-analysis-json-log-tab" data-bs-toggle="tab" data-bs-target="#tabs-json-log-panel"
-      class="bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1 text-sm font-medium"
-      aria-controls="tabs-json-log-panel" role="tab" type="button">
-      <span class="inline-flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
-        </svg>
-        <span>JSON Log</span>
-      </span>
-    </button>
-    <div class="ml-auto flex items-center">
-      <span class="bulk_selected_last_run_date"></span>
-    </div>
-  </div>
+<div class="bottom_bulk_view_splitter flex flex-col overflow-hidden  px-1">
   <div class="tab-content flex-1 flex flex-col">
-    <div id="tabs-bulk-analysis-display-panel" class="tab-pane fade show active flex-1 overflow-hidden flex-col"
-      aria-labelledby="bulk-analysis-display-tab" role="tabpanel" tabindex="0">
+    <div id="bulk-csv-tab-view" class="tab-pane fade show active flex-1 overflow-hidden flex-col"
+      aria-labelledby="bulk-csv-tab-btn" role="tabpanel" tabindex="0" aria-selected="true">
       <div class="flex-1 bulk_analysis_results_tabulator border border-gray-300 rounded"></div>
-      <div class="bulk_action_bar">
-        <button class="download_compact_csv btn">
-          <span class="relative bottom-1 btn_text">CSV</span> <i class="material-icons-outlined">download</i>
-        </button>
-      </div>
     </div>
-    <div id="tabs-json-log-panel" class="tab-pane fade flex-1 overflow-hidden flex-col"
-      aria-labelledby="tabs-input-url-tab" role="tabpanel" tabindex="0">
+    <div id="bulk-json-log-view" class="tab-pane fade flex-1 overflow-hidden flex-col"
+      aria-labelledby="bulk-json-log-btn" role="tabpanel" tabindex="0">
       <div class="flex-1 overflow-auto border border-gray-300 rounded me-1">
-          <pre>
+        <pre>
             <code class="language-json json_display_modal_content"></code>
           </pre>
       </div>
-      <div class="bulk_action_bar">
-        <button class="download_full_json btn">
-          <span class="relative bottom-1 btn_text">Full JSON</span> <i class="material-icons-outlined">download</i>
-        </button>
-      </div>
     </div>
   </div>
-  <div class="overflow-auto flex-column">
-    <div class="flex justify-end items-center pt-1 pr-4 bulk_history_pagination"></div>
-    <button type="button"
-      class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_bulk_history_configuration"
-      data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
-      <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
-    </button>
+  <div class="overflow-auto flex-column justify-end items-center mr-3">
+    <div class="inline-flex items-center gap-1">
+      <ul class="nav">
+        <li class="nav-item">
+          <button class="btn-ts-secondary active" id="bulk-csv-tab-btn" data-bs-toggle="tab"
+          data-bs-target="#bulk-csv-tab-view" aria-controls="bulk-csv-tab-view" role="tab" type="button">
+          <span>Analysis Results</span>&nbsp;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn-ts-secondary" id="bulk-json-tab-btn" data-bs-toggle="tab" data-bs-target="#bulk-json-log-view"
+          aria-controls="bulk-json-log-view" role="tab" type="button">
+          JSON Log &nbsp;
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </button>
+        </li>
+      </ul>
+      <button class="download_compact_csv btn-ts-secondary">
+        CSV &nbsp;
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg> &nbsp;
+      </button>
+      <button class="download_full_json btn-ts-secondary">
+        JSON &nbsp;
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+      </button>
+    </div>
+    <div class="inline-flex items-center bulk_history_pagination"></div>
+    <div class="inline-flex relative top-1.5 items-center">
+      <button type="button" class="btn_icon manage_bulk_history_configuration" data-bs-toggle="modal"
+        data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+      </button>
+      <span class="bulk_selected_last_run_date px-2"></span>
+    </div>
   </div>
   <div class="no_bulk_result_history_entry flex-2 flex-column">
     <div class="flex flex-col justify-center items-center h-full">

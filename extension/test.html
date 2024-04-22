@@ -1,52 +1,69 @@
-    <div>
-      <div class="flex items-center" aria-orientation="horizontal" role="tablist">
-        <button id="tabs-input-textarea-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-textarea-panel"
-          class="bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-transparent px-3 py-1.5 text-sm font-medium active"
-          aria-controls="tabs-input-textarea-panel" role="tab" type="button">Text Input</button>
-        <button id="tabs-input-url-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-url-panel"
-          class="bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1.5 text-sm font-medium"
-          aria-controls="tabs-input-url-panel" role="tab" type="button">Site Scrape</button>
+<head>
+  <title>Klyde for Chrome</title>
+  <link rel="stylesheet" href="lib/materialiconsoutlined.css">
+  <link href="lib/bootstrap.min.css" rel="stylesheet">
+  <script src="lib/bootstrap.bundle.min.js"></script>
+  <script src="lib/lottieplayer.js"></script>
+  <link href="lib/tabulator.css" rel="stylesheet">
+  <link href="lib/tabsimple.css" rel="stylesheet">
+  <link href="lib/slimselect.css" rel="stylesheet">
+  <link rel="stylesheet" href="lib/inter.css">
+  <link rel="stylesheet" href="lib/hljs.min.css">
+  <link href="style/output.css" rel="stylesheet">
+  <script src="models/index.js"></script>
+  </link>
+</head>
 
-        <div class="ml-auto flex items-center space-x-5">
-          <div class="flex items-center">
-            <button
-              class="copy_to_clipboard_btn -m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-400 hover:text-gray-500">
-              <span class="sr-only">copy text</span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="tab-content">
-        <div id="tabs-input-textarea-panel" class="tab-pane fade show active -m-0.5 rounded-lg p-0.5"
-          aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
-          <textarea class="query_source_text w-full h-full p-2 text-base leading-6 border border-gray-300 rounded resize-y"
-          placeholder="Enter text for analysis..."></textarea>
-        <div class="flex flex-row text-sm text-slate-500 pl-2 pr-2">
-          <div class="query_source_text_length mr-4"></div>
-          <div class="flex-1"></div>
-          <div class="query_source_tokens_length">&nbsp;</div>
-        </div>
-        </div>
-        <div id="tabs-input-url-panel" class="tab-pane fade -m-0.5 rounded-lg p-0.5"
-          aria-labelledby="tabs-input-url-tab" role="tabpanel" tabindex="0">
-          <div class="border-b">
-            <label for="scrape-website" class="block text-sm font-medium leading-6 text-gray-900">Scrape
-              Website</label>
-            <div class="mt-2">
-              <div
-                class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                <span class="flex select-none items-center pl-3 text-gray-500 sm:text-sm">http://</span>
-                <input type="text" name="scrape-website" id="scrape-website"
-                  class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                  placeholder="www.example.com">
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="bottom_bulk_view_splitter flex flex-col overflow-hidden  px-1">
+  <div class="tab-content flex-1 flex flex-col">
+    <div id="bulk-csv-tab-view" class="tab-pane fade show active"
+      aria-labelledby="bulk-csv-tab-btn" role="tabpanel" tabindex="0" aria-selected="true">
+      <div class="flex-1 bulk_analysis_results_tabulator border border-gray-300 rounded"></div>
+    </div>
+    <div id="bulk-json-log-view" class="tab-pane fade"
+      aria-labelledby="bulk-json-log-btn" role="tabpanel" tabindex="0">
+      <div class="flex-1 overflow-auto border border-gray-300 rounded me-1">
       </div>
     </div>
+  </div>
+  <div class="overflow-auto flex-column justify-end items-center mr-3">
+    <div class="inline-flex items-center gap-1">
+      <button class="btn-ts-secondary active" id="bulk-csv-tab-btn" data-bs-toggle="tab"
+        data-bs-target="#bulk-csv-tab-view" aria-controls="bulk-csv-tab-view" role="tab" type="button">
+        <span>Analysis Results</span>&nbsp;
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+      </button>
+      <button class="btn-ts-secondary" id="bulk-json-tab-btn" data-bs-toggle="tab" data-bs-target="#bulk-json-log-view"
+        aria-controls="bulk-json-log-view" role="tab" type="button">
+        JSON Log &nbsp;
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+      </button>
+    </div>
+    <div class="inline-flex items-center bulk_history_pagination"></div>
+    <div class="inline-flex relative top-1.5 items-center">
+      <button type="button" class="btn_icon manage_bulk_history_configuration" data-bs-toggle="modal"
+        data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+      </button>
+      <span class="bulk_selected_last_run_date px-2"></span>
+    </div>
+  </div>
+  <div class="no_bulk_result_history_entry flex-2 flex-column">
+    <div class="flex flex-col justify-center items-center h-full">
+      <div class="text-gray-600 text-lg">No bulk analysis results found.</div>
+    </div>
+  </div>
+</div>
