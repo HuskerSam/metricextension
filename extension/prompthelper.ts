@@ -46,7 +46,7 @@ export default class PromptHelper {
             selectableRows: 1,
             groupHeader: (value: any, count: number, data: any, group: any) => {
                 return `
-                <div class='inline-flex flex-1 justify-between'>
+                <div class='inline-flex flex-1 justify-between items-center'>
                     <span>${value} (${count} item)</span>
                     <button class='export_metric_set btn_icon' style='float:right;' data-setname='${value}'>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
