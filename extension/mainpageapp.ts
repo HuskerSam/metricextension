@@ -12,18 +12,11 @@ export default class MainPageApp {
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
-
-
     session_anchor_label = document.querySelector('.session_anchor_label') as HTMLDivElement;
     session_anchor = document.querySelector('.session_anchor') as HTMLAnchorElement;
-
-
     clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
-
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
-
-
     main_history_tab_view = document.querySelector('#main_history_tab_view') as HTMLDivElement;
     main_prompt_manager_tab_view = document.querySelector('#main_prompt_manager_tab_view') as HTMLDivElement;
     main_bulk_tab_view = document.querySelector('#main_bulk_tab_view') as HTMLDivElement;

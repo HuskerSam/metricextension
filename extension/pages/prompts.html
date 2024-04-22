@@ -1,4 +1,5 @@
-<div class="md:flex md:items-center md:justify-between mx-2 py-2">
+<div class="prompt_manager_upper_pane flex flex-col">
+  <div class="md:flex md:items-center md:justify-between mx-2 py-2">
     <div class="min-w-0 flex-1 ">
       <h2 class="text-2xl font-bold leading-7 sm:truncate sm:text-3xl sm:tracking-tight">Manage
         Prompts
@@ -7,25 +8,25 @@
     <div class="my-2 flex gap-2 me-2">
       <button type="button" class="prompt_list_import_rows btn-ts-secondary">
         Import&nbsp;
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-          stroke="currentColor" class="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
         </svg>
       </button>
       <button type="button" class="prompt_list_export_rows btn-ts-secondary">
         Export&nbsp;
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-          stroke="currentColor" class="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
         </svg>
       </button>
-      <button type="button" class="add_prompt_modal btn-ts-primary" id="add_prompt_btn"
-        data-bs-toggle="modal" data-bs-target="#promptWizard" type="button">
+      <button type="button" class="add_prompt_modal btn-ts-primary" id="add_prompt_btn" data-bs-toggle="modal"
+        data-bs-target="#promptWizard" type="button">
         New&nbsp;
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-          stroke="currentColor" class="w-6 h-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
       </button>
@@ -33,3 +34,68 @@
     </div>
   </div>
   <div class="prompt_list_editor mb-4"></div>
+</div>
+<div class="prompt_manager_lower_pane flex flex-col">
+  <ul class="nav nav-pills gap-2" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="wizard-config-tab" data-bs-toggle="tab" data-bs-target="#wizard-config"
+        type="button" role="tab" aria-controls="wizard-config" aria-selected="true">
+        Configurations
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="wizard-prompt-tab" data-bs-toggle="tab" data-bs-target="#wizard-prompt" type="button"
+        role="tab" aria-controls="wizard-prompt" aria-selected="false">
+        Create Prompt
+      </button>
+    </li>
+    <li>
+      <button class="generate_metric_prompt btn bg-green-500 text-white">Generate</button>
+    </li>
+    <li>
+      <button class="save_to_library_button btn bg-blue-500 text-white">Save</button>
+    </li>
+  </ul>
+  <div class="tab-content flex-1 flex overflow-hidden flex-col mb-2">
+    <div class="tab-pane fade show active flex-1 overflow-auto" id="wizard-config" role="tabpanel"
+      aria-labelledby="wizard-config-tab">
+      <div class="col-4 form_group">
+        <label for="prompt_setname_input" class="text-base block font-bold mb-1">Set Name:</label>
+        <input type="text" class="w-full p-2 text-base border border-gray-300 rounded prompt_setname_input"
+          list="input_datalist_prompt_list" name="prompt_setname_input" required value="">
+        <datalist id="input_datalist_prompt_list"></datalist>
+      </div>
+      <div class="col-4 form_group">
+        <label for="prompt_id_input" class="text-base block font-bold mb-1">Name/Id:</label>
+        <input type="text" class="w-full p-2 text-base border border-gray-300 rounded prompt_id_input"
+          name="prompt_id_input" required>
+        <input type="hidden" class="prompt_row_index">
+      </div>
+      <div class="mb-4 form_group">
+        <label for="prompt_description" class="text-base block font-bold mb-1">Description:</label>
+        <input class="w-full p-2 text-base border border-gray-300 rounded prompt_description" name="prompt_description">
+      </div>
+      <div class="mb-4 form_group">
+        <label for="prompt_type" class="text-base block font-bold mb-1">Type:</label>
+        <select class="w-full p-2 text-base border border-gray-300 rounded prompt_type" name="prompt_type" required>
+          <option value="metric">Metric*</option>
+          <option value="keywords">Keyword*</option>
+          <option value="shortsummary">50 Word Summary*</option>
+          <option value="json">JSON</option>
+          <option value="prompt">Text</option>
+        </select>
+      </div>
+      <br>
+      <label>generate prompt like</label>
+      <div class="mb-4 form_group">
+        <textarea class="w-full wizard_input_prompt" rows="4"></textarea>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+    <div class="tab-pane fade flex-1" id="wizard-prompt" role="tabpanel" aria-labelledby="wizard-prompt-tab">
+      <label for="prompt_template_text" class="block">Prompt Output:</label><br>
+      <textarea class="w-full whitespace-pre-wrap h-60 prompt_template_text" name="prompt_template_text"
+        required></textarea>
+    </div>
+  </div>
+</div>

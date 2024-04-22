@@ -1,9 +1,11 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { TabulatorFull } from 'tabulator-tables';
+import Split from 'split.js';
 declare const chrome: any;
 
 export default class PromptHelper {
     extCommon = new AnalyzerExtensionCommon(chrome);
+    viewSplitter: Split.Instance;
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
     add_prompt_modal = document.querySelector('.add_prompt_modal') as HTMLButtonElement;
     prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
@@ -23,9 +25,19 @@ export default class PromptHelper {
     fileInput = document.getElementById('prompt_list_file_input') as HTMLInputElement;
     prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
     exportButton = document.querySelector('.prompt_list_export_rows') as HTMLButtonElement;
+    prompt_manager_lower_pane = document.querySelector('.prompt_manager_lower_pane') as HTMLDivElement;
+    prompt_manager_upper_pane = document.querySelector('.prompt_manager_upper_pane') as HTMLDivElement;
     promptsTable: TabulatorFull;
 
     constructor() {
+        this.viewSplitter = Split([this.prompt_manager_upper_pane, this.prompt_manager_lower_pane],
+            {
+                sizes: [50, 50],
+                direction: 'vertical',
+                minSize: 100, // min size of both panes
+                gutterSize: 16,
+            });
+
         this.promptsTable = new TabulatorFull(".prompt_list_editor", {
             layout: "fitDataStretch",
             movableRows: true,
@@ -60,16 +72,6 @@ export default class PromptHelper {
                     headerSort: false,
                     formatter: () => {
                         return `<i class="material-icons-outlined">copy_content</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-                {
-                    title: "",
-                    field: "edit",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">edit</i>`;
                     },
                     hozAlign: "center",
                     width: 30,
@@ -115,7 +117,7 @@ export default class PromptHelper {
             var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl);
             modal.hide();
         });
-        
+
         this.add_prompt_modal.addEventListener('click', async () => {
             this.prompt_setname_input.value = '';
             this.prompt_id_input.value = '';
@@ -194,8 +196,8 @@ export default class PromptHelper {
                 const row = cell.getRow();
                 const prompt = row.getData();
                 let text = this.extCommon.query_source_text.value;
-                (new (<any>window).bootstrap.Modal(this.test_modal)).show(); 
-                (this.test_modal.querySelector('.modal-title') as any).innerHTML = `Testing Prompt: ${prompt.id}`;    
+                (new (<any>window).bootstrap.Modal(this.test_modal)).show();
+                (this.test_modal.querySelector('.modal-title') as any).innerHTML = `Testing Prompt: ${prompt.id}`;
                 (this.test_metric_container as any).innerHTML = `<lottie-player src="media/lottie.json" background="transparent" speed="1"
                 class="w-32 h-32 self-center" loop autoplay></lottie-player>`;
                 let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual', prompt);
@@ -218,20 +220,20 @@ export default class PromptHelper {
                 `;
                 this.test_metric_container.innerHTML = html;
             }
-            if (cell.getColumn().getField() === "edit") {
-                const row = cell.getRow();
-                const prompt = row.getData();
-                this.add_prompt_modal.click();
-                this.prompt_id_input.value = prompt.id;
-                this.prompt_description.value = prompt.description;
-                this.prompt_type.value = prompt.promptType;
-                this.prompt_template_text.value = prompt.prompt;
-                this.prompt_setname_input.value = prompt.setName;
-                this.wizard_input_prompt.value = prompt.promptSuggestion;
-                let rowIndex = row.getPosition();
-                this.prompt_row_index.value = rowIndex;
-                this.getAnalysisSetNameList();
-            }
+            /*
+            const row = cell.getRow();
+            const prompt = row.getData();
+            this.add_prompt_modal.click();
+            this.prompt_id_input.value = prompt.id;
+            this.prompt_description.value = prompt.description;
+            this.prompt_type.value = prompt.promptType;
+            this.prompt_template_text.value = prompt.prompt;
+            this.prompt_setname_input.value = prompt.setName;
+            this.wizard_input_prompt.value = prompt.promptSuggestion;
+            let rowIndex = row.getPosition();
+            this.prompt_row_index.value = rowIndex;
+            this.getAnalysisSetNameList();
+            */
             if (cell.getColumn().getField() === "clone") {
                 const row = cell.getRow();
                 const prompt = row.getData();
@@ -256,19 +258,19 @@ export default class PromptHelper {
       Here is the content to analyze:
       {{query}}`;
         return newPromptContent;
-      }
-      async getKeywordPromptForDescription(description: string): Promise<string> {
+    }
+    async getKeywordPromptForDescription(description: string): Promise<string> {
         const newPromptAgent = `Please help form a concise set guidelines for keywords using following description: ${description}
         `;
-    
+
         let newPromptContent = (await this.extCommon.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
         newPromptContent += `Use the following format to answer, include up to 5: Keywords: [keyword1], [keyword2], [keyword3], ...
         Here is the content to analyze:
         {{query}}
         `;
         return newPromptContent;
-      }
-      async getMetricPromptForDescription(description: string): Promise<string> {
+    }
+    async getMetricPromptForDescription(description: string): Promise<string> {
         const newPromptAgent = `Please help form a new concise set guidelines for scoring content.
         I would like one based on the following description: ${description}
         
@@ -284,7 +286,7 @@ export default class PromptHelper {
         8: Extremely Political - Centers on highly controversial political issues and current events. Uses strong emotions and potentially inflammatory language to provoke strong reactions. Presents a very narrow range of viewpoints.
         9: Exceedingly Political - Primarily promotes a specific political agenda. Uses highly charged language and potentially misleading information to influence opinion
         10: Pure Propaganda - Presents highly biased information to manipulate opinion. Uses extreme language and potentially false information to promote a specific political viewpoint.`;
-    
+
         let newPromptContent = (await this.extCommon.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
         newPromptContent += ` 
         Please respond with json and only json in this format:
@@ -295,8 +297,8 @@ export default class PromptHelper {
         Here is the content to analyze:
         {{query}}`;
         return newPromptContent;
-      }
-      async savePromptTableData() {
+    }
+    async savePromptTableData() {
         let masterAnalysisList = await this.promptsTable.getData();
         chrome.storage.local.set({ masterAnalysisList });
     }
