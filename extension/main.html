@@ -66,8 +66,7 @@
                   </h2>
                 </div>
                 <div class="my-2 flex gap-2 me-2">
-                  <button type="button"
-                    class="prompt_list_import_rows btn-ts-secondary">
+                  <button type="button" class="prompt_list_import_rows btn-ts-secondary">
                     Import&nbsp;
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-6 h-6">
@@ -75,8 +74,7 @@
                         d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                     </svg>
                   </button>
-                  <button type="button"
-                    class="prompt_list_export_rows btn-ts-secondary">
+                  <button type="button" class="prompt_list_export_rows btn-ts-secondary">
                     Export&nbsp;
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                       stroke="currentColor" class="w-6 h-6">
@@ -84,23 +82,23 @@
                         d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
                   </button>
-                    <button type="button"
-                      class="add_prompt_modal btn-ts-primary"  id="add_prompt_btn" data-bs-toggle="modal"
-                      data-bs-target="#promptWizard" type="button">
-                      New&nbsp;
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                      </svg>
-                    </button>
-                    <input type="file" id="prompt_list_file_input" accept=".json" class="hidden">
+                  <button type="button" class="add_prompt_modal btn-ts-primary" id="add_prompt_btn"
+                    data-bs-toggle="modal" data-bs-target="#promptWizard" type="button">
+                    New&nbsp;
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                      stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </button>
+                  <input type="file" id="prompt_list_file_input" accept=".json" class="hidden">
                 </div>
               </div>
               <div class="prompt_list_editor mb-4"></div>
             </div>
             <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
               <div class="main_history_upper_panel flex flex-col overflow-hidden">
-                <div class="pt-0 mt-0 ml-1 mr-1 p-2 flex justify-between items-center history_header border border-gray-300 rounded ">
+                <div
+                  class="pt-0 mt-0 ml-1 mr-1 p-2 flex justify-between items-center history_header border border-gray-300 rounded ">
                   <a class="url_display flex-1" target="_blank"></a>
                   <button type="button"
                     class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration"
@@ -118,70 +116,77 @@
                 </div>
               </div>
               <div class="main_history_lower_panel flex flex-col overflow-hidden">
-                <div class="overflow-hidden flex flex-col ml-1 mr-1 flex-1 rounded history_display border border-gray-300 rounded">
+                <div
+                  class="overflow-hidden flex flex-col ml-1 mr-1 flex-1 history_display border border-gray-300 rounded">
                 </div>
                 <div class="hidden flex-col justify-center flex-1 history_display_results_running">
-                  <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32 self-center"
-                    loop autoplay></lottie-player>
+                  <lottie-player src="media/lottie.json" background="transparent" speed="1"
+                    class="w-32 h-32 self-center" loop autoplay></lottie-player>
                 </div>
                 <div class="flex justify-end items-center pt-1 pr-4 history_pagination"></div>
               </div>
             </div>
             <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
-              <div class="flex justify-between items-center mt-4 gap-2 analysis_actions">
-                <div class="flex-1 flex relative mt-1 analysis_sets_configuration">
-                  <label class="absolute top-[-20px] text-base text-gray-600 positioned_label">Metrics for
-                    analysis</label>
-                  <select class="w-full bulk_analysis_sets_select" multiple></select>
-                </div>
-                <button class="btn run_bulk_analysis_btn bg-green-500 text-white w-32">
-                  <span class="relative bottom-1 btn_text">Run</span> <i class="material-icons-outlined">play_arrow</i>
-                </button>
-              </div>
-              <div class="flex-1 mt-4 bulk_url_list_tabulator border border-gray-300 rounded"></div>
-              <div class="flex justify-between items-center analysis_menu">
-                <div class="bulk_analysis_progress">
-                  <button class="upload_url_list btn">upload url list</button>
-                  <button class="download_url_list btn">download url list</button>
-                  <input type="file" id="url_file_input" accept=".csv" class="hidden">
-                </div>
-                <div class="">
-                  <button class="add_bulk_url_row btn">
-                    <span class="relative bottom-1 btn_text">Add</span> <i class="material-icons-outlined">add</i>
+              <div class="top_bulk_view_splitter flex flex-col overflow-hidden">
+                <div class="flex justify-between items-center mt-4 gap-2 analysis_actions">
+                  <div class="flex-1 flex relative mt-1 analysis_sets_configuration">
+                    <label class="absolute top-[-20px] text-base text-gray-600 positioned_label">Metrics for
+                      analysis</label>
+                    <select class="w-full bulk_analysis_sets_select" multiple></select>
+                  </div>
+                  <button class="btn run_bulk_analysis_btn bg-green-500 text-white w-32">
+                    <span class="relative bottom-1 btn_text">Run</span> <i
+                      class="material-icons-outlined">play_arrow</i>
                   </button>
                 </div>
-              </div>
-              <hr>
-              <div class="hidden bulk_analysis_history_placeholder">
-                New Analysis Running...<br>
-                <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32" loop
-                  autoplay></lottie-player>
-              </div>
-              <div class="overflow-auto bulk_analysis_results_history flex-column flex-2">
-                <div class="bulk_action_bar">
-                  <span class="bulk_selected_last_run_date"></span>
-                  <button class="download_full_json btn">
-                    <span class="relative bottom-1 btn_text">Full JSON</span> <i
-                      class="material-icons-outlined">download</i>
-                  </button>
-                  <button class="view_bulk_json_file btn">
-                    <span class="relative bottom-1 btn_text">View</span> <i class="material-icons-outlined">launch</i>
-                  </button>
-                  <button class="download_compact_csv btn">
-                    <span class="relative bottom-1 btn_text">CSV</span> <i class="material-icons-outlined">download</i>
-                  </button>
-                  <button type="button"
-                    class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_bulk_history_configuration"
-                    data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
-                    <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
-                  </button>
+                <div class="flex-1 mt-4 bulk_url_list_tabulator border border-gray-300 rounded"></div>
+                <div class="flex justify-between items-center analysis_menu">
+                  <div class="bulk_analysis_progress">
+                    <button class="upload_url_list btn">upload url list</button>
+                    <button class="download_url_list btn">download url list</button>
+                    <input type="file" id="url_file_input" accept=".csv" class="hidden">
+                  </div>
+                  <div class="">
+                    <button class="add_bulk_url_row btn">
+                      <span class="relative bottom-1 btn_text">Add</span> <i class="material-icons-outlined">add</i>
+                    </button>
+                  </div>
                 </div>
-                <div class="flex-1 bulk_analysis_results_tabulator"></div>
-                <div class="flex justify-end items-center pt-1 pr-4 bulk_history_pagination"></div>
               </div>
-              <div class="no_bulk_result_history_entry flex-2 flex-column">
-                <div class="flex flex-col justify-center items-center h-full">
-                  <div class="text-gray-600 text-lg">No bulk analysis results found.</div>
+              <div class="bottom_bulk_view_splitter flex flex-col overflow-hidden">
+                <div class="hidden bulk_analysis_history_placeholder">
+                  New Analysis Running...<br>
+                  <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32" loop
+                    autoplay></lottie-player>
+                </div>
+                <div class="overflow-auto bulk_analysis_results_history flex-column flex-2">
+                  <div class="bulk_action_bar">
+                    <span class="bulk_selected_last_run_date"></span>
+                    <button class="download_full_json btn">
+                      <span class="relative bottom-1 btn_text">Full JSON</span> <i
+                        class="material-icons-outlined">download</i>
+                    </button>
+                    <button class="view_bulk_json_file btn">
+                      <span class="relative bottom-1 btn_text">View</span> <i class="material-icons-outlined">launch</i>
+                    </button>
+                    <button class="download_compact_csv btn">
+                      <span class="relative bottom-1 btn_text">CSV</span> <i
+                        class="material-icons-outlined">download</i>
+                    </button>
+                    <button type="button"
+                      class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_bulk_history_configuration"
+                      data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab"
+                      data-bs-target="#history">
+                      <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
+                    </button>
+                  </div>
+                  <div class="flex-1 bulk_analysis_results_tabulator"></div>
+                  <div class="flex justify-end items-center pt-1 pr-4 bulk_history_pagination"></div>
+                </div>
+                <div class="no_bulk_result_history_entry flex-2 flex-column">
+                  <div class="flex flex-col justify-center items-center h-full">
+                    <div class="text-gray-600 text-lg">No bulk analysis results found.</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -314,12 +319,12 @@
         <div class="modal-header pb-0">
           <ul class="nav" id="configTabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <a class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access"
-                role="tab" aria-controls="access" aria-selected="true">Access</a>
+              <a class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" role="tab"
+                aria-controls="access" aria-selected="true">Access</a>
             </li>
             <li class="nav-item" role="presentation">
-              <a class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
-                role="tab" aria-controls="history" aria-selected="false">History</a>
+              <a class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" role="tab"
+                aria-controls="history" aria-selected="false">History</a>
             </li>
           </ul>
         </div>
