@@ -27,8 +27,13 @@
 .prompt_list_editor .tabulator-row.tabulator-group {
     background-color: var(--background-color);
     border-right: none;
-    height: 38px;
     border-top: none;
+    height: 44px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 6px;
+    align-items: center;
 }
 
 .prompt_list_editor .tabulator-row.tabulator-group .tabulator-group-toggle {
