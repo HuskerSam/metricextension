@@ -1,10 +1,3 @@
-.bulk_analysis_results_history {
-    display: none;
-}
-
-.bulk_history_item_selected .bulk_analysis_results_history {
-    display: flex;
-}
 
 .no_bulk_result_history_entry {
     display: none

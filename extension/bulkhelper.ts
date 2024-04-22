@@ -19,7 +19,6 @@ export default class BulkHelper {
     bulk_analysis_sets_select: any = document.querySelector('.bulk_analysis_sets_select');
     add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLButtonElement;
     run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
-    bulk_analysis_results_history = document.querySelector('.bulk_analysis_results_history') as HTMLDivElement;
     download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
     upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
     url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
@@ -30,7 +29,6 @@ export default class BulkHelper {
     bulkHistoryEntryListItems = document.querySelectorAll('.bulk_history_pagination li a') as NodeListOf<HTMLLIElement>;
     clear_bulk_history = document.querySelector('.clear_bulk_history') as HTMLButtonElement;
     manage_bulk_history_configuration = document.querySelector('.manage_bulk_history_configuration') as HTMLButtonElement;
-    view_bulk_json_file = document.querySelector('.view_bulk_json_file') as HTMLButtonElement;
     json_display_modal = document.querySelector('.json_display_modal') as HTMLDivElement;
     json_display_modal_content = document.querySelector('.json_display_modal_content') as HTMLDivElement;
     top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
@@ -247,7 +245,7 @@ export default class BulkHelper {
             a.click();
             document.body.removeChild(a);
         });
-        this.view_bulk_json_file.addEventListener('click', async () => {
+    /*    this.view_bulk_json_file.addEventListener('click', async () => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
             bulkHistory = bulkHistory.bulkHistory || [];
             let historyItem = bulkHistory[this.bulkSelectedIndex];
@@ -258,7 +256,7 @@ export default class BulkHelper {
             jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
             this.json_display_modal_content.innerHTML = jsonText;
             hljs.highlightElement(this.json_display_modal_content);
-        });
+        }); */
         this.download_compact_csv.addEventListener('click', async () => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
             bulkHistory = bulkHistory.bulkHistory || [];

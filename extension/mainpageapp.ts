@@ -1,49 +1,48 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
-import Split from "split.js";
+import HistoryHelper from './historyhelper';
 declare const chrome: any;
 
 export default class MainPageApp {
     extCommon = new AnalyzerExtensionCommon(chrome);
-    bulkHelper = new BulkHelper();
-    promptHelper = new PromptHelper();
+    bulkHelper: BulkHelper | null = null;
+    promptHelper: PromptHelper | null = null;
+    historyHelper: HistoryHelper | null = null;
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
+
+
     session_anchor_label = document.querySelector('.session_anchor_label') as HTMLDivElement;
     session_anchor = document.querySelector('.session_anchor') as HTMLAnchorElement;
-    export_history = document.querySelector('.export_history') as HTMLButtonElement;
+
+
     clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
-    entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
-    history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
-    historyEntryListItems: any = null;
-    historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
-    history_date = document.querySelector('.history_date') as HTMLDivElement;
-    manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
+
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
-    history_text = document.querySelector('.history_text') as HTMLDivElement;
-    url_display = document.querySelector('.url_display') as HTMLAnchorElement;
-    main_history_upper_panel = document.querySelector('.main_history_upper_panel') as HTMLDivElement;
-    main_history_lower_panel = document.querySelector('.main_history_lower_panel') as HTMLDivElement;
-    viewSplitter: Split.Instance;
-    activeTab: any = null;
-    chromeTabListener: any = null;
-    itemsPerView = 5;
-    baseHistoryIndex = 0;
-    currentPageIndex = 0;
+
+
+    main_history_tab_view = document.querySelector('#main_history_tab_view') as HTMLDivElement;
+    main_prompt_manager_tab_view = document.querySelector('#main_prompt_manager_tab_view') as HTMLDivElement;
+    main_bulk_tab_view = document.querySelector('#main_bulk_tab_view') as HTMLDivElement;
 
     constructor() {
-        
-    this.viewSplitter = Split([this.main_history_upper_panel, this.main_history_lower_panel],
-        {
-          sizes: [50, 50],
-          direction: 'vertical',
-          minSize: 100, // min size of both panes
-          gutterSize: 16,
-        });
-
+        this.load();
+    }
+    async loadHTMLTemplate(path: string, dom: any) {
+        let htmlRequest = await fetch(path);
+        let html = await htmlRequest.text();
+        dom.innerHTML = html;
+    }
+    async load() {
+        await this.loadHTMLTemplate("pages/history.html", this.main_history_tab_view);
+        await this.loadHTMLTemplate("pages/bulk.html", this.main_bulk_tab_view);
+        await this.loadHTMLTemplate("pages/prompts.html", this.main_prompt_manager_tab_view);
+        this.bulkHelper = new BulkHelper();
+        this.promptHelper = new PromptHelper();
+        this.historyHelper = new HistoryHelper();
         this.initEventHandlers();
 
         // list for changes to local storage and update the UI
@@ -77,25 +76,6 @@ export default class MainPageApp {
                 await chrome.storage.local.set({ history: [] });
             }
         });
-        this.export_history.addEventListener('click', async () => {
-            let history = await chrome.storage.local.get('history');
-            history = history.history || [];
-            let blob = new Blob([JSON.stringify(history)], { type: "application/json" });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            document.body.appendChild(a);
-            a.href = url;
-            a.download = 'history.json';
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-        });
-
-        this.manage_history_configuration.addEventListener('click', async () => {
-            document.getElementById('history-tab')?.click();
-        });
-    }
-    getActiveTab() {
     }
     async renderSettingsTab() {
         let sessionConfig = await chrome.storage.local.get('sessionId');
@@ -121,119 +101,15 @@ export default class MainPageApp {
         apiToken = apiToken.apiToken || '';
         this.api_token_input.value = apiToken;
     }
-    async renderHistoryDisplay() {
+
+    async paintData(forceUpdate = false) {
+        this.renderSettingsTab();  
         let historyRangeLimit = await chrome.storage.local.get('historyRangeLimit');
-        historyRangeLimit = historyRangeLimit.historyRangeLimit || 20;
+        historyRangeLimit = historyRangeLimit.historyRangeLimit || 20;     
         this.history_range_amount_select.value = historyRangeLimit;
 
-        let history = await chrome.storage.local.get('history');
-        history = history.history || [];
-
-        let usageCreditTotal = 0;
-        let entry = history[this.baseHistoryIndex];
-        let entryHTML = `
-        <div class="history_empty">
-            <p class="history_empty_onboarding_message">
-                No history found. <br><br>
-                Select metric and provide text input to begin.
-            </p>
-        </div>
-        `;
-        if (entry) {
-            let renderResult = this.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
-            entryHTML = renderResult.html;
-            usageCreditTotal += renderResult.usageCreditTotal;
-            this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;">
-                     Credits Used: ${Math.round(usageCreditTotal)}`;
-            this.history_date.innerHTML = this.extCommon.showGmailStyleDate(entry.runDate);
-        }
-
-        this.historyDisplay.innerHTML = entryHTML;
-
-        this.historyDisplay.querySelectorAll('.export_history_entry').forEach((button: any) => {
-            button.addEventListener('click', async (e: any) => {
-                let index = e.target.dataset.index;
-                let entry = history[index];
-                let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
-                let url = URL.createObjectURL(blob);
-                let a = document.createElement('a');
-                document.body.appendChild(a);
-                a.href = url;
-                a.download = `history_entry_${index}.json`;
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
-            });
-        });
-
-        let paginationHtml = this.extCommon
-            .generatePagination(history.length, this.baseHistoryIndex, this.itemsPerView, this.currentPageIndex);
-        this.history_pagination.innerHTML = paginationHtml;
-
-        this.historyEntryListItems = document.querySelectorAll('.history_pagination li a') as NodeListOf<HTMLLIElement>;
-        this.historyEntryListItems.forEach((item: any) => {
-            item.addEventListener('click', async (e: any) => {
-                e.preventDefault();
-                const index = Number(item.dataset.entryindex);
-                const eventResult = this.extCommon.handlePaginationClick(index, 
-                    history.length, this.baseHistoryIndex, this.itemsPerView, this.currentPageIndex);
-                this.baseHistoryIndex = eventResult.selectedIndex;
-                this.currentPageIndex = eventResult.pageIndex;
-                this.renderHistoryDisplay();
-            });
-        });
-    }
-    renderHTMLForHistoryEntry(entry: any, historyIndex: number): {
-        html: string;
-        usageCreditTotal: number;
-    } {
-        let usageCreditTotal = 0;
-        let resultHistory = entry.result;
-        if (!resultHistory) resultHistory = entry.results[0];
-        const historyText = entry.text;
-        this.history_text.innerHTML = historyText;
-        const url = entry.url;
-        this.url_display.innerHTML = url;
-        this.url_display.href = url;
-        let headerHtml = ``;
-        let resultsHTML = `<div class="history_results">`;
-        let allResults = entry.results;
-        let setBasedResults: any = {};
-        allResults.forEach((result: any) => {
-            if (!setBasedResults[result.prompt.setName]) {
-                setBasedResults[result.prompt.setName] = [];
-            }
-            setBasedResults[result.prompt.setName].push(result);
-        });
-        const setNamesArray = Object.keys(setBasedResults);
-        setNamesArray.forEach((setName: any) => {
-            resultsHTML += `<div class="p-2 history_entry_set_wrapper"><h6 class="history_entry_prompt_setname">${setName}</h6>`;
-            let promptSetResults = setBasedResults[setName];
-            promptSetResults.forEach((result: any) => {
-                try {
-                    usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
-                } catch (err: any) {
-                    console.log("Usage total credit summming error", err);
-                }
-            });
-
-            for (let result of promptSetResults) {
-                resultsHTML += this.extCommon.getHTMLforPromptResult(result);
-            }
-            resultsHTML += `</div>`;
-        });
-        resultsHTML += `</div>`;
-        let html = `${resultsHTML}${headerHtml}`;
-        return {
-            html,
-            usageCreditTotal,
-        };
-    }
-    async paintData(forceUpdate = false) {
-        this.renderSettingsTab();
-        this.renderHistoryDisplay();
-        this.bulkHelper.paintAnalysisHistory();
-
-        await this.bulkHelper.paintBulkURLList(forceUpdate);
+        this.historyHelper?.renderHistoryDisplay();
+        this.bulkHelper?.paintAnalysisHistory();
+        this.bulkHelper?.paintBulkURLList(forceUpdate);
     }
 }
