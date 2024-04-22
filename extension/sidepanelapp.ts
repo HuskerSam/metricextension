@@ -68,7 +68,7 @@ export default class SidePanelApp {
     });
 
     this.run_analysis_btn.addEventListener('click', async () => {
-      let text = this.extCommon.query_source_text.value;
+      let text = this.query_source_text.value;
       let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual');
       let html = '';
       for (let promptResult of result.results) {

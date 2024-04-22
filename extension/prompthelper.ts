@@ -189,7 +189,7 @@ export default class PromptHelper {
                 (new (<any>window).bootstrap.Modal(this.test_modal)).show(); 
                 (this.test_modal.querySelector('.modal-title') as any).innerHTML = `Testing Prompt: ${prompt.id}`;    
                 (this.test_metric_container as any).innerHTML = `<lottie-player src="media/lottie.json" background="transparent" speed="1"
-                class="w-48 h-48 self-center" loop autoplay></lottie-player>`;
+                class="w-32 h-32 self-center" loop autoplay></lottie-player>`;
                 let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual', prompt);
                 let promptResult = result.results[0];
                 let promptId = promptResult.prompt.id;

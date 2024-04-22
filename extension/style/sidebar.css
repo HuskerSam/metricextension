@@ -27,3 +27,7 @@
   overflow: hidden;
   padding-bottom: 0;
 }
+
+.extension_running .analysis_display {
+  display: none;
+}
