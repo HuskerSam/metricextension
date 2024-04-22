@@ -59,7 +59,7 @@ export default class SidePanelApp {
       {
         sizes: [50, 50],
         direction: 'vertical',
-        minSize: 200, // min size of both panes
+        minSize: 100, // min size of both panes
         gutterSize: 16,
       });
 
@@ -178,7 +178,6 @@ export default class SidePanelApp {
     }
     this.query_source_tokens_length.innerHTML = tokenCount;
   }
-
   async renderDisplay() {
     let history = await chrome.storage.local.get('history');
     history = history.history || [];

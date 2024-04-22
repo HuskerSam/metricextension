@@ -98,31 +98,34 @@
               <div class="prompt_list_editor mb-4"></div>
             </div>
             <div class="tab-pane fade show active" id="analysis" role="tabpanel" aria-labelledby="analysis-tab">
-              <div class="pt-0 mt-0 flex justify-between items-center history_header">
-                <a class="url_display flex-1" target="_blank"></a>
-                <button type="button"
-                  class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration"
-                  data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
-                  <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
-                </button>
-                <span class="text-xs text-gray-600 pl-4 history_date"></span>
+              <div class="main_history_upper_panel flex flex-col overflow-hidden">
+                <div class="pt-0 mt-0 ml-1 mr-1 p-2 flex justify-between items-center history_header border border-gray-300 rounded ">
+                  <a class="url_display flex-1" target="_blank"></a>
+                  <button type="button"
+                    class="p-2 border-none cursor-pointer relative bg-transparent border-transparent manage_history_configuration"
+                    data-bs-toggle="modal" data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+                    <i class="material-icons-outlined text-base text-gray-900 small_icon">manage_history</i>
+                  </button>
+                  <span class="text-xs text-gray-600 pl-4 history_date"></span>
+                </div>
+                <div class="history_text p-2 flex-1 overflow-auto border border-gray-300 rounded"></div>
+                <div class="history_usage_stats">
+                  <button class="export_history_entry" data-index="${historyIndex}">
+                    <i class="material-icons-outlined small_icon">download</i>
+                  </button>
+                  <span class="text-green-500 entry_total_credit_usage"></span>
+                </div>
               </div>
-              <div class="history_text flex-1 overflow-auto"></div>
-              <div class="history_usage_stats">
-                <button class="export_history_entry" data-index="${historyIndex}">
-                  <i class="material-icons-outlined small_icon">download</i>
-                </button>
-                <span class="text-green-500 entry_total_credit_usage"></span>
+              <div class="main_history_lower_panel flex flex-col overflow-hidden">
+                <div class="overflow-hidden flex flex-col ml-1 mr-1 flex-1 rounded history_display border border-gray-300 rounded">
+                </div>
+                <div class="hidden flex-col justify-center flex-1 history_display_results_running">
+                  <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32 self-center"
+                    loop autoplay></lottie-player>
+                </div>
+                <div class="flex justify-end items-center pt-1 pr-4 history_pagination"></div>
               </div>
-              <div class="overflow-hidden flex flex-col rounded history_display" style="flex:3">
-              </div>
-              <div class="hidden flex-col justify-center flex-1 history_display_results_running">
-                <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32 self-center"
-                  loop autoplay></lottie-player>
-              </div>
-              <div class="flex justify-end items-center pt-1 pr-4 history_pagination"></div>
             </div>
-
             <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
               <div class="flex justify-between items-center mt-4 gap-2 analysis_actions">
                 <div class="flex-1 flex relative mt-1 analysis_sets_configuration">

@@ -1,6 +1,7 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
+import Split from "split.js";
 declare const chrome: any;
 
 export default class MainPageApp {
@@ -24,6 +25,9 @@ export default class MainPageApp {
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
     history_text = document.querySelector('.history_text') as HTMLDivElement;
     url_display = document.querySelector('.url_display') as HTMLAnchorElement;
+    main_history_upper_panel = document.querySelector('.main_history_upper_panel') as HTMLDivElement;
+    main_history_lower_panel = document.querySelector('.main_history_lower_panel') as HTMLDivElement;
+    viewSplitter: Split.Instance;
     activeTab: any = null;
     chromeTabListener: any = null;
     itemsPerView = 5;
@@ -31,6 +35,15 @@ export default class MainPageApp {
     currentPageIndex = 0;
 
     constructor() {
+        
+    this.viewSplitter = Split([this.main_history_upper_panel, this.main_history_lower_panel],
+        {
+          sizes: [50, 50],
+          direction: 'vertical',
+          minSize: 100, // min size of both panes
+          gutterSize: 16,
+        });
+
         this.initEventHandlers();
 
         // list for changes to local storage and update the UI
@@ -216,7 +229,7 @@ export default class MainPageApp {
         });
         const setNamesArray = Object.keys(setBasedResults);
         setNamesArray.forEach((setName: any) => {
-            resultsHTML += `<h6 class="history_entry_prompt_setname">${setName}</h6>`;
+            resultsHTML += `<div class="p-2 history_entry_set_wrapper"><h6 class="history_entry_prompt_setname">${setName}</h6>`;
             let promptSetResults = setBasedResults[setName];
             promptSetResults.forEach((result: any) => {
                 try {
@@ -229,6 +242,7 @@ export default class MainPageApp {
             for (let result of promptSetResults) {
                 resultsHTML += this.extCommon.getHTMLforPromptResult(result);
             }
+            resultsHTML += `</div>`;
         });
         resultsHTML += `</div>`;
         let html = `${resultsHTML}${headerHtml}`;
