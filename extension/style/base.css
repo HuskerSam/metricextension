@@ -272,7 +272,7 @@ body {
   border-bottom: solid 1px var(--border-color);
 }
 
-.metric_result .prompt_id {
+.prompt_id {
   font-weight: bold;
   width: 150px;
   overflow: hidden;

@@ -74,6 +74,7 @@
     font-size: var(--font-size-base);
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: pre-wrap;
 }
 
 .history_separator {
