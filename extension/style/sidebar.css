@@ -8,7 +8,6 @@
 }
 
 .query_source_text {
-  width: 100%;
   resize: none;
   overflow: auto;
   border-color: white;
