@@ -35,7 +35,7 @@ export default class PromptHelper {
                 sizes: [50, 50],
                 direction: 'vertical',
                 minSize: 100, // min size of both panes
-                gutterSize: 16,
+                gutterSize: 24,
             });
 
         this.promptsTable = new TabulatorFull(".prompt_list_editor", {

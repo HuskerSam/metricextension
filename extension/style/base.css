@@ -535,6 +535,7 @@ body {
 .gutter {
   background-repeat: no-repeat;
   background-position: 50%;
+  cursor: row-resize;
 }
 
 .gutter.gutter-vertical {

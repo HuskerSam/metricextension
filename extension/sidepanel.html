@@ -20,12 +20,67 @@
           started.</span>
       </div>
     </div>
+    <div class="header_action_bar text-center">
+      <ul class="nav ml-2 mt-2 inline-flex" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button id="tabs-input-textarea-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-textarea-panel"
+            class="block text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-transparent px-3 py-1 text-sm font-medium active"
+            aria-controls="tabs-input-textarea-panel" role="tab" type="button">
+            <span class="inline-flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+              </svg>
+              <span>Text</span>
+            </span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button id="tabs-input-url-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-url-panel"
+            class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1 text-sm font-medium"
+            aria-controls="tabs-input-url-panel" role="tab" type="button">
+            <span class="inline-flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
+              <span>Scrape</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
     <div class="flex-1 split_wrapper overflow-hidden">
       <div class="top_history_view_splitter flex flex-col overflow-hidden">
-        <label class="pt-1" style="text-align:center;padding-bottom:3px;font-size:.75em;font-weight:bold;">
-          Select Metrics for analysis</label>
+        <div class="tab-content flex-1 border border-gray-300 rounded m-2 mb-0">
+          <div id="tabs-input-textarea-panel" class="tab-pane fade show active h-full flex-col"
+            aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
+            <input type="text" class="query_source_label w-full block py-1.5 pl-2 text-gray-900
+             placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
+             mb-2" placeholder="Enter label...">
+            <textarea class="query_source_text pb-0 pl-1 pt-0 flex-1" placeholder="Enter text for analysis..."></textarea>
+            <div class="flex flex-row text-xs text-slate-500 px-3 pt-1">
+              <div class="query_source_text_length mr-3"></div>
+              <div class="flex-1"></div>
+              <div class="query_source_tokens_length">&nbsp;</div>
+            </div>
+          </div>
+          <div id="tabs-input-url-panel" class="tab-pane fade -m-0.5 rounded-lg p-0.5"
+            aria-labelledby="tabs-input-url-tab" role="tabpanel" tabindex="0">
+            <input type="text" name="scrape-website"
+              class="block py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded"
+              placeholder="Enter url">
+            <textarea class="query_source_text p-2 flex-1 border border-gray-300 rounded m-2" disabled placeholder=""></textarea>
+          </div>
+        </div>
+        <div class="text-center">
+          <label class="pt-1" style="text-align:center;padding-bottom:3px;font-size:.75em;font-weight:bold;">
+            Select Metrics for analysis</label>
+        </div>
         <div class="flex flex-row">
-          <div class="flex flex-1">
+          <div class="flex flex-1 ml-2">
             <select class="analysis_set_select w-full" multiple>
             </select>
           </div>
@@ -40,57 +95,6 @@
             </button>
           </div>
         </div>
-        <ul class="nav ml-2 mt-2" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button id="tabs-input-textarea-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-textarea-panel"
-              class="block text-2xl text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-transparent px-3 py-1 text-sm font-medium active"
-              aria-controls="tabs-input-textarea-panel" role="tab" type="button">
-              <span class="inline-flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                  stroke="currentColor" class="w-5 h-5">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                </svg>
-                <span>Text</span>
-              </span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button id="tabs-input-url-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-url-panel"
-              class="text-gray-500 text-2xl hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1 text-sm font-medium"
-              aria-controls="tabs-input-url-panel" role="tab" type="button">
-              <span class="inline-flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                  stroke="currentColor" class="w-5 h-5">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
-                </svg>
-                <span>Scrape</span>
-              </span>
-            </button>
-          </li>
-        </ul>
-        <div class="tab-content flex-1 border border-gray-300 rounded m-2">
-          <div id="tabs-input-textarea-panel" class="tab-pane fade show active h-full flex-col"
-            aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
-            <div class="flex flex-row p-2">
-              <input type="text" class="query_source_label flex-1 ml-2" placeholder="Enter label...">
-            </div>
-            <textarea class="query_source_text p-2 flex-1" placeholder="Enter text for analysis..."></textarea>
-            <div class="flex flex-row text-xs text-slate-500 px-3 mb-4 pt-1">
-              <div class="query_source_text_length mr-3"></div>
-              <div class="flex-1"></div>
-              <div class="query_source_tokens_length">&nbsp;</div>
-            </div>
-          </div>
-          <div id="tabs-input-url-panel" class="tab-pane fade -m-0.5 rounded-lg p-0.5"
-            aria-labelledby="tabs-input-url-tab" role="tabpanel" tabindex="0">
-            <input type="text" name="scrape-website"
-              class="block py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 border border-gray-300 rounded"
-              placeholder="Enter url">
-            <textarea class="query_source_text p-2 flex-1 border border-gray-300 rounded m-2" disabled placeholder=""></textarea>
-          </div>
-        </div>
       </div>
       <div class="bottom_history_view_splitter flex flex-col overflow-hidden">
         <div class="flex flex-col flex-1 overflow-hidden h-[calc(100%-32px)]">
@@ -98,7 +102,7 @@
             <lottie-player src="media/lottie.json" background="transparent" speed="1"
               style="height:100px;width:100px;align-self:center;" loop autoplay></lottie-player>
           </div>
-          <div class="analysis_display overflow-auto border border-gray-300 rounded pl-2"></div>
+          <div class="analysis_display overflow-auto border border-gray-300 rounded pl-2 ml-2 mr-2"></div>
           <h5 class="analysis_running mb-2 pt-0 px-2">Analysis Running...</h5>
         </div>
       </div>

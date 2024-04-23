@@ -26,7 +26,7 @@ export default class HistoryHelper {
             sizes: [50, 50],
             direction: 'vertical',
             minSize: 100, // min size of both panes
-            gutterSize: 16,
+            gutterSize: 24,
         });
         this.export_history.addEventListener('click', async () => {
             let history = await chrome.storage.local.get('history');
