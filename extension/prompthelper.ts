@@ -69,16 +69,6 @@ export default class PromptHelper {
                 },
                 {
                     title: "",
-                    field: "clone",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">copy_content</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-                {
-                    title: "",
                     field: "testone",
                     headerSort: false,
                     formatter: () => {
@@ -220,14 +210,6 @@ export default class PromptHelper {
                 </div>
                 `;
                 this.test_metric_container.innerHTML = html;
-            }
-            if (cell.getColumn().getField() === "clone") {
-                const row = cell.getRow();
-                const prompt = row.getData();
-                let promptTemplateList = await this.promptsTable.getData();
-                promptTemplateList.push(prompt);
-                await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-                this.hydrateAllPromptRows();
             }
         });
         this.promptsTable.on("rowSelected", (row: any) => {      
