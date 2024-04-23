@@ -172,10 +172,6 @@ body {
   margin-top: 4px;
 }
 
-.analysis_set_select {
-  width: 100%;
-}
-
 .analysis_actions {
   display: flex;
   flex-direction: row;
