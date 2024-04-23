@@ -7,7 +7,8 @@
     left: -10px;
 }
 
-.query_source_text {
+.query_source_text,
+.url_scrape_results {
   resize: none;
   overflow: auto;
   border-color: white;

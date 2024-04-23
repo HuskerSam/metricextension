@@ -57,23 +57,25 @@
         <div class="tab-content flex-1">
           <div id="tabs-input-textarea-panel" class="tab-pane fade show active h-full flex-col"
             aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
-            <input type="text" class="query_source_label block py-1.5 pl-2 text-gray-900
+            <input type="text" class="analysis_run_label block py-1.5 pl-2 text-gray-900
              placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
              mb-2 ml-1 mr-1" placeholder="Enter label...">
-            <textarea class="query_source_text block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1" placeholder="Enter text for analysis..."></textarea>
-            <div class="flex flex-row text-xs text-slate-500 px-3 pt-1">
-              <div class="query_source_text_length mr-3"></div>
-              <div class="flex-1"></div>
-              <div class="query_source_tokens_length">&nbsp;</div>
-            </div>
+            <textarea class="query_source_text block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1"
+              placeholder="Enter text for analysis..."></textarea>
           </div>
           <div id="tabs-input-url-panel" class="tab-pane fade -m-0.5 rounded-lg p-0.5"
             aria-labelledby="tabs-input-url-tab" role="tabpanel" tabindex="0">
-            <input type="text" name="scrape-website"
-              class="block py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded"
-              placeholder="Enter url">
-            <textarea class="query_source_text p-2 flex-1 border border-gray-300 rounded m-2" disabled placeholder=""></textarea>
+            <input type="text" name="scrape-website" class="url_source_input block py-1.5 pl-2 text-gray-900
+              placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
+              mb-2 ml-1 mr-1" placeholder="Enter url">
+            <textarea class="url_scrape_results block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1"
+              disabled placeholder=""></textarea>
           </div>
+        </div>
+        <div class="flex flex-row text-xs text-slate-500 px-3 pt-1">
+          <div class="query_source_text_length mr-3"></div>
+          <div class="flex-1"></div>
+          <div class="query_source_tokens_length">&nbsp;</div>
         </div>
         <div class="pl-3">
           <label class="pt-1" style="text-align:center;padding-bottom:3px;font-size:.75em;font-weight:bold;">
@@ -109,8 +111,10 @@
     </div>
     <div class="footer_actions_bar">
       <button class="btn show_main_page_btn">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
         </svg>
       </button>
     </div>
