@@ -20,33 +20,11 @@
   <div class="flex flex-1 flex-col overflow-hidden h-full">
     <div class="flex flex-1 flex-col overflow-hidden content_wrapper">
       <div class="flex flex-1 flex-row overflow-hidden w-full">
-        <div class="w-40 overflow-hidden flex flex-col h-full transition-all duration-600 p-2">
-          <ul class="flex flex-col" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="main_history_tab_btn" data-bs-toggle="tab" data-bs-target="#main_history_tab_view"
-                type="button" role="tab" aria-controls="main_history_tab_view" aria-selected="true">
-                <i class="material-icons-outlined">assistant</i> Results
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="main_prompt_manager_tab_btn" data-bs-toggle="tab" data-bs-target="#main_prompt_manager_tab_view" type="button"
-                role="tab" aria-controls="main_prompt_manager_tab_view" aria-selected="false">
-                <i class="material-icons-outlined">integration_instructions</i> Prompts
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="main_bulk_tab_btn" data-bs-toggle="tab" data-bs-target="#main_bulk_tab_view" type="button"
-                role="tab" aria-controls="main_bulk_tab_view" aria-selected="false">
-                <i class="material-icons-outlined">batch_prediction</i> Bulk
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="api-config-tab" data-bs-toggle="modal" data-bs-target="#configModal"
-                type="button">
-                <i class="material-icons-outlined">vpn_key</i> Access
-              </button>
-            </li>
-          </ul>
+        <div class="w-48 flex flex-col gap-y-4 overflow-y-auto h-full transition-all duration-600 p-2 bg-slate-50">
+          <div class="flex h-16 shrink-0 items-center mx-auto">
+            <img class="h-8 w-auto" src="media/logo128.png" alt="Unacog">&nbsp;&nbsp;
+            <span class="text-lg font-semibold leading-6 text-gray-900">Klyde</span>
+          </div>
           <div class="hidden bg-yellow-400 border border-yellow-400 rounded p-2 mb-4 no_session_key">
             <div class="flex items-center message">
               <i class="material-icons-outlined text-gray-800 text-lg mr-2">warning</i>
@@ -55,20 +33,69 @@
                 started.</span>
             </div>
           </div>
+          <ul class="flex flex-1 flex-col mx-2 space-y-1 gap-y-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
+                id="main_history_tab_btn" data-bs-toggle="tab" data-bs-target="#main_history_tab_view" type="button"
+                role="tab" aria-controls="main_history_tab_view" aria-selected="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5 inline-block">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
+                </svg> &nbsp;&nbsp;History
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full" id="main_prompt_manager_tab_btn" data-bs-toggle="tab"
+                data-bs-target="#main_prompt_manager_tab_view" type="button" role="tab"
+                aria-controls="main_prompt_manager_tab_view" aria-selected="false">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5 inline-block">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg> &nbsp;&nbsp;Prompts
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full" id="main_bulk_tab_btn" data-bs-toggle="tab" data-bs-target="#main_bulk_tab_view"
+                type="button" role="tab" aria-controls="main_bulk_tab_view" aria-selected="false">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5 inline-block">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z" />
+                </svg> &nbsp;&nbsp;Bulk
+              </button>
+            </li>
+            <li class="nav-item mt-auto mb-4" role="presentation">
+              <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full" id="api-config-tab" data-bs-toggle="modal"
+                data-bs-target="#configModal" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5 inline-block">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                </svg> &nbsp;&nbsp;Access
+              </button>
+            </li>
+          </ul>
         </div>
         <div class="flex-1 flex flex-col overflow-hidden h-full right_panel_view">
           <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade" id="main_prompt_manager_tab_view" role="tabpanel" aria-labelledby="main_prompt_manager_tab_btn"></div>
-            <div class="tab-pane fade show active" id="main_history_tab_view" role="tabpanel" aria-labelledby="main_history_tab_btn"></div>
-            <div class="tab-pane fade" id="main_bulk_tab_view" role="tabpanel" aria-labelledby="main_bulk_tab_btn"></div>
+            <div class="tab-pane fade" id="main_prompt_manager_tab_view" role="tabpanel"
+              aria-labelledby="main_prompt_manager_tab_btn"></div>
+            <div class="tab-pane fade show active" id="main_history_tab_view" role="tabpanel"
+              aria-labelledby="main_history_tab_btn"></div>
+            <div class="tab-pane fade" id="main_bulk_tab_view" role="tabpanel" aria-labelledby="main_bulk_tab_btn">
+            </div>
           </div>
         </div>
       </div>
       <div class="footer_actions_bar">
         <button class="btn open_side_panel_from_main">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
-          </svg>          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+          </svg>
         </button>
       </div>
     </div>
