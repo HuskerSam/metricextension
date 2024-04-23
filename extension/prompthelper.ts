@@ -7,7 +7,6 @@ export default class PromptHelper {
     extCommon = new AnalyzerExtensionCommon(chrome);
     viewSplitter: Split.Instance;
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
-    add_prompt_modal = document.querySelector('.add_prompt_modal') as HTMLButtonElement;
     prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
     generate_metric_prompt = document.querySelector('.generate_metric_prompt') as HTMLButtonElement;
     test_metric_container = document.querySelector('.test_metric_container') as HTMLDivElement;
@@ -68,17 +67,7 @@ export default class PromptHelper {
                     width: 30,
                 },
                 {
-                    title: "",
-                    field: "testone",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<i class="material-icons-outlined">bolt</i>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-                {
-                    title: "Type", field: "promptType",
+                    title: "Type", field: "prompttype",
                     headerSort: false,
                 },
                 //       { title: "Description", field: "description", headerSort: false, width: 100 },
@@ -107,18 +96,6 @@ export default class PromptHelper {
             var myModalEl = document.getElementById('promptWizard');
             var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl);
             modal.hide();
-        });
-
-        this.add_prompt_modal.addEventListener('click', async () => {
-            this.prompt_setname_input.value = '';
-            this.prompt_id_input.value = '';
-            this.prompt_description.value = '';
-            this.prompt_type.value = '';
-            this.prompt_template_text.value = '';
-            this.prompt_row_index.value = '-1';
-            this.wizard_input_prompt.value = '';
-            this.prompt_id_input.focus();
-            this.getAnalysisSetNameList();
         });
 
         this.exportButton.addEventListener('click', async () => {
@@ -183,41 +160,12 @@ export default class PromptHelper {
                     }
                 }
             }
-            if (cell.getColumn().getField() === "testone") {
-                const row = cell.getRow();
-                const prompt = row.getData();
-                let text = this.extCommon.query_source_text.value;
-                (new (<any>window).bootstrap.Modal(this.test_modal)).show();
-                (this.test_modal.querySelector('.modal-title') as any).innerHTML = `Testing Prompt: ${prompt.id}`;
-                (this.test_metric_container as any).innerHTML = `<lottie-player src="media/lottie.json" background="transparent" speed="1"
-                class="w-32 h-32 self-center" loop autoplay></lottie-player>`;
-                let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual', prompt);
-                let promptResult = result.results[0];
-                let promptId = promptResult.prompt.id;
-                let promptTemplate = promptResult.prompt.prompt;
-                let promptType = promptResult.prompt.promptType;
-                let promptHtml = this.extCommon.getHTMLforPromptResult(promptResult);
-                let html = `
-                <div class="prompt_result">
-                    <div class="prompt_header">
-                        <span class="prompt_id">${promptId}</span>
-                        <span class="prompt_type">${promptType}</span>
-                    </div>
-                    <div class="prompt_content">
-                        <div class="prompt_text">${promptTemplate}</div>
-                        <div class="result_content">${promptHtml}</div>
-                    </div>
-                </div>
-                `;
-                this.test_metric_container.innerHTML = html;
-            }
         });
         this.promptsTable.on("rowSelected", (row: any) => {      
             const prompt = row.getData();
-            this.add_prompt_modal.click();
             this.prompt_id_input.value = prompt.id;
             this.prompt_description.value = prompt.description;
-            this.prompt_type.value = prompt.promptType;
+            this.prompt_type.value = prompt.prompttype;
             this.prompt_template_text.value = prompt.prompt;
             this.prompt_setname_input.value = prompt.setName;
             this.wizard_input_prompt.value = prompt.promptSuggestion;
@@ -296,10 +244,9 @@ export default class PromptHelper {
         let setName = this.prompt_setname_input.value.trim();
         if (!promptId || !promptType || !promptTemplate || !setName) {
             alert('Please fill out all fields to add a prompt to the library.');
-            document.getElementById('wizard-config-tab')?.click();
             return;
         }
-        let prompt = { id: promptId, description: promptDescription, promptType: promptType, prompt: promptTemplate, setName, promptSuggestion };
+        let prompt = { id: promptId, description: promptDescription, prompttype: promptType, prompt: promptTemplate, setName, promptSuggestion };
         let promptTemplateList = await this.promptsTable.getData();
         let existingIndex = Number(this.prompt_row_index.value) - 1;
         if (existingIndex >= 0) {
