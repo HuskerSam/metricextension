@@ -165,10 +165,6 @@ body {
   flex: 1;
 }
 
-.ss-main {
-  min-height: 44px;
-}
-
 .analysis_sets_configuration {
   flex: 1;
   display: flex;
