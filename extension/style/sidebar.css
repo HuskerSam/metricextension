@@ -9,21 +9,9 @@
 
 .query_source_text {
   width: 100%;
-  padding: var(--spacing-medium);
-  font-size: var(--font-size-base);
-  line-height: 1.5;
-  border: none;
-  border-radius: var(--border-radius);
   resize: none;
-  overflow-y: auto;
-}
-
-.history_display_container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  padding-bottom: 0;
+  overflow: auto;
+  border-color: white;
 }
 
 .extension_running .analysis_display {

@@ -439,10 +439,6 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-  .copy_to_clipboard_btn {
-    content: 'clipboard';
-  }
-
   .btn_text {
     display: none;
   }

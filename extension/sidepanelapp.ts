@@ -13,7 +13,6 @@ export default class SidePanelApp {
   show_main_page_btn = document.querySelector('.show_main_page_btn') as HTMLButtonElement;
   lastPanelToggleDate = new Date().toISOString();
   run_analysis_btn = document.querySelector('.run_analysis_btn') as HTMLButtonElement;
-  copy_to_clipboard_btn = document.querySelector('.copy_to_clipboard_btn') as HTMLButtonElement;
   query_source_text = document.querySelector(".query_source_text") as HTMLTextAreaElement;
   query_source_text_length = document.querySelector('.query_source_text_length') as HTMLElement;
   query_source_tokens_length = document.querySelector('.query_source_tokens_length') as HTMLElement;
@@ -75,11 +74,6 @@ export default class SidePanelApp {
         html += this.extCommon.getHTMLforPromptResult(promptResult);
       }
     });
-    this.copy_to_clipboard_btn.addEventListener('click', async () => {
-      let text = this.query_source_text.value;
-      navigator.clipboard.writeText(text);
-    });
-
 
     this.query_source_text.addEventListener('input', async (e: Event) => {
       this.updateQuerySourceDetails();
