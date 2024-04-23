@@ -57,7 +57,7 @@
             <option value="json">JSON</option>
             <option value="prompt">Text</option>
           </select>
-          <p class="form-note-ts">Used by AI agent and for formatting</p>
+          <p class="form-note-ts">Determines template and formatting</p>
         </div>
       </div>
       <div class="flex justify-center pt-4 px-4">
@@ -90,7 +90,7 @@
       </div>
       <div class="flex justify-around px-4">
         <div></div>
-        <p class="form-note-ts text-center flex-1">Use Clyde to help you generate prompts.</p>
+        <p class="form-note-ts text-center flex-1 prompthelper_tab_help_text">Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.</p>
       </div>
     </div>
     <div class="p-2 px-4 flex flex-col">
@@ -101,7 +101,7 @@
             <label for="prompt_description flex" class="form-input-label-ts">Prompt Template</label>
             <textarea class="form-textarea-ts prompt_template_text flex-1" name="prompt_template_text" rows="6"
               placeholder="Enter prompt template here..." required></textarea>
-            <p class="form-note-ts flex">Template must include {text} to provide analysis. Details for each prompt type
+            <p class="form-note-ts flex">Template must include {text} to accept context. Details for each prompt type
               can
               be found in the example prompts provided.</p>
           </div>

@@ -19,6 +19,8 @@ export default class PromptHelper {
     user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
     save_to_library_button = document.querySelector('.save_to_library_button') as HTMLButtonElement;
     prompt_setname_input = document.querySelector('.prompt_setname_input') as HTMLInputElement;
+    prompthelper_tab_help_text = document.querySelector('.prompthelper_tab_help_text') as HTMLDivElement;
+    promptTabs = document.querySelector('#promptTabs') as HTMLDivElement;
     input_datalist_prompt_list = document.querySelector('#input_datalist_prompt_list') as HTMLDataListElement;
     importButton = document.querySelector('.prompt_list_import_rows') as HTMLButtonElement;
     fileInput = document.getElementById('prompt_list_file_input') as HTMLInputElement;
@@ -41,7 +43,7 @@ export default class PromptHelper {
             layout: "fitDataStretch",
             movableRows: true,
             groupBy: "setName",
-            resizableColumnGuide:true,
+            resizableColumnGuide: true,
             selectableRows: 1,
             groupHeader: (value: any, count: number, data: any, group: any) => {
                 return `
@@ -79,7 +81,6 @@ export default class PromptHelper {
         this.generate_metric_prompt.addEventListener('click', async () => {
             this.prompt_template_text.value = `generating prompt...`;
             let text = this.wizard_input_prompt.value;
-            document.getElementById('wizard-prompt-tab')?.click();
             let newPrompt = '';
             if (this.prompt_type.value === 'metric') {
                 newPrompt = await this.getMetricPromptForDescription(text);
@@ -93,10 +94,18 @@ export default class PromptHelper {
 
         this.save_to_library_button.addEventListener('click', async () => {
             this.savePromptEditPopup();
-            var myModalEl = document.getElementById('promptWizard');
-            var modal = (<any>window).bootstrap.Modal.getInstance(myModalEl);
-            modal.hide();
         });
+
+        this.promptTabs.addEventListener('click', (e: any) => {
+            const activeTab: any = this.promptTabs.querySelector('.nav-link.active');
+
+            if (activeTab.id === 'prompt-template-tab') {
+                this.prompthelper_tab_help_text.innerHTML = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
+            } else if (activeTab.id === 'generate-prompt-tab') {
+                this.prompthelper_tab_help_text.innerHTML = `Use Klyde to help you generate prompts for content analysis.`;
+            }
+        });
+
 
         this.exportButton.addEventListener('click', async () => {
             let promptTemplateList = await this.promptsTable.getData();
@@ -161,7 +170,7 @@ export default class PromptHelper {
                 }
             }
         });
-        this.promptsTable.on("rowSelected", (row: any) => {      
+        this.promptsTable.on("rowSelected", (row: any) => {
             const prompt = row.getData();
             this.prompt_id_input.value = prompt.id;
             this.prompt_description.value = prompt.description;
@@ -176,6 +185,9 @@ export default class PromptHelper {
         this.promptsTable.on("rowMoved", async (cell: any) => {
             this.savePromptTableData();
         });
+
+
+
     }
 
     async getSummaryPromptForDescription(description: string): Promise<string> {
