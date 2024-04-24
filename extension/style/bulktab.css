@@ -8,7 +8,7 @@
 }
 
 .bulk_history_item_selected .bulk_result_display_container {
-    display: block;
+    display: flex;
 }
 
 .no_bulk_result_history_entry {

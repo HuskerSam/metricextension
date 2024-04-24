@@ -39,10 +39,6 @@
     padding-left: var(--spacing-large);
 }
 
-.history_usage_stats {
-    text-align: right;
-}
-
 .extension_running .history_display {
     display: none;
 }

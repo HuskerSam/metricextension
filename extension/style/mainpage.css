@@ -42,3 +42,11 @@
 .prompt_list_editor .tabulator-header {
     display: none;
 }
+
+.footer_actions_bar {
+    pointer-events: none;
+}
+
+.footer_actions_bar * {
+    pointer-events: auto;
+}

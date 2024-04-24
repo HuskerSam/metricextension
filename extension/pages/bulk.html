@@ -6,7 +6,8 @@
         <p class="text-sm font-medium text-gray-500">Run metrics on a list of URL or text content</p>
       </div>
     </div>
-    <div class="mt-6 flex-1 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
+    <div
+      class="mt-6 flex-1 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
       <div class="flex-1 flex relative mt-1 analysis_sets_configuration self-center flex-col">
         <select class="w-full bulk_analysis_sets_select self-center h-10px mb-1" multiple></select>
       </div>
@@ -56,8 +57,8 @@
   </div>
   <div class="flex-1 mt-2 bulk_url_list_tabulator border border-gray-300 rounded"></div>
 </div>
-<div class="bottom_bulk_view_splitter flex flex-col overflow-hidden  px-1">
-  <div class="bulk_result_display_container">
+<div class="bottom_bulk_view_splitter flex flex-col overflow-hidden px-1">
+  <div class="bulk_result_display_container flex-1 overflow-hidden flex-col">
     <div class="tab-content flex-1 flex flex-col">
       <div id="bulk-csv-tab-view" class="tab-pane fade show active flex-1 overflow-hidden flex-col"
         aria-labelledby="bulk-csv-tab-btn" role="tabpanel" tabindex="0" aria-selected="true">
@@ -96,22 +97,22 @@
           <li>
             <button class="download_compact_csv btn-ts-secondary">
               CSV &nbsp;
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                class="w-5 h-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5">
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
             </button>
           </li>
           <li>
-          <button class="download_full_json btn-ts-secondary">
-            JSON &nbsp;
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-              class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-            </svg>
-          </button>
+            <button class="download_full_json btn-ts-secondary">
+              JSON &nbsp;
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+            </button>
           </li>
         </ul>
       </div>
@@ -119,8 +120,8 @@
       <div class="inline-flex relative top-1.5 items-center">
         <button type="button" class="btn_icon manage_bulk_history_configuration" data-bs-toggle="modal"
           data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="w-6 h-6">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
         </button>

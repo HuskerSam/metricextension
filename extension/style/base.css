@@ -150,7 +150,6 @@ body {
 }
 
 .history_pagination {
-  display: flex;
   justify-content: end;
   align-items: center;
   padding-top: var(--spacing-small);
