@@ -11,9 +11,11 @@ export default class HistoryHelper {
     url_display = document.querySelector('.url_display') as HTMLAnchorElement;    
     entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
+    history_copy_url_btn = document.querySelector('.history_copy_url_btn') as HTMLButtonElement;
     historyEntryListItems: any = null;
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
     history_date = document.querySelector('.history_date') as HTMLDivElement;
+    copy_entry_result_as_csv_text_btn = document.querySelector('.copy_entry_result_as_csv_text_btn') as HTMLButtonElement;
     itemsPerView = 5;
     baseHistoryIndex = 0;
     currentPageIndex = 0;
@@ -23,7 +25,7 @@ export default class HistoryHelper {
     viewSplitter: Split.Instance;
     constructor() {
         this.viewSplitter = Split([this.main_history_upper_panel, this.main_history_lower_panel], {
-            sizes: [50, 50],
+            sizes: [30, 70],
             direction: 'vertical',
             minSize: 100, // min size of both panes
             gutterSize: 24,
@@ -41,7 +43,10 @@ export default class HistoryHelper {
             a.remove();
             URL.revokeObjectURL(url);
         });
-
+        this.history_copy_url_btn.addEventListener('click', async () => {
+            const url = this.url_display.href;
+            navigator.clipboard.writeText(url);
+        });
         this.manage_history_configuration.addEventListener('click', async () => {
             document.getElementById('history-tab')?.click();
         });
@@ -67,28 +72,11 @@ export default class HistoryHelper {
             let renderResult = this.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
             entryHTML = renderResult.html;
             usageCreditTotal += renderResult.usageCreditTotal;
-            this.entry_total_credit_usage.innerHTML = `<img src="media/logo16.png" alt="logo" style="position:relative;bottom:2px;">
-                     Credits Used: ${Math.round(usageCreditTotal)}`;
+            this.entry_total_credit_usage.innerHTML = `Credits: ${Math.round(usageCreditTotal)}`;
             this.history_date.innerHTML = this.extCommon.showGmailStyleDate(entry.runDate);
         }
 
         this.historyDisplay.innerHTML = entryHTML;
-
-        this.historyDisplay.querySelectorAll('.export_history_entry').forEach((button: any) => {
-            button.addEventListener('click', async (e: any) => {
-                let index = e.target.dataset.index;
-                let entry = history[index];
-                let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
-                let url = URL.createObjectURL(blob);
-                let a = document.createElement('a');
-                document.body.appendChild(a);
-                a.href = url;
-                a.download = `history_entry_${index}.json`;
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
-            });
-        });
 
         let paginationHtml = this.extCommon
             .generatePagination(history.length, this.baseHistoryIndex, this.itemsPerView, this.currentPageIndex);
@@ -120,7 +108,7 @@ export default class HistoryHelper {
         this.url_display.innerHTML = url;
         this.url_display.href = url;
         let headerHtml = ``;
-        let resultsHTML = `<div class="history_results">`;
+        let resultsHTML = `<div class="history_results flex flex-wrap">`;
         let allResults = entry.results;
         let setBasedResults: any = {};
         allResults.forEach((result: any) => {
@@ -131,7 +119,11 @@ export default class HistoryHelper {
         });
         const setNamesArray = Object.keys(setBasedResults);
         setNamesArray.forEach((setName: any) => {
-            resultsHTML += `<div class="p-2 history_entry_set_wrapper"><h6 class="history_entry_prompt_setname">${setName}</h6>`;
+            resultsHTML += `
+            <div class="p-3 history_entry_set_wrapper my-2 mr-4">
+                <div class="history_entry_setname_wrapper"><h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6></div>
+                <hr class="history_separator" />
+            `;
             let promptSetResults = setBasedResults[setName];
             promptSetResults.forEach((result: any) => {
                 try {
