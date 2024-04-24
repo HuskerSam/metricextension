@@ -7,17 +7,17 @@
     </div>
     <div class="my-2 flex gap-2 mr-2">
       <button type="button" class="prompt_list_import_rows btn-ts-secondary">
-        Import&nbsp;
+        Upload&nbsp;&nbsp;
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6">
+          class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
         </svg>
       </button>
       <button type="button" class="prompt_list_export_rows btn-ts-secondary">
-        Export&nbsp;
+        Download&nbsp;&nbsp;
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-6 h-6">
+          class="w-5 h-5">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
         </svg>
@@ -28,7 +28,7 @@
   <div class="prompt_list_editor rounded"></div>
 </div>
 <div class="prompt_manager_lower_pane">
-  <div class="grid grid-cols-2 h-full">
+  <div class="grid grid-cols-1 lg:grid-cols-2 h-full overflow-auto">
     <div class="p-2 flex flex-col">
       <div class="px-4">
         <div class="grid grid-cols-2 gap-4 mb-4">
@@ -60,8 +60,8 @@
           <p class="form-note-ts">Determines template and formatting</p>
         </div>
       </div>
-      <div class="flex justify-center pt-4 px-4">
-        <ul class="nav gap-2 flex flex-col flex-1 pr-2 items-center" id="promptTabs" role="tablist">
+      <div class="flex justify-center py-2 px-4">
+        <ul class="nav gap-2 flex flex-1 pr-2 items-center justify-center" id="promptTabs" role="tablist">
           <li class="nav-item" role="presentation">
             <button class="nav-link btn-ts-secondary active" id="prompt-template-tab" data-bs-toggle="tab"
               data-bs-target="#prompt-template" type="button" role="tab" aria-controls="prompt-template"
@@ -77,19 +77,10 @@
             </button>
           </li>
         </ul>
-        <div class="flex-1 pl-2 self-center">
-          <button class="save_to_library_button btn-ts-success w-32 justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-              <path d="M2 3a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2Z" />
-              <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 0 1-1.99 1.79H4.802a2 2 0 0 1-1.99-1.79L2 7.5ZM7 11a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Z" clip-rule="evenodd" />
-            </svg>            
-            &nbsp;&nbsp;&nbsp;Save
-          </button>
-        </div>
       </div>
       <div class="flex justify-around px-4">
-        <div></div>
-        <p class="form-note-ts text-center flex-1 prompthelper_tab_help_text">Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.</p>
+        <p class="form-note-ts text-center flex-1 prompthelper_tab_help_text pt-0 mt-0">Klyde uses prompts to help you analyze
+          content. You can create your own prompts or import them from a file.</p>
       </div>
     </div>
     <div class="p-2 px-4 flex flex-col">
@@ -100,9 +91,7 @@
             <label for="prompt_description flex" class="form-input-label-ts">Prompt Template</label>
             <textarea class="form-textarea-ts prompt_template_text flex-1" name="prompt_template_text" rows="6"
               placeholder="Enter prompt template here..." required></textarea>
-            <p class="form-note-ts flex">Template must include {{query}} to accept context. Details for each prompt type
-              can
-              be found in the example prompts provided.</p>
+            <p class="form-note-ts flex mt-0">Template must include {{query}} to accept context.  See example for details.</p>
           </div>
         </div>
         <div class="tab-pane fade" id="generate-prompt" role="tabpanel" aria-labelledby="generate-prompt-tab">
@@ -111,15 +100,27 @@
             <textarea id="wizard_prompt" name="wizard_prompt" rows="6"
               class="form-textarea-ts wizard_input_prompt flex-1"
               placeholder="generate a prompt for the following..."></textarea>
-            <div class="flex justify-end my-3">
-              <button class="generate_metric_prompt btn-ts-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                  <path d="M15.993 1.385a1.87 1.87 0 0 1 2.623 2.622l-4.03 5.27a12.749 12.749 0 0 1-4.237 3.562 4.508 4.508 0 0 0-3.188-3.188 12.75 12.75 0 0 1 3.562-4.236l5.27-4.03ZM6 11a3 3 0 0 0-3 3 .5.5 0 0 1-.72.45.75.75 0 0 0-1.035.931A4.001 4.001 0 0 0 9 14.004V14a3.01 3.01 0 0 0-1.66-2.685A2.99 2.99 0 0 0 6 11Z" />
+            <div class="flex justify-center my-2">
+              <button class="generate_metric_prompt btn-ts-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                  <path
+                    d="M15.993 1.385a1.87 1.87 0 0 1 2.623 2.622l-4.03 5.27a12.749 12.749 0 0 1-4.237 3.562 4.508 4.508 0 0 0-3.188-3.188 12.75 12.75 0 0 1 3.562-4.236l5.27-4.03ZM6 11a3 3 0 0 0-3 3 .5.5 0 0 1-.72.45.75.75 0 0 0-1.035.931A4.001 4.001 0 0 0 9 14.004V14a3.01 3.01 0 0 0-1.66-2.685A2.99 2.99 0 0 0 6 11Z" />
                 </svg>&nbsp;&nbsp;Generate
               </button>
             </div>
           </div>
         </div>
+      </div>
+      <div class="self-center mt-1">
+        <button class="save_to_library_button btn-ts-success w-28 justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+            <path d="M2 3a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2Z" />
+            <path fill-rule="evenodd"
+              d="M2 7.5h16l-.811 7.71a2 2 0 0 1-1.99 1.79H4.802a2 2 0 0 1-1.99-1.79L2 7.5ZM7 11a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Z"
+              clip-rule="evenodd" />
+          </svg>
+          &nbsp;&nbsp;&nbsp;Save
+        </button>
       </div>
     </div>
   </div>

@@ -1,4 +1,16 @@
 
+.bulk_result_display_container {
+    display: none;
+} 
+
+.no_bulk_history_item_selected .bulk_result_display_container {
+    display: none;
+}
+
+.bulk_history_item_selected .bulk_result_display_container {
+    display: block;
+}
+
 .no_bulk_result_history_entry {
     display: none
 }
