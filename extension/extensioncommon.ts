@@ -458,4 +458,17 @@ export class AnalyzerExtensionCommon {
       lastPanelToggleWindowId: currentTab.windowId,
     });
   }
+  async updateSessionKeyStatus() {
+    let sessionId = await this.chrome.storage.local.get('sessionId');
+    sessionId = sessionId?.sessionId || "";
+    let apiToken = await this.chrome.storage.local.get('apiToken');
+    apiToken = apiToken?.apiToken || "";
+    if (apiToken && sessionId) {
+      document.body.classList.add("session_key_set");
+      document.body.classList.remove("no_session_key_set");
+    } else {
+      document.body.classList.remove("session_key_set");
+      document.body.classList.add("no_session_key_set");
+    }
+  }
 }
