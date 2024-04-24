@@ -69,6 +69,12 @@ export default class SidePanelApp {
     });
 
     this.run_analysis_btn.addEventListener('click', async () => {
+      let isAlreadyRunning = await this.extCommon.setRunning(true);
+      console.log("isAlreadyRunning", isAlreadyRunning);
+      if (isAlreadyRunning) {
+          if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === true)
+            return;
+      }
       let label = await this.extCommon.getStorageField("analysisRunLabel");
       let text = await this.extCommon.getSourceText(true); // force a scrape here
       let type = await this.extCommon.getSourceType();

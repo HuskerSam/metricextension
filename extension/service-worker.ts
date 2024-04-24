@@ -32,6 +32,12 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
         console.log("info", info);
         text = text.slice(0, 20000);
         let abc = new AnalyzerExtensionCommon(chrome);
+        await chrome.storage.local.set({ sidePanelScrapeContent: text });
+        await chrome.storage.local.set({ sidePanelSource: 'scrape' });
+        await chrome.storage.local.set({ sidePanelUrlSource: tab.url });
+        let isAlreadyRunning = await abc.setRunning(true);
+        if (isAlreadyRunning) return;
+
         result = await abc.runAnalysisPrompts(text, tab.url);
     }
     else if (info.menuItemId === 'analyzePage') {
@@ -46,6 +52,10 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
         text = text.slice(0, 20000);
         let abc = new AnalyzerExtensionCommon(chrome);
         await chrome.storage.local.set({ sidePanelScrapeContent: text });
+        await chrome.storage.local.set({ sidePanelSource: 'scrape' });
+        await chrome.storage.local.set({ sidePanelUrlSource: tab.url });
+        let isAlreadyRunning = await abc.setRunning(true);
+        if (isAlreadyRunning) return;
         result = await abc.runAnalysisPrompts(text, tab.url);
     }
 

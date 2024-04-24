@@ -243,21 +243,20 @@ export class AnalyzerExtensionCommon {
 
     return Object.keys(analysisSets);
   }
+  async setRunning(prompt = false) {
+    let running = await this.chrome.storage.local.get('running');
+   if (running && running.running) {
+      return true;
+    }
+
+    await this.chrome.storage.local.set({
+      running: true,
+    });
+    return false;
+  } 
   async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
     if (text.length > 30000) text = text.slice(0, 30000);
     const runDate = new Date().toISOString();
-    if (addToHistory) {
-      let running = await this.chrome.storage.local.get('running');
-      if (running && running.running) {
-        if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
-          return;
-      }
-  
-      await this.chrome.storage.local.set({ sidePanelSource: 'scrape' });
-      await this.chrome.storage.local.set({
-        running: true,
-      });
-    }
 
     let prompts: any = [];
     let analysisPrompts: any = await this.getAnalysisPrompts();

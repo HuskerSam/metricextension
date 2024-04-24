@@ -373,6 +373,8 @@ export default class BulkHelper {
 
         document.body.classList.add("extension_running");
         document.body.classList.remove("extension_not_running");
+        let isAlreadyRunning = await this.extCommon.setRunning(true);
+        if (isAlreadyRunning) return;
         const runId = new Date().toISOString();
         let urls: string[] = [];
         let promises: any[] = [];
