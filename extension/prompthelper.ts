@@ -28,6 +28,7 @@ export default class PromptHelper {
     exportButton = document.querySelector('.prompt_list_export_rows') as HTMLButtonElement;
     prompt_manager_lower_pane = document.querySelector('.prompt_manager_lower_pane') as HTMLDivElement;
     prompt_manager_upper_pane = document.querySelector('.prompt_manager_upper_pane') as HTMLDivElement;
+    save_to_library_as_new_button = document.querySelector('.save_to_library_as_new_button') as HTMLButtonElement;
     promptsTable: TabulatorFull;
 
     constructor() {
@@ -99,6 +100,11 @@ export default class PromptHelper {
         });
 
         this.save_to_library_button.addEventListener('click', async () => {
+            this.savePromptEditPopup();
+        });
+
+        this.save_to_library_as_new_button.addEventListener('click', async () => {
+            this.prompt_row_index.value = "-1";
             this.savePromptEditPopup();
         });
 
@@ -221,18 +227,71 @@ export default class PromptHelper {
         const newPromptAgent = `Please help form a new concise set guidelines for scoring content.
         I would like one based on the following description: ${description}
         
-        Here is an example of guidelines for scoring content based on political content:
-        Label the following content 0-10, regarding its political content. 
-        1: Barely Political - Mentions politics briefly, but doesn't go into details.
-        2: Somewhat Political - Talks about political things, but stays neutral. Presents basic information without favoring one side.
-        3: Moderately Political - Discusses political topics, but avoids strong opinions. Explains policies, figures, or events in a balanced way.
-        4: Moderately Political (with Opinion) - Analyzes political issues with some personal viewpoint. Might slightly favor one side, but still mentions opposing views.
-        5: More Political - Provides in-depth analysis of political issues with a clear perspective. Uses persuasive language to advocate for a specific viewpoint, but acknowledges other positions.
-        6: Highly Political - Offers strong analysis of political issues with a clear stance. Uses persuasive language and arguments to promote a specific viewpoint.
-        7: Very Political - Focuses heavily on controversial political themes and current events. May use strong emotions and persuasive language to spark debate. Considers some opposing viewpoints, but favors one heavily.
-        8: Extremely Political - Centers on highly controversial political issues and current events. Uses strong emotions and potentially inflammatory language to provoke strong reactions. Presents a very narrow range of viewpoints.
-        9: Exceedingly Political - Primarily promotes a specific political agenda. Uses highly charged language and potentially misleading information to influence opinion
-        10: Pure Propaganda - Presents highly biased information to manipulate opinion. Uses extreme language and potentially false information to promote a specific political viewpoint.`;
+        Here is an example of guidelines for scoring content containing propaganda for a web scraped article:
+        Evaluate the provided web scraped article for linguistic indicators suggestive of propaganda rather than objective truth. Rely on research-backed linguistic markers while recognizing the limitations of text-based assessments. Specifically, consider:
+
+        A. Defining Variable - Indicators of Propaganda 
+        1. Loaded Language
+            Description: Use of emotionally charged words to influence the reader.
+            Indicators:  
+                - Exaggerated or hyperbolic language.
+                - Words that evoke strong positive or negative emotions.
+    
+        2. One-sided Argumentation  
+            Description: Presenting only one perspective while ignoring or discrediting opposing views.
+            Indicators:
+                - Lack of balanced perspective or acknowledgment of counterarguments.
+                - Dismissive or demeaning references to opposing viewpoints.
+    
+        3. Unverifiable Claims
+            Description: Assertions made without supporting evidence or sources.
+            Indicators:  
+                - Statements presented as facts without citations or references.
+                - Use of vague terms like "studies show" or "experts say" without specifics.
+    
+        4. Appeal to Fear or Anger
+            Description: Attempts to provoke fear or anger to persuade the reader.
+            Indicators:
+                - Language that stokes anxiety, outrage or a sense of threat.
+                - Portraying situations as dire to create a sense of urgency.
+    
+        5. Bandwagon Appeal
+            Description: Suggesting an idea is valid because many people believe it.
+            Indicators:  
+                - References to the popularity of an idea as a substitute for evidence.
+                - Encouraging conformity to a viewpoint to avoid being in the minority.
+    
+        6. Ad Hominem Attacks
+            Description: Attacking the character of a person rather than engaging their arguments.
+            Indicators:
+                - Personal insults or disparaging remarks about individuals.
+                - Dismissing ideas based on attacks on those proposing them.
+    
+        B. Scoring 
+        a. Rating
+            Scale:
+                1-2 (Very Mild or Non-existent indicators): Propaganda indicators are either very mild or do not exist. If an indicator is non-existent within the article, score 1.
+                3-4 (Low Indicators): Occasional use of propaganda techniques, but the article mostly presents information objectively. 
+                5-7 (Moderate Indicators): Several instances of propaganda indicators, suggesting a clear bias and intent to persuade.
+                8-10 (High Indicators): Pervasive use of propaganda techniques, with little to no attempt at objectivity or balanced reporting.
+    
+        b. Assigning Weight
+            Weights:
+            Loaded Language (20%): Emotionally charged language is a potent tool for swaying readers and a strong indicator of propaganda.
+    
+            One-sided Argumentation (20%): Failing to present a balanced perspective suggests an intent to promote a specific viewpoint rather than inform.
+            
+            Unverifiable Claims (15%): A lack of supporting evidence or sources raises questions about the credibility of the information presented.
+            
+            Appeal to Fear or Anger (15%): Provoking strong emotions can cloud judgment and is a common tactic in propaganda.
+            
+            Bandwagon Appeal (15%): Appealing to popularity rather than evidence is a weak argument and often used in propaganda.
+            
+            Ad Hominem Attacks (15%): Attacking individuals rather than engaging with their ideas is a diversionary tactic that undermines objectivity.
+            
+                After weighting, round to the nearest whole number and return that value in JSON 'score' response.
+        
+                After scoring, provide a comprehensive breakdown of the factors contributing to the score. Highlight the key passages or patterns that were particularly influential in the decision.`;
 
         let newPromptContent = (await this.extCommon.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
         newPromptContent += ` 
