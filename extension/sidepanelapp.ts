@@ -18,6 +18,7 @@ export default class SidePanelApp {
   query_source_tokens_length = document.querySelector('.query_source_tokens_length') as HTMLElement;
   top_history_view_splitter = document.querySelector('.top_history_view_splitter') as HTMLDivElement;
   bottom_history_view_splitter = document.querySelector('.bottom_history_view_splitter') as HTMLDivElement;
+  analysis_run_label = document.querySelector('.analysis_run_label') as HTMLInputElement;
   viewSplitter: Split.Instance;
   analysis_display: any;
   previousSlimOptions = '';
@@ -49,10 +50,6 @@ export default class SidePanelApp {
         },
       },
     });
-    chrome.storage.local.onChanged.addListener(() => {
-      this.handleStorageChange();
-    });
-    this.handleStorageChange();
 
     this.viewSplitter = Split([this.top_history_view_splitter, this.bottom_history_view_splitter],
       {
@@ -78,10 +75,16 @@ export default class SidePanelApp {
     this.query_source_text.addEventListener('input', async (e: Event) => {
       this.updateQuerySourceDetails();
     });
+    this.analysis_run_label.addEventListener('input', 
+      async () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
 
     this.analysis_display = document.querySelector(".analysis_display");
+    chrome.storage.local.onChanged.addListener(() => {
+      this.paint();
+    });
+    this.paint();
   }
-  async handleStorageChange() {
+  async paint() {
     let lastPanelToggleDate = await chrome.storage.local.get('lastPanelToggleDate');
     if (lastPanelToggleDate && lastPanelToggleDate.lastPanelToggleDate) lastPanelToggleDate = lastPanelToggleDate.lastPanelToggleDate;
 
@@ -93,9 +96,7 @@ export default class SidePanelApp {
       window.close();
       return;
     }
-    this.paintAnalysisTab();
-  }
-  async paintAnalysisTab() {
+
     let running = await chrome.storage.local.get('running');
     if (running && running.running) {
       document.body.classList.add("extension_running");
@@ -104,10 +105,7 @@ export default class SidePanelApp {
       document.body.classList.remove("extension_running");
       document.body.classList.add("extension_not_running");
     }
-
-    let lastSelection = await chrome.storage.local.get('lastSelection');
-    lastSelection = lastSelection.lastSelection || "";
-    this.updateContentTextonSidePanel(lastSelection);
+    this.extCommon.updateSessionKeyStatus();
 
     this.renderDisplay();
 
@@ -146,15 +144,9 @@ export default class SidePanelApp {
       this.analysisSetsSlimSelect.setSelected([setNames[0]]);
     }
 
+    this.extCommon.getFieldFromStorage(this.analysis_run_label, "analysisRunLabel");
+
     this.updateQuerySourceDetails();
-  }
-  async updateContentTextonSidePanel(text: string) {
-    let running = await chrome.storage.local.get('running');
-    if (running && running.running) {
-      this.query_source_text.value = "Running...";
-    } else {
-      this.query_source_text.value = text;
-    }
   }
   updateQuerySourceDetails() {
     let text = this.query_source_text.value;
@@ -182,7 +174,12 @@ export default class SidePanelApp {
       lastResult = entry.results;
       lastSelection = entry.text;
     }
-    await this.updateContentTextonSidePanel(lastSelection);
+    let running = await chrome.storage.local.get('running');
+    if (running && running.running) {
+      this.query_source_text.value = "Running...";
+    } else {
+      this.query_source_text.value = lastSelection;
+    }
     let html = '';
     if (lastResult) {
       lastResult.forEach((result: any) => {

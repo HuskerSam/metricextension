@@ -12,7 +12,7 @@
 
 <body>
   <div class="flex flex-col h-full">
-    <div class="no_session_key hidden">
+    <div class="no_session_key_sidepanel no_session_key hidden">
       <div class="flex items-center">
         <i class="material-icons-outlined mr-4">warning</i>
         <span>No session key. Please visit <a href="https://unacog.com" target="_blank"
@@ -20,7 +20,11 @@
           started.</span>
       </div>
     </div>
+    <input type="text" class="analysis_run_label block py-1.5 mt-2 pl-2 text-gray-900
+    placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
+    mb-1 ml-1 mr-1" placeholder="Enter label (optional)">
     <div class="header_action_bar text-center">
+      Source:
       <ul class="nav ml-2 mt-2 inline-flex" role="tablist">
         <li class="nav-item" role="presentation">
           <button id="tabs-input-textarea-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-textarea-panel"
@@ -57,9 +61,6 @@
         <div class="tab-content flex-1">
           <div id="tabs-input-textarea-panel" class="tab-pane fade show active h-full flex-col"
             aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
-            <input type="text" class="analysis_run_label block py-1.5 pl-2 text-gray-900
-             placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
-             mb-2 ml-1 mr-1" placeholder="Enter label (optional)...">
             <textarea class="query_source_text block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1"
               placeholder="Enter text for analysis..."></textarea>
           </div>
@@ -82,7 +83,7 @@
             <div class="self-center">
               <div class="pl-3">
                 <label class="pt-1 text-center pb-1 text-xs font-bold">
-                 Prompts For Analysis</label>
+                  Prompts For Analysis</label>
               </div>
               <select class="analysis_set_select w-full self-center h-10px mb-1" multiple>
               </select>

@@ -104,5 +104,6 @@ export default class MainPageApp {
         this.historyHelper?.renderHistoryDisplay();
         this.bulkHelper?.paintAnalysisHistory();
         this.bulkHelper?.paintBulkURLList(forceUpdate);
+        this.extCommon.updateSessionKeyStatus();
     }
 }

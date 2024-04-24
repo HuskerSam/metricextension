@@ -17,3 +17,7 @@
 .extension_running .analysis_display {
   display: none;
 }
+
+.no_session_key_set .no_session_key_sidepanel {
+  display: block;
+}
