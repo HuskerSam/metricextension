@@ -1,5 +1,5 @@
-<div class="prompt_manager_upper_pane flex flex-col px-2">
-  <div class="md:flex md:items-center md:justify-between mx-2 py-1">
+<div class="prompt_manager_upper_pane flex flex-col sm:px-6 lg:px-8">
+  <div class="md:flex md:items-center md:justify-between py-1">
     <div class="min-w-0 flex-1 ">
       <h2 class="font-bold leading-7 sm:truncate sm:text-3xl sm:tracking-tight">Manage
         Prompts
@@ -27,10 +27,10 @@
   </div>
   <div class="prompt_list_editor rounded"></div>
 </div>
-<div class="prompt_manager_lower_pane">
-  <div class="grid grid-cols-1 lg:grid-cols-2 h-full overflow-auto">
-    <div class="p-2 flex flex-col">
-      <div class="px-4">
+<div class="prompt_manager_lower_pane mx-auto sm:px-6 lg:px-8 overflow-auto">
+  <div class="grid grid-cols-1 lg:grid-cols-2 h-full">
+    <div class="flex flex-col px-4 sm:px-2">
+      <div class="px-2">
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label for="prompt_setname_input" class="form-input-label-ts">Set Name:</label>
@@ -60,7 +60,7 @@
           <p class="form-note-ts">Determines template and formatting</p>
         </div>
       </div>
-      <div class="flex justify-center py-2 px-4">
+      <div class="flex justify-center p-2">
         <ul class="nav gap-2 flex flex-1 pr-2 items-center justify-center" id="promptTabs" role="tablist">
           <li class="nav-item" role="presentation">
             <button class="nav-link btn-ts-secondary active" id="prompt-template-tab" data-bs-toggle="tab"
@@ -78,12 +78,12 @@
           </li>
         </ul>
       </div>
-      <div class="flex justify-around px-4">
+      <div class="flex justify-around px-4 sm:px-2">
         <p class="form-note-ts text-center flex-1 prompthelper_tab_help_text pt-0 mt-0">Klyde uses prompts to help you analyze
           content. You can create your own prompts or import them from a file.</p>
       </div>
     </div>
-    <div class="p-2 px-4 flex flex-col">
+    <div class="px-4 sm:px-2 flex flex-col">
       <div class="tab-content" id="promptTabsContent">
         <div class="tab-pane fade show active" id="prompt-template" role="tabpanel"
           aria-labelledby="prompt-template-tab">
