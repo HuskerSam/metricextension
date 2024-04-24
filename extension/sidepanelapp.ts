@@ -23,6 +23,7 @@ export default class SidePanelApp {
   ["tabs-input-textarea-tab"] = document.querySelector('#tabs-input-textarea-tab') as HTMLDivElement;
   url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
+  lastSlimSelections = "";
   viewSplitter: Split.Instance;
   analysis_display: any;
   previousSlimOptions = '';
@@ -117,8 +118,11 @@ export default class SidePanelApp {
     }
     this.extCommon.updateSessionKeyStatus();
 
-    this.renderDisplay();
-
+    this.renderResultsPanel();
+    this.renderSlimSelect();
+    this.renderSourceDetails();
+  }
+  async renderSlimSelect() {
     const setNames = await this.extCommon.getAnalysisSetNames();
     let html = "";
     setNames.forEach((setName) => {
@@ -130,36 +134,41 @@ export default class SidePanelApp {
       slimOptions.push({ text: setName, value: setName });
     });
     const slimOptionsString = JSON.stringify(slimOptions);
+    let dataChange = false;
     if (this.previousSlimOptions !== slimOptionsString) {
       this.analysisSetsSlimSelect?.setData(slimOptions);
       this.previousSlimOptions = slimOptionsString;
+      dataChange = true;
     }
 
     if (selectedAnalysisSets && selectedAnalysisSets.selectedAnalysisSets) {
-      this.analysisSetsSlimSelect?.setSelected(selectedAnalysisSets.selectedAnalysisSets);
-      let domSelections = this.analysisSetsSlimSelect?.render.main.values.querySelectorAll('.ss-value') as NodeListOf<HTMLElement>;
-      let indexMap: any = {};
-      domSelections.forEach((item: any, index: any) => {
-        indexMap[item.innerText] = index;
-      });
-      let setOrder = selectedAnalysisSets.selectedAnalysisSets;
-      setOrder.forEach((setName: any, index: any) => {
-        let domIndex = indexMap[setName];
-        if (domSelections[domIndex]) {
-          this.analysisSetsSlimSelect?.render.main.values.appendChild(domSelections[domIndex]);
-        }
-      });
+      let setCache = JSON.stringify(selectedAnalysisSets.selectedAnalysisSets);
+      if (setCache !== this.lastSlimSelections || dataChange) {
+        this.lastSlimSelections = setCache;
+        this.analysisSetsSlimSelect?.setSelected(selectedAnalysisSets.selectedAnalysisSets);
+        let domSelections = this.analysisSetsSlimSelect?.render.main.values.querySelectorAll('.ss-value') as NodeListOf<HTMLElement>;
+        let indexMap: any = {};
+        domSelections.forEach((item: any, index: any) => {
+          indexMap[item.innerText] = index;
+        });
+        let setOrder = selectedAnalysisSets.selectedAnalysisSets;
+        setOrder.forEach((setName: any, index: any) => {
+          let domIndex = indexMap[setName];
+          if (domSelections[domIndex]) {
+            this.analysisSetsSlimSelect?.render.main.values.appendChild(domSelections[domIndex]);
+          }
+        });
+      }
     }
     if (this.analysisSetsSlimSelect?.getSelected().length === 0) {
       this.analysisSetsSlimSelect.setSelected([setNames[0]]);
     }
-
+  }
+  async renderSourceDetails() {
     this.extCommon.getFieldFromStorage(this.analysis_run_label, "analysisRunLabel");
     this.extCommon.getFieldFromStorage(this.url_source_input, "sidePanelUrlSource");
     this.extCommon.getFieldFromStorage(this.url_scrape_results, "sidePanelScrapeContent");
     this.extCommon.getFieldFromStorage(this.user_text_content_field, "sidePanelTextSource");
-
-    this.updateQuerySourceDetails();
 
     let value = await chrome.storage.local.get("sidePanelSource");
     value = value["sidePanelSource"] || '';
@@ -168,8 +177,7 @@ export default class SidePanelApp {
     } else {
       this["tabs-input-textarea-tab"].click();
     }
-  }
-  async updateQuerySourceDetails() {
+
     let text = await this.extCommon.getSourceText();
     this.source_text_length.innerHTML = text.length + ' characters';
 
@@ -185,23 +193,17 @@ export default class SidePanelApp {
     }
     this.source_tokens_length.innerHTML = tokenCount;
   }
-  async renderDisplay() {
+  async renderResultsPanel() {
     let history = await chrome.storage.local.get('history');
     history = history.history || [];
     let entry = history[0];
-    let lastResult = null;
-    let lastSelection = '';
-    if (entry) {
-      lastResult = entry.results;
-      lastSelection = entry.text;
-    }
-
     let html = '';
-    if (lastResult) {
-      lastResult.forEach((result: any) => {
+    if (entry && entry.results) {
+      entry.results.forEach((result: any) => {
         html += this.extCommon.getHTMLforPromptResult(result);
       });
     }
+
     if (this.analysis_display) {
       this.analysis_display.innerHTML = html;
     }

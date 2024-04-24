@@ -45,6 +45,7 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
         text = scrapes[0].result;
         text = text.slice(0, 20000);
         let abc = new AnalyzerExtensionCommon(chrome);
+        await chrome.storage.local.set({ sidePanelScrapeContent: text });
         result = await abc.runAnalysisPrompts(text, tab.url);
     }
 

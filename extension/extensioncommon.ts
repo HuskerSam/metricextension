@@ -509,8 +509,14 @@ export class AnalyzerExtensionCommon {
     if (sourceType === 'scrape') {
       if (clearCache) {
         const url = await this.getURLContentSource();
-        const contentQuery = await fetch(url);
-        const content = await contentQuery.text();
+        const result = await this.scrapeURLUsingAPI(url, "");
+        let content = "";
+        if (result.success) {
+          content = result.result.text;
+        } else {
+          content
+        }
+
         await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
         return content;
       }
