@@ -471,4 +471,13 @@ export class AnalyzerExtensionCommon {
       document.body.classList.add("no_session_key_set");
     }
   }
+  async getFieldFromStorage(domInput: HTMLInputElement, storageKey: string) {
+    let value = await this.chrome.storage.local.get(storageKey);
+    value = value[storageKey] || '';
+    if (domInput.value !== value) domInput.value = value;
+  }
+  async setFieldToStorage(domInput: HTMLInputElement, storageKey: string) {
+    let value = domInput.value;
+    await this.chrome.storage.local.set({ [storageKey]: value });
+  }
 }
