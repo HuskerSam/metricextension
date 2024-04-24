@@ -13,12 +13,16 @@ export default class SidePanelApp {
   show_main_page_btn = document.querySelector('.show_main_page_btn') as HTMLButtonElement;
   lastPanelToggleDate = new Date().toISOString();
   run_analysis_btn = document.querySelector('.run_analysis_btn') as HTMLButtonElement;
-  query_source_text = document.querySelector(".query_source_text") as HTMLTextAreaElement;
-  query_source_text_length = document.querySelector('.query_source_text_length') as HTMLElement;
-  query_source_tokens_length = document.querySelector('.query_source_tokens_length') as HTMLElement;
+  user_text_content_field = document.querySelector(".user_text_content_field") as HTMLTextAreaElement;
+  source_text_length = document.querySelector('.source_text_length') as HTMLElement;
+  source_tokens_length = document.querySelector('.source_tokens_length') as HTMLElement;
   top_history_view_splitter = document.querySelector('.top_history_view_splitter') as HTMLDivElement;
   bottom_history_view_splitter = document.querySelector('.bottom_history_view_splitter') as HTMLDivElement;
   analysis_run_label = document.querySelector('.analysis_run_label') as HTMLInputElement;
+  ["tabs-input-url-tab"] = document.querySelector('#tabs-input-url-tab') as HTMLDivElement;
+  ["tabs-input-textarea-tab"] = document.querySelector('#tabs-input-textarea-tab') as HTMLDivElement;
+  url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
+  url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
   viewSplitter: Split.Instance;
   analysis_display: any;
   previousSlimOptions = '';
@@ -64,19 +68,25 @@ export default class SidePanelApp {
     });
 
     this.run_analysis_btn.addEventListener('click', async () => {
-      let text = this.query_source_text.value;
-      let result: any = await this.extCommon.runAnalysisPrompts(text, 'Manual');
-      let html = '';
-      for (let promptResult of result.results) {
-        html += this.extCommon.getHTMLforPromptResult(promptResult);
+      let label = await this.extCommon.getStorageField("analysisRunLabel");
+      let text = await this.extCommon.getSourceText(true); // force a scrape here
+      let type = await this.extCommon.getSourceType();
+      if (type === 'scrape') {
+        await chrome.storage.local.set({ sidePanelScrapeContent: text });
       }
-    });
 
-    this.query_source_text.addEventListener('input', async (e: Event) => {
-      this.updateQuerySourceDetails();
+      await this.extCommon.runAnalysisPrompts(text, label);
     });
-    this.analysis_run_label.addEventListener('input', 
+    this.user_text_content_field.addEventListener('input',
+      async () => this.extCommon.setFieldToStorage(this.user_text_content_field, "sidePanelTextSource"));
+    this.analysis_run_label.addEventListener('input',
       async () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
+    this.url_source_input.addEventListener('input',
+      async () => this.extCommon.setFieldToStorage(this.url_source_input, "sidePanelUrlSource"));
+    this["tabs-input-url-tab"].addEventListener('click',
+      async () => chrome.storage.local.set({ sidePanelSource: 'scrape' }));
+    this["tabs-input-textarea-tab"].addEventListener('click',
+      async () => chrome.storage.local.set({ sidePanelSource: 'text' }));
 
     this.analysis_display = document.querySelector(".analysis_display");
     chrome.storage.local.onChanged.addListener(() => {
@@ -145,12 +155,23 @@ export default class SidePanelApp {
     }
 
     this.extCommon.getFieldFromStorage(this.analysis_run_label, "analysisRunLabel");
+    this.extCommon.getFieldFromStorage(this.url_source_input, "sidePanelUrlSource");
+    this.extCommon.getFieldFromStorage(this.url_scrape_results, "sidePanelScrapeContent");
+    this.extCommon.getFieldFromStorage(this.user_text_content_field, "sidePanelTextSource");
 
     this.updateQuerySourceDetails();
+
+    let value = await chrome.storage.local.get("sidePanelSource");
+    value = value["sidePanelSource"] || '';
+    if (value === 'scrape') {
+      this["tabs-input-url-tab"].click();
+    } else {
+      this["tabs-input-textarea-tab"].click();
+    }
   }
-  updateQuerySourceDetails() {
-    let text = this.query_source_text.value;
-    this.query_source_text_length.innerHTML = text.length + ' characters';
+  async updateQuerySourceDetails() {
+    let text = await this.extCommon.getSourceText();
+    this.source_text_length.innerHTML = text.length + ' characters';
 
     let tokenCount = "N/A";
     try {
@@ -162,7 +183,7 @@ export default class SidePanelApp {
 
       tokenCount = encode(text).length.toString() + " tokens";
     }
-    this.query_source_tokens_length.innerHTML = tokenCount;
+    this.source_tokens_length.innerHTML = tokenCount;
   }
   async renderDisplay() {
     let history = await chrome.storage.local.get('history');
@@ -174,12 +195,7 @@ export default class SidePanelApp {
       lastResult = entry.results;
       lastSelection = entry.text;
     }
-    let running = await chrome.storage.local.get('running');
-    if (running && running.running) {
-      this.query_source_text.value = "Running...";
-    } else {
-      this.query_source_text.value = lastSelection;
-    }
+
     let html = '';
     if (lastResult) {
       lastResult.forEach((result: any) => {
@@ -189,9 +205,5 @@ export default class SidePanelApp {
     if (this.analysis_display) {
       this.analysis_display.innerHTML = html;
     }
-  }
-  async runMetrics() {
-    let text = this.query_source_text.value;
-    await this.extCommon.runAnalysisPrompts(text, 'user input');
   }
 }

@@ -7,13 +7,6 @@
     left: -4px;
 }
 
-.query_source_text,
-.url_scrape_results {
-  resize: none;
-  overflow: auto;
-  border-color: white;
-}
-
 .extension_running .analysis_display {
   display: none;
 }

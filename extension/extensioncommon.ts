@@ -5,8 +5,6 @@ export class AnalyzerExtensionCommon {
   cloudWriteUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/cloudwrite`;
   cloudScrapeUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/scrapeurl`;
   chrome: any;
-  query_source_text: any;
-  query_source_text_length: any;
   query_source_tokens_length: any;
   previousSlimOptions = '';
 
@@ -254,7 +252,8 @@ export class AnalyzerExtensionCommon {
         if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
           return;
       }
-
+  
+      await this.chrome.storage.local.set({ sidePanelSource: 'scrape' });
       await this.chrome.storage.local.set({
         running: true,
       });
@@ -471,13 +470,54 @@ export class AnalyzerExtensionCommon {
       document.body.classList.add("no_session_key_set");
     }
   }
-  async getFieldFromStorage(domInput: HTMLInputElement, storageKey: string) {
+  async getFieldFromStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
     let value = await this.chrome.storage.local.get(storageKey);
     value = value[storageKey] || '';
     if (domInput.value !== value) domInput.value = value;
   }
-  async setFieldToStorage(domInput: HTMLInputElement, storageKey: string) {
+  async setFieldToStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
     let value = domInput.value;
     await this.chrome.storage.local.set({ [storageKey]: value });
+  }
+  async getTextContentSource() {
+    let value = await this.chrome.storage.local.get("sidePanelTextSource");
+    value = value["sidePanelTextSource"] || '';
+    return value;
+  }
+  async getURLContentSource() {
+    let value = await this.chrome.storage.local.get("sidePanelUrlSource");
+    value = value["sidePanelUrlSource"] || '';
+    return value;
+  }
+  async getStorageField(field: string) {
+    let value = await this.chrome.storage.local.get(field);
+    value = value[field] || '';
+    return value;
+  }
+  async getSourceType() {
+    let value = await this.chrome.storage.local.get("sidePanelSource");
+    value = value["sidePanelSource"] || '';
+    if (value === 'scrape') {
+      return 'scrape';
+    } else {
+      return 'text';
+    }
+  }
+  async getSourceText(clearCache = false) {
+    let sourceType = await this.getSourceType();
+    
+    if (sourceType === 'scrape') {
+      if (clearCache) {
+        const url = await this.getURLContentSource();
+        const contentQuery = await fetch(url);
+        const content = await contentQuery.text();
+        await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
+        return content;
+      }
+
+      return await this.getStorageField("sidePanelScrapeContent");
+    } else {
+      return await this.getTextContentSource();
+    }
   }
 }
