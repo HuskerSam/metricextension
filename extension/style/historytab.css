@@ -64,7 +64,6 @@
 }
 
 .history_text {
-    margin: var(--spacing-small);
     font-size: var(--font-size-base);
     text-overflow: ellipsis;
     overflow: hidden;

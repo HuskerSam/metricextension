@@ -425,7 +425,7 @@ body {
 }
 
 .ss-main .ss-values .ss-value .ss-value-text {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-large);
 }
 
 .prompt_list_editor .tabulator-tableholder {
