@@ -1,11 +1,11 @@
 <div class="prompt_manager_upper_pane flex flex-col sm:px-6 lg:px-8">
-  <div class="md:flex md:items-center md:justify-between py-1">
-    <div class="min-w-0 flex-1 ">
-      <h2 class="font-bold leading-7 sm:truncate sm:text-3xl sm:tracking-tight">Manage
-        Prompts
-      </h2>
+  <div class="flex items-start space-x-5 w-full mb-2">
+    <div class="pt-1.5">
+      <h2 class="text-2xl font-bold text-gray-900">Manage Prompts</h2>
+      <p class="text-sm font-medium text-gray-500">Create or edit prompts and add them to a metric set.</p>
     </div>
-    <div class="my-2 flex gap-2 mr-2">
+    <div
+      class="inline-flex flex-1 flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:flex-row md:space-x-3" style="align-self: flex-end;"> 
       <button type="button" class="prompt_list_import_rows btn-ts-secondary">
         Upload&nbsp;&nbsp;
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -79,7 +79,8 @@
         </ul>
       </div>
       <div class="flex justify-around px-4 sm:px-2">
-        <p class="form-note-ts text-center flex-1 prompthelper_tab_help_text pt-0 mt-0">Klyde uses prompts to help you analyze
+        <p class="form-note-ts text-center flex-1 prompthelper_tab_help_text pt-0 mt-0">Klyde uses prompts to help you
+          analyze
           content. You can create your own prompts or import them from a file.</p>
       </div>
     </div>
@@ -91,7 +92,8 @@
             <label for="prompt_description flex" class="form-input-label-ts">Prompt Template</label>
             <textarea class="form-textarea-ts prompt_template_text flex-1" name="prompt_template_text" rows="6"
               placeholder="Enter prompt template here..." required></textarea>
-            <p class="form-note-ts flex mt-0">Template must include {{query}} to accept context.  See example for details.</p>
+            <p class="form-note-ts flex mt-0">Template must include {{query}} to accept context. See example for
+              details.</p>
           </div>
         </div>
         <div class="tab-pane fade" id="generate-prompt" role="tabpanel" aria-labelledby="generate-prompt-tab">

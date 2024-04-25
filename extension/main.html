@@ -66,8 +66,8 @@
               </button>
             </li>
             <li class="nav-item mt-auto mb-4" role="presentation">
-              <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full" id="api-config-tab"
-                data-bs-toggle="modal" data-bs-target="#configModal" type="button">
+              <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full main_options_tab_btn" id="main_options_tab_btn" data-bs-toggle="tab" data-bs-target="#main_options_tab_view" type="button"
+              role="tab" aria-controls="main_options_tab_view" aria-selected="false">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                   stroke="currentColor" class="w-5 h-5 inline-block">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -86,6 +86,8 @@
             <div class="tab-pane fade overflow-hidden
             " id="main_bulk_tab_view" role="tabpanel" aria-labelledby="main_bulk_tab_btn">
             </div>
+            <div class="tab-pane fade" id="main_options_tab_view" role="tabpanel"
+              aria-labelledby="main_options_tab_btn"></div>
           </div>
         </div>
       </div>
@@ -97,85 +99,6 @@
               d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
           </svg>
         </button>
-      </div>
-    </div>
-  </div>
-  <!-- test modal -->
-  <div class="modal fade test_modal" id="testModal" tabindex="-1" aria-labelledby="testModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="testModalLabel">Test Metric</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="test_metric_container flex justify-center items-center"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Config Modal -->
-  <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header pb-0">
-          <ul class="nav" id="configTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <a class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" role="tab"
-                aria-controls="access" aria-selected="true">Access</a>
-            </li>
-            <li class="nav-item" role="presentation">
-              <a class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" role="tab"
-                aria-controls="history" aria-selected="false">History</a>
-            </li>
-          </ul>
-        </div>
-        <div class="modal-body">
-          <div class="tab-content" id="configTabsContent">
-            <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
-              <div class="mt-4 api_config">
-                <div class="flex items-center mb-2 form_row">
-                  <label for="api_token_input" class="w-20 font-bold text-xs mr-1">API Key:
-                    <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded api_token_input">
-                  </label>
-                </div>
-                <div class="flex items-center mb-2 form_row">
-                  <label for="session_id_input" class="w-20 font-bold text-xs mr-1">Session:
-                    <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded session_id_input">
-                  </label>
-                </div>
-                <div class="flex items-center mb-2 form_row">
-                  <label class="session_anchor_label"></label>
-                  <a class="session_anchor" href="" target="_blank"></a>
-                </div>
-                <button class="btn reset_chrome_storage">Clear Storage</button>
-              </div>
-            </div>
-            <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-              <div class="flex flex-column gap-2">
-                <button class="btn clear_history">Clear History</button>
-                <button class="btn clear_bulk_history">Clear Bulk History</button>
-                <button class="btn export_history">Export</button>
-                <select class="history_range_amount_select">
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="100">100</option>
-                  <option value="500">500</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
       </div>
     </div>
   </div>

@@ -44,3 +44,11 @@
 .bulk_url_list_tabulator {
   margin-top: var(--spacing-large);
 }
+
+.analysis_sets_configuration {
+    width: 80%;
+}
+
+.ss-main .ss-values .ss-value {
+    height: 40px;
+}

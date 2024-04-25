@@ -1,0 +1,49 @@
+<ul class="nav" id="configTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" role="tab"
+      aria-controls="access" aria-selected="true">Access</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" role="tab"
+      aria-controls="history" aria-selected="false">History</a>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
+    <div class="mt-4 api_config">
+      <div class="flex items-center mb-2 form_row">
+        <label for="api_token_input" class="w-20 font-bold text-xs mr-1">API Key:
+          <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded api_token_input">
+        </label>
+      </div>
+      <div class="flex items-center mb-2 form_row">
+        <label for="session_id_input" class="w-20 font-bold text-xs mr-1">Session:
+          <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded session_id_input">
+        </label>
+      </div>
+      <div class="flex items-center mb-2 form_row">
+        <label class="session_anchor_label"></label>
+        <a class="session_anchor" href="" target="_blank"></a>
+      </div>
+      <button class="btn reset_chrome_storage">Clear Storage</button>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+    <div class="flex flex-column gap-2">
+      <button class="btn clear_history">Clear History</button>
+      <button class="btn clear_bulk_history">Clear Bulk History</button>
+      <button class="btn export_history">Export</button>
+      <select class="history_range_amount_select">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="100">100</option>
+        <option value="500">500</option>
+      </select>
+    </div>
+  </div>
+</div>
