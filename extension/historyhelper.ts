@@ -120,7 +120,7 @@ export default class HistoryHelper {
         const setNamesArray = Object.keys(setBasedResults);
         setNamesArray.forEach((setName: any) => {
             resultsHTML += `
-            <div class="p-3 history_entry_set_wrapper my-2 mr-4">
+            <div class="history_entry_set_wrapper my-2 mr-2">
                 <div class="history_entry_setname_wrapper"><h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6></div>
                 <hr class="history_separator" />
             `;

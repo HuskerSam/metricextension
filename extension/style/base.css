@@ -268,14 +268,6 @@ body {
   border-bottom: solid 1px var(--border-color);
 }
 
-.prompt_id {
-  font-weight: bold;
-  width: 150px;
-  overflow: hidden;
-  align-self: center;
-  font-size: 0.85em;
-}
-
 
 .prompt_id_input {
   font-weight: bold;
@@ -332,6 +324,17 @@ body {
   padding-bottom: 4px;
   display: inline-block;
 }
+
+.prompt_id {
+  font-weight: bold;
+  width: 150px;
+  overflow: hidden;
+  align-self: center;
+  word-break: break-word;
+    padding: 4px;
+  font-size: 0.75em;
+}
+
 
 .error_result {
   background-color: #ffe0e0;
