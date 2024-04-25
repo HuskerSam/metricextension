@@ -74,7 +74,7 @@ export default class PromptHelper {
                     width: 30,
                 },
                 {
-                    title: "Type", field: "prompttype",
+                    title: "Type", field: "promptType",
                     headerSort: false,
                 },
                 //       { title: "Description", field: "description", headerSort: false, width: 100 },
@@ -141,6 +141,7 @@ export default class PromptHelper {
                 let promptTemplateList = JSON.parse(e.target.result);
                 let existingPrompts = await this.promptsTable.getData();
                 promptTemplateList = existingPrompts.concat(promptTemplateList);
+                promptTemplateList = this.extCommon.processPromptRows(promptTemplateList);
                 await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
                 this.hydrateAllPromptRows();
                 this.fileInput.value = ''; // Reset the file input value
@@ -186,7 +187,7 @@ export default class PromptHelper {
             const prompt = row.getData();
             this.prompt_id_input.value = prompt.id;
             this.prompt_description.value = prompt.description;
-            this.prompt_type.value = prompt.prompttype;
+            this.prompt_type.value = prompt.promptType;
             this.prompt_template_text.value = prompt.prompt;
             this.prompt_setname_input.value = prompt.setName;
             this.wizard_input_prompt.value = prompt.promptSuggestion;
@@ -197,9 +198,6 @@ export default class PromptHelper {
         this.promptsTable.on("rowMoved", async (cell: any) => {
             this.savePromptTableData();
         });
-
-
-
     }
 
     async getSummaryPromptForDescription(description: string): Promise<string> {
@@ -310,6 +308,7 @@ export default class PromptHelper {
     }
     async hydrateAllPromptRows() {
         let allPrompts = await this.extCommon.getAnalysisPrompts();
+        allPrompts = this.extCommon.processPromptRows(allPrompts);
         this.promptsTable.setData(allPrompts);
     }
     async savePromptEditPopup() {
@@ -323,7 +322,7 @@ export default class PromptHelper {
             alert('Please fill out all fields to add a prompt to the library.');
             return;
         }
-        let prompt = { id: promptId, description: promptDescription, prompttype: promptType, prompt: promptTemplate, setName, promptSuggestion };
+        let prompt = { id: promptId, description: promptDescription, promptType, prompt: promptTemplate, setName, promptSuggestion };
         let promptTemplateList = await this.promptsTable.getData();
         let existingIndex = Number(this.prompt_row_index.value) - 1;
         if (existingIndex >= 0) {
@@ -332,6 +331,7 @@ export default class PromptHelper {
             promptTemplateList.push(prompt);
         }
 
+        promptTemplateList = this.extCommon.processPromptRows(promptTemplateList);
         await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
         this.hydrateAllPromptRows();
     }
