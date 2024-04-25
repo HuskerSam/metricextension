@@ -225,6 +225,7 @@ export class AnalyzerExtensionCommon {
   }
   async getAnalysisPrompts() {
     let prompts = await this.getDefaultAnalysisPrompts();
+    prompts = this.processPromptRows(prompts);
     let rawData = await this.chrome.storage.local.get('masterAnalysisList');
     if (rawData && rawData.masterAnalysisList && Object.keys(rawData.masterAnalysisList).length > 0) {
       prompts = rawData.masterAnalysisList;
@@ -524,5 +525,11 @@ export class AnalyzerExtensionCommon {
     } else {
       return await this.getTextContentSource();
     }
+  }
+  processPromptRows(rows: any[]): any[] {
+    rows.forEach((row: any) => {
+      if (!row.promptType) row.promptType = 'metric';
+    });
+    return rows;
   }
 }
