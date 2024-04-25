@@ -513,6 +513,7 @@ export class AnalyzerExtensionCommon {
         let content = "";
         if (result.success) {
           content = result.result.text;
+          content = content.slice(0, 20000);
         } else {
           content
         }

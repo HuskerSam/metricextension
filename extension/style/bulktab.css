@@ -27,12 +27,18 @@
     display: block;
 }
 
-.bulk_analysis_progress {
-  display: inline-block;
+.extension_running .bulk_display_results_running {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.bulk_analysis_running .bulk_analysis_progress {
-  display: none;
+.extension_running .no_bulk_result_history_entry {
+    display: none;
+}
+
+.extension_running .bulk_result_display_container {
+    display: none;
 }
 
 .bulk_url_list_tabulator {

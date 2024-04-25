@@ -72,7 +72,7 @@ export default class SidePanelApp {
       let isAlreadyRunning = await this.extCommon.setRunning(true);
       console.log("isAlreadyRunning", isAlreadyRunning);
       if (isAlreadyRunning) {
-          if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === true)
+          if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
             return;
       }
       let label = await this.extCommon.getStorageField("analysisRunLabel");

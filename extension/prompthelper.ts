@@ -14,7 +14,7 @@ export default class PromptHelper {
     create_prompt_tab = document.getElementById('create-prompt-tab') as HTMLButtonElement;
     prompt_id_input = document.querySelector('.prompt_id_input') as HTMLInputElement;
     prompt_description = document.querySelector('.prompt_description') as HTMLInputElement;
-    prompt_type = document.querySelector('.prompt_type') as HTMLInputElement;
+    template_type = document.querySelector('.template_type') as HTMLInputElement;
     prompt_template_text = document.querySelector('.prompt_template_text') as HTMLInputElement;
     user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
     save_to_library_button = document.querySelector('.save_to_library_button') as HTMLButtonElement;
@@ -89,11 +89,11 @@ export default class PromptHelper {
             let newPrompt = '';
             const templateTab = this.promptTabs.querySelector('#prompt-template-tab') as any;
             templateTab.click();
-            if (this.prompt_type.value === 'metric') {
+            if (this.template_type.value === 'metric') {
                 newPrompt = await this.getMetricPromptForDescription(text);
-            } else if (this.prompt_type.value === 'keywords') {
+            } else if (this.template_type.value === 'keywords') {
                 newPrompt = await this.getKeywordPromptForDescription(text);
-            } else if (this.prompt_type.value === 'shortsummary') {
+            } else if (this.template_type.value === 'shortsummary') {
                 newPrompt = await this.getSummaryPromptForDescription(text);
             };
             this.prompt_template_text.value = newPrompt;
@@ -187,7 +187,7 @@ export default class PromptHelper {
             const prompt = row.getData();
             this.prompt_id_input.value = prompt.id;
             this.prompt_description.value = prompt.description;
-            this.prompt_type.value = prompt.promptType;
+            this.template_type.value = prompt.templateType;
             this.prompt_template_text.value = prompt.prompt;
             this.prompt_setname_input.value = prompt.setName;
             this.wizard_input_prompt.value = prompt.promptSuggestion;
@@ -315,14 +315,17 @@ export default class PromptHelper {
         let promptId = this.prompt_id_input.value.trim();
         let promptDescription = this.prompt_description.value.trim();
         let promptSuggestion = this.wizard_input_prompt.value.trim();
-        let promptType = this.prompt_type.value;
+        let templateType = this.template_type.value;
         let promptTemplate = this.prompt_template_text.value.trim();
         let setName = this.prompt_setname_input.value.trim();
-        if (!promptId || !promptType || !promptTemplate || !setName) {
+        if (!promptId || !templateType || !promptTemplate || !setName) {
             alert('Please fill out all fields to add a prompt to the library.');
             return;
         }
-        let prompt = { id: promptId, description: promptDescription, promptType, prompt: promptTemplate, setName, promptSuggestion };
+        let promptType = "text";
+        if (templateType === 'metric') promptType = "metric";
+        if (templateType === 'json') promptType = "json";
+        let prompt = { id: promptId, description: promptDescription, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
         let promptTemplateList = await this.promptsTable.getData();
         let existingIndex = Number(this.prompt_row_index.value) - 1;
         if (existingIndex >= 0) {
