@@ -1,6 +1,5 @@
-<div class="overflow-auto flex flex-col sm:px-6 lg:px-8">
-
-  <div class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
+<div class="overflow-auto flex flex-col sm:px-6 lg:px-8 p-2 md:p-5 mx-auto h-full">
+  <div class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3 p-2 md:p-5">
     <div>
       <h2 class="font-semibold leading-7 text-gray-900">Account Access</h2>
       <p class="form-input-label-ts">Usage is tracked by Unacog sessions.</p> <br>
@@ -8,55 +7,78 @@
       <a class="session_anchor text-blue-600" href="" target="_blank"></a>
     </div>
     <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
-      <div class="sm:col-span-4">
+      <div class="sm:col-span-full">
         <label for="api_key" class="form-input-label-ts">API Key:</label>
         <div class="mt-2">
           <div
-            class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-            <div>
-              <input type="text" class="form-input-ts api_token_input" required value="" name="api_key">
-            </div>
+            class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+            <input type="text" class="form-input-ts api_token_input" required value="" name="api_key">
           </div>
         </div>
       </div>
-      <div class="sm:col-span-4">
+      <div class="sm:col-span-full">
         <label class="form-input-label-ts">Session:</label>
         <div class="mt-2">
           <div
-            class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-            <div>
-              <input type="text" class="form-input-ts session_id_input" required>
-            </div>
+            class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600">
+            <input type="text" class="form-input-ts session_id_input" required>
           </div>
         </div>
-      </div>
-      <div class="mt-4">
-        <button class="btn-ts-secondary reset_chrome_storage">Clear Storage</button>
       </div>
     </div>
     <div>
       <h2 class="font-semibold leading-7 text-gray-900">Reset Account</h2>
-      <p class="form-input-label-ts">Completely clear chrome storage of all account information. This will delete your account keys. </p> <br>
-      <label class="session_anchor_label form-input-label-ts text-slate-400"></label>
-      <a class="session_anchor text-blue-600" href="" target="_blank"></a>
+      <p class="form-input-label-ts">Completely clear chrome storage of all account information. Delete your account
+        keys, custom prompts and all run data. </p>
     </div>
-
-  </div>
-
-
-  <div class="flex flex-column gap-2">
-    <button class="btn-ts-secondary clear_history">Clear History</button>
-    <button class="btn-ts-secondary clear_bulk_history">Clear Bulk History</button>
-    <button class="btn-ts-secondary export_history">Export</button>
-    <select class="history_range_amount_select form-select-ts">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="5">5</option>
-      <option value="10">10</option>
-      <option value="20">20</option>
-      <option value="100">100</option>
-      <option value="500">500</option>
-    </select>
+    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
+      <div class="sm:col-span-full flex items-center justify-center">
+        <button class="btn-ts-warning reset_chrome_storage">Clear Storage</button>
+      </div>
+    </div>
+    <div>
+      <h2 class="font-semibold leading-7 text-gray-900">Clear History</h2>
+      <p class="form-input-label-ts">Clear history for all single entry analysis runs.</p>
+    </div>
+    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
+      <div class="sm:col-span-full flex items-center justify-center">
+        <button class="btn-ts-secondary clear_history w-32">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+          </svg> &nbsp;&nbsp;History
+          </button>
+      </div>
+    </div>
+    <div>
+      <h2 class="font-semibold leading-7 text-gray-900">Clear Bulk History</h2>
+      <p class="form-input-label-ts">Clear history for bulk analysis runs.</p>
+    </div>
+    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
+      <div class="sm:col-span-full flex items-center justify-center">
+        <button class="btn-ts-secondary clear_bulk_history w-32">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+          </svg> &nbsp;&nbsp;Bulk
+        </button>
+      </div>
+    </div>
+    <div>
+      <h2 class="font-semibold leading-7 text-gray-900">History Storage Capacity</h2>
+      <p class="form-input-label-ts">Allow Chrome to store this amount of history entries (single runs).</p>
+    </div>
+    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
+      <div class="sm:col-span-full flex items-center justify-center">
+        <select class="history_range_amount_select form-select-ts sm:w-1/2">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="100">100</option>
+          <option value="500">500</option>
+        </select>
+      </div>
+    </div>
   </div>
 </div>

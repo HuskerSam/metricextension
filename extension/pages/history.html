@@ -31,14 +31,15 @@
   <div class="history_text mt-2 p-2 flex-1 overflow-auto form-textarea-ts rounded"></div>
 </div>
 <div class="main_history_lower_panel flex flex-col sm:px-6 lg:px-8 overflow-hidden relative">
+  <div class="hidden flex-col justify-center flex-1 history_display_results_running">
+    <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32 self-center" loop
+      autoplay></lottie-player>
+  </div>
   <div class="overflow-hidden flex flex-col flex-1 history_display">
   </div>
   <div class="py-2 flex justify-between">
     <span class="text-xs text-slate-500 entry_total_credit_usage"></span>
     <div class="inline-flex justify-end items-center pt-1 pr-4 history_pagination"></div>
-  </div>
-  <div class="hidden flex-col justify-center flex-1 history_display_results_running">
-    <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32 self-center" loop
-      autoplay></lottie-player>
+    <button class="btn-ts-primary export_history mr-4">Export</button> 
   </div>
 </div>
