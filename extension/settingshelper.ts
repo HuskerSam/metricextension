@@ -35,6 +35,7 @@ export default class SettingsHelper {
                 await chrome.storage.local.set({ history: [] });
             }
         });
+        this.paintData();
     }
     async renderSettingsTab() {
         let sessionConfig = await chrome.storage.local.get('sessionId');

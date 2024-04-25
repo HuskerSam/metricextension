@@ -230,10 +230,6 @@ body {
   bottom: 4px;
 }
 
-.api_config {
-  margin-top: var(--spacing-large);
-}
-
 .api-key-warning {
   color: var(--danger-color);
   text-decoration: underline;

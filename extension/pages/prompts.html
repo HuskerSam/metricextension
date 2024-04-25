@@ -33,14 +33,16 @@
       <div class="px-2">
         <div class="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label for="prompt_setname_input" class="form-input-label-ts">Set Name:</label>
+            <label class="form-input-label-ts">Set Name:
             <input type="text" class="form-input-ts prompt_setname_input" list="input_datalist_prompt_list"
-              name="prompt_setname_input" required value="">
+               required value="">
+            </label>
             <datalist id="input_datalist_prompt_list"></datalist>
           </div>
           <div>
-            <label for="prompt_id_input" class="form-input-label-ts">Name/Id:</label>
-            <input type="text" class="form-input-ts prompt_id_input" name="prompt_id_input" required>
+            <label class="form-input-label-ts">Name/Id:
+              <input type="text" class="form-input-ts prompt_id_input" required>
+            </label>
             <input type="hidden" class="prompt_row_index">
           </div>
         </div>

@@ -1,49 +1,62 @@
-<ul class="nav" id="configTabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <a class="nav-link active" id="access-tab" data-bs-toggle="tab" data-bs-target="#access" role="tab"
-      aria-controls="access" aria-selected="true">Access</a>
-  </li>
-  <li class="nav-item" role="presentation">
-    <a class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" role="tab"
-      aria-controls="history" aria-selected="false">History</a>
-  </li>
-</ul>
+<div class="overflow-auto flex flex-col sm:px-6 lg:px-8">
 
-<div class="tab-content">
-  <div class="tab-pane fade show active" id="access" role="tabpanel" aria-labelledby="access-tab">
-    <div class="mt-4 api_config">
-      <div class="flex items-center mb-2 form_row">
-        <label for="api_token_input" class="w-20 font-bold text-xs mr-1">API Key:
-          <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded api_token_input">
-        </label>
-      </div>
-      <div class="flex items-center mb-2 form_row">
-        <label for="session_id_input" class="w-20 font-bold text-xs mr-1">Session:
-          <input type="text" class="flex-1 p-2 text-base border border-gray-300 rounded session_id_input">
-        </label>
-      </div>
-      <div class="flex items-center mb-2 form_row">
-        <label class="session_anchor_label"></label>
-        <a class="session_anchor" href="" target="_blank"></a>
-      </div>
-      <button class="btn reset_chrome_storage">Clear Storage</button>
+  <div class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
+    <div>
+      <h2 class="font-semibold leading-7 text-gray-900">Account Access</h2>
+      <p class="form-input-label-ts">Usage is tracked by Unacog sessions.</p> <br>
+      <label class="session_anchor_label form-input-label-ts text-slate-400"></label>
+      <a class="session_anchor text-blue-600" href="" target="_blank"></a>
     </div>
+    <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
+      <div class="sm:col-span-4">
+        <label for="api_key" class="form-input-label-ts">API Key:</label>
+        <div class="mt-2">
+          <div
+            class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+            <div>
+              <input type="text" class="form-input-ts api_token_input" required value="" name="api_key">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sm:col-span-4">
+        <label class="form-input-label-ts">Session:</label>
+        <div class="mt-2">
+          <div
+            class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
+            <div>
+              <input type="text" class="form-input-ts session_id_input" required>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button class="btn-ts-secondary reset_chrome_storage">Clear Storage</button>
+      </div>
+    </div>
+    <div>
+      <h2 class="font-semibold leading-7 text-gray-900">Reset Account</h2>
+      <p class="form-input-label-ts">Completely clear chrome storage of all account information. This will delete your account keys. </p> <br>
+      <label class="session_anchor_label form-input-label-ts text-slate-400"></label>
+      <a class="session_anchor text-blue-600" href="" target="_blank"></a>
+    </div>
+
   </div>
-  <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-    <div class="flex flex-column gap-2">
-      <button class="btn clear_history">Clear History</button>
-      <button class="btn clear_bulk_history">Clear Bulk History</button>
-      <button class="btn export_history">Export</button>
-      <select class="history_range_amount_select">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="100">100</option>
-        <option value="500">500</option>
-      </select>
-    </div>
+
+
+  <div class="flex flex-column gap-2">
+    <button class="btn-ts-secondary clear_history">Clear History</button>
+    <button class="btn-ts-secondary clear_bulk_history">Clear Bulk History</button>
+    <button class="btn-ts-secondary export_history">Export</button>
+    <select class="history_range_amount_select form-select-ts">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="100">100</option>
+      <option value="500">500</option>
+    </select>
   </div>
 </div>
