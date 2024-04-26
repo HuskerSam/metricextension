@@ -7,12 +7,11 @@
       </div>
       <div
         class="inline-flex flex-1 flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:flex-row md:space-x-3">
-        <button type="button" class="btn-ts-secondary manage_history_configuration" data-bs-toggle="modal"
-          data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
+        <button class="btn-ts-primary export_history mr-4">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg> &nbsp;&nbsp;Options 
-        </button>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg> &nbsp;&nbsp;Export
+        </button> 
       </div>
     </div>
   </div>
@@ -28,18 +27,13 @@
       <span class="text-xs text-gray-600 pl-4 history_date"></span>
     </button>
   </div>
-  <div class="history_text mt-2 p-2 flex-1 overflow-auto form-textarea-ts rounded"></div>
+  <div class="history_text mt-2 p-2 flex-1 form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap"></div>
 </div>
 <div class="main_history_lower_panel flex flex-col sm:px-6 lg:px-8 overflow-hidden relative">
-  <div class="hidden flex-col justify-center flex-1 history_display_results_running">
-    <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32 self-center" loop
-      autoplay></lottie-player>
-  </div>
-  <div class="overflow-hidden flex flex-col flex-1 history_display">
+  <div class="overflow-hidden flex flex-row flex-1 history_display">
   </div>
   <div class="py-2 flex justify-between">
     <span class="text-xs text-slate-500 entry_total_credit_usage"></span>
     <div class="inline-flex justify-end items-center pt-1 pr-4 history_pagination"></div>
-    <button class="btn-ts-primary export_history mr-4">Export</button> 
   </div>
 </div>

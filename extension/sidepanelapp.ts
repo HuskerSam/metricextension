@@ -1,4 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import Papa from 'papaparse';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
 import {
@@ -23,6 +24,7 @@ export default class SidePanelApp {
   ["tabs-input-textarea-tab"] = document.querySelector('#tabs-input-textarea-tab') as HTMLDivElement;
   url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
+  sidepanel_last_credits_used = document.querySelector('.sidepanel_last_credits_used') as HTMLElement;
   lastSlimSelections = "";
   viewSplitter: Split.Instance;
   analysis_display: any;
@@ -72,9 +74,10 @@ export default class SidePanelApp {
       let isAlreadyRunning = await this.extCommon.setRunning(true);
       console.log("isAlreadyRunning", isAlreadyRunning);
       if (isAlreadyRunning) {
-          if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
-            return;
+        if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
+          return;
       }
+      this.sidepanel_last_credits_used.innerHTML = "";
       let label = await this.extCommon.getStorageField("analysisRunLabel");
       let text = await this.extCommon.getSourceText(true); // force a scrape here
       let type = await this.extCommon.getSourceType();
@@ -203,15 +206,38 @@ export default class SidePanelApp {
     let history = await chrome.storage.local.get('history');
     history = history.history || [];
     let entry = history[0];
-    let html = '';
-    if (entry && entry.results) {
-      entry.results.forEach((result: any) => {
-        html += this.extCommon.getHTMLforPromptResult(result);
-      });
-    }
 
-    if (this.analysis_display) {
-      this.analysis_display.innerHTML = html;
-    }
+    let processedEntry = this.extCommon.renderHTMLForHistoryEntry(entry, -1);
+    let html = processedEntry.html;
+    this.sidepanel_last_credits_used.innerHTML = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
+    this.analysis_display.innerHTML = html;
+    this.analysis_display.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
+      btn.addEventListener('click', async () => {
+        let compactData = this.extCommon.processRawResultstoCompact(entry.results);
+        let csvData = Papa.unparse(compactData);
+        let blob = new Blob([csvData], { type: "text/csv" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = url;
+        a.download = 'analysis_results.json';
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    });
+    this.analysis_display.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
+      btn.addEventListener('click', async () => {
+        let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = url;
+        a.download = 'results.json';
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    });
   }
 }

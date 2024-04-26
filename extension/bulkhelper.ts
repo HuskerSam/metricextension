@@ -411,52 +411,7 @@ export default class BulkHelper {
         let analysisResults = await Promise.all(analysisPromises);
         const fullCloudUploadResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId + ".json", analysisResults);
 
-        let compactData: any[] = [];
-        analysisResults.forEach((urlResult: any) => {
-            let compactResult: any = {};
-            compactResult.url = urlResult.url;
-            compactResult.title = urlResult.title;
-
-            const results = urlResult.results;
-            if (results) {
-                results.forEach((metricResult: any) => {
-                    const fieldName = metricResult.prompt.id + "_" + metricResult.prompt.setName;
-                    if (metricResult.prompt.promptType === "metric") {
-                        let metric = 0;
-                        try {
-                            let json = JSON.parse(metricResult.result.resultMessage);
-                            metric = json.contentRating;
-                        } catch (e) {
-                            metric = -1;
-                        }
-                        compactResult[fieldName] = metric;
-                    } else {
-                        compactResult[fieldName] = metricResult.result.resultMessage;
-                    }
-                });
-            } else {
-                compactResult["No Results"] = "No Results";
-            }
-
-            compactData.push(compactResult);
-        });
-
-        if (compactData.length > 0) {
-            const firstRow = compactData[0];
-            const allFields: any = {};
-            compactData.forEach((row: any) => {
-                Object.keys(row).forEach((field) => {
-                    allFields[field] = true;
-                });
-            });
-            const fieldNames = Object.keys(allFields);
-            fieldNames.forEach((fieldName) => {
-                if (!firstRow[fieldName]) {
-                    firstRow[fieldName] = "";
-                }
-            });
-        }
-
+        const compactData = this.extCommon.processRawResultstoCompact(analysisResults);
         const csv = Papa.unparse(compactData);
         const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId, csv, "text/csv", "csv");
         document.body.classList.remove("extension_running");

@@ -1,14 +1,16 @@
 import Split from "split.js";
+import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
+
+
 declare const chrome: any;
 export default class HistoryHelper {
     extCommon = new AnalyzerExtensionCommon(chrome);
     main_history_upper_panel = document.querySelector('.main_history_upper_panel') as HTMLDivElement;
     main_history_lower_panel = document.querySelector('.main_history_lower_panel') as HTMLDivElement;
-    manage_history_configuration = document.querySelector('.manage_history_configuration') as HTMLButtonElement;
     export_history = document.querySelector('.export_history') as HTMLButtonElement;
     history_text = document.querySelector('.history_text') as HTMLDivElement;
-    url_display = document.querySelector('.url_display') as HTMLAnchorElement;    
+    url_display = document.querySelector('.url_display') as HTMLAnchorElement;
     entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
     history_copy_url_btn = document.querySelector('.history_copy_url_btn') as HTMLButtonElement;
@@ -47,9 +49,6 @@ export default class HistoryHelper {
             const url = this.url_display.href;
             navigator.clipboard.writeText(url);
         });
-        this.manage_history_configuration.addEventListener('click', async () => {
-            document.getElementById('history-tab')?.click();
-        });
     }
     async renderHistoryDisplay() {
         let historyRangeLimit = await chrome.storage.local.get('historyRangeLimit');
@@ -69,14 +68,63 @@ export default class HistoryHelper {
         </div>
         `;
         if (entry) {
-            let renderResult = this.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
+            let renderResult = this.extCommon.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
+            const historyText = entry.text;
+            this.history_text.innerHTML = historyText;    
             entryHTML = renderResult.html;
             usageCreditTotal += renderResult.usageCreditTotal;
+            const url = entry.url;
+            this.url_display.innerHTML = url;
+            this.url_display.href = url;
             this.entry_total_credit_usage.innerHTML = `Credits: ${Math.round(usageCreditTotal)}`;
             this.history_date.innerHTML = this.extCommon.showGmailStyleDate(entry.runDate);
+        } else {
+            this.history_text.innerHTML = '';
+            this.entry_total_credit_usage.innerHTML = '';
+            this.history_date.innerHTML = '';
+            this.url_display.innerHTML = '';
+            this.url_display.href = '';
+        }
+        if (this.baseHistoryIndex < history.length - 1) {
+            let renderResult = this.extCommon.renderHTMLForHistoryEntry(history[this.baseHistoryIndex + 1], this.baseHistoryIndex + 1);
+            entryHTML += renderResult.html;
         }
 
         this.historyDisplay.innerHTML = entryHTML;
+        this.historyDisplay.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
+            btn.addEventListener('click', async (e: any) => {
+                e.preventDefault();
+                const historyIndex = Number(btn.dataset.historyindex);
+                const entry = history[historyIndex];
+                let compactData = this.extCommon.processRawResultstoCompact(entry.results);
+                let csvData = Papa.unparse(compactData);
+                let blob = new Blob([csvData], { type: "text/csv" });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                document.body.appendChild(a);
+                a.href = url;
+                a.download = 'results.csv';
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            });
+        });
+        this.historyDisplay.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
+            btn.addEventListener('click', async (e: any) => {
+                e.preventDefault();
+                const historyIndex = Number(btn.dataset.historyindex);
+                const entry = history[historyIndex];
+                let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                document.body.appendChild(a);
+                a.href = url;
+                a.download = 'results.json';
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            });
+        });
 
         let paginationHtml = this.extCommon
             .generatePagination(history.length, this.baseHistoryIndex, this.itemsPerView, this.currentPageIndex);
@@ -94,55 +142,5 @@ export default class HistoryHelper {
                 this.renderHistoryDisplay();
             });
         });
-    }
-    renderHTMLForHistoryEntry(entry: any, historyIndex: number): {
-        html: string;
-        usageCreditTotal: number;
-    } {
-        let usageCreditTotal = 0;
-        let resultHistory = entry.result;
-        if (!resultHistory) resultHistory = entry.results[0];
-        const historyText = entry.text;
-        this.history_text.innerHTML = historyText;
-        const url = entry.url;
-        this.url_display.innerHTML = url;
-        this.url_display.href = url;
-        let headerHtml = ``;
-        let resultsHTML = `<div class="history_results flex flex-wrap">`;
-        let allResults = entry.results;
-        let setBasedResults: any = {};
-        allResults.forEach((result: any) => {
-            if (!setBasedResults[result.prompt.setName]) {
-                setBasedResults[result.prompt.setName] = [];
-            }
-            setBasedResults[result.prompt.setName].push(result);
-        });
-        const setNamesArray = Object.keys(setBasedResults);
-        setNamesArray.forEach((setName: any) => {
-            resultsHTML += `
-            <div class="history_entry_set_wrapper my-2 mr-2">
-                <div class="history_entry_setname_wrapper"><h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6></div>
-                <hr class="history_separator" />
-            `;
-            let promptSetResults = setBasedResults[setName];
-            promptSetResults.forEach((result: any) => {
-                try {
-                    usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
-                } catch (err: any) {
-                    console.log("Usage total credit summming error", err);
-                }
-            });
-
-            for (let result of promptSetResults) {
-                resultsHTML += this.extCommon.getHTMLforPromptResult(result);
-            }
-            resultsHTML += `</div>`;
-        });
-        resultsHTML += `</div>`;
-        let html = `${resultsHTML}${headerHtml}`;
-        return {
-            html,
-            usageCreditTotal,
-        };
     }
 }

@@ -198,6 +198,54 @@ export class AnalyzerExtensionCommon {
       }`;
     }
   }
+  processRawResultstoCompact(analysisResults: any[]) {
+    let compactData: any[] = [];
+    analysisResults.forEach((urlResult: any) => {
+      let compactResult: any = {};
+      compactResult.url = urlResult.url;
+      compactResult.title = urlResult.title;
+
+      const results = urlResult.results;
+      if (results) {
+        results.forEach((metricResult: any) => {
+          const fieldName = metricResult.prompt.id + "_" + metricResult.prompt.setName;
+          if (metricResult.prompt.promptType === "metric") {
+            let metric = 0;
+            try {
+              let json = JSON.parse(metricResult.result.resultMessage);
+              metric = json.contentRating;
+            } catch (e) {
+              metric = -1;
+            }
+            compactResult[fieldName] = metric;
+          } else {
+            compactResult[fieldName] = metricResult.result.resultMessage;
+          }
+        });
+      } else {
+        compactResult["No Results"] = "No Results";
+      }
+
+      compactData.push(compactResult);
+    });
+
+    if (compactData.length > 0) {
+      const firstRow = compactData[0];
+      const allFields: any = {};
+      compactData.forEach((row: any) => {
+        Object.keys(row).forEach((field) => {
+          allFields[field] = true;
+        });
+      });
+      const fieldNames = Object.keys(allFields);
+      fieldNames.forEach((fieldName) => {
+        if (!firstRow[fieldName]) {
+          firstRow[fieldName] = "";
+        }
+      });
+    }
+    return compactData;
+  }
   async getDefaultAnalysisPrompts() {
     const promptListFile = await fetch("/defaults/promptDefaultsList.json");
     const defaultPromptList = await promptListFile.json();
@@ -246,7 +294,7 @@ export class AnalyzerExtensionCommon {
   }
   async setRunning(prompt = false) {
     let running = await this.chrome.storage.local.get('running');
-   if (running && running.running) {
+    if (running && running.running) {
       return true;
     }
 
@@ -254,7 +302,7 @@ export class AnalyzerExtensionCommon {
       running: true,
     });
     return false;
-  } 
+  }
   async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
     if (text.length > 30000) text = text.slice(0, 30000);
     const runDate = new Date().toISOString();
@@ -310,6 +358,81 @@ export class AnalyzerExtensionCommon {
     }
 
     return historyEntry;
+  }
+  renderHTMLForHistoryEntry(entry: any, historyIndex: number): {
+    html: string;
+    usageCreditTotal: number;
+  } {
+    let usageCreditTotal = 0;
+    let resultHistory = entry.result;
+    if (!resultHistory) resultHistory = entry.results[0];
+    let noError = true;
+    let errorMessage = "";
+    if (entry.results.length > 0) {
+      entry.results.forEach((result: any) => {
+        if (result.result.error) {
+          noError = false;
+          errorMessage = result?.result?.promptResult?.assist?.error;
+        }
+      });
+      if (!noError) {
+        return {
+          html: `<div class="history_error_message flex-1 text-center">${errorMessage}</div>`,
+          usageCreditTotal,
+        };
+      }
+    }
+    let headerHtml = ``;
+    let resultsHTML = `<div class="history_results flex flex-wrap flex-1">`;
+    let allResults = entry.results;
+    let setBasedResults: any = {};
+    let historyIndexDisplay = historyIndex + 1;
+    allResults.forEach((result: any) => {
+      if (!setBasedResults[result.prompt.setName]) {
+        setBasedResults[result.prompt.setName] = [];
+      }
+      setBasedResults[result.prompt.setName].push(result);
+    });
+    const setNamesArray = Object.keys(setBasedResults);
+    setNamesArray.forEach((setName: any) => {
+      resultsHTML += `
+            <div class="history_entry_set_wrapper m-2">
+                <div class="history_entry_setname_wrapper">
+                  <div class="history_index_entry_display float-end">${historyIndexDisplay}</div>
+                  <button class="download_compact_results_btn btn_icon float-end text-xs inline-flex m-1" data-historyindex="${historyIndex}">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
+                      </svg>                
+                    CSV</button>
+                  <button class="download_full_results_btn btn_icon float-end text-xs inline-flex m-1" data-historyindex="${historyIndex}">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
+                      </svg>    
+                    Full</button>
+                  <h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6>
+                </div>
+                <hr class="history_separator" />
+            `;
+      let promptSetResults = setBasedResults[setName];
+      promptSetResults.forEach((result: any) => {
+        try {
+          usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+        } catch (err: any) {
+          console.log("Usage total credit summming error", err);
+        }
+      });
+
+      for (let result of promptSetResults) {
+        resultsHTML += this.getHTMLforPromptResult(result);
+      }
+      resultsHTML += `</div>`;
+    });
+    resultsHTML += `</div>`;
+    let html = `${resultsHTML}${headerHtml}`;
+    return {
+      html,
+      usageCreditTotal,
+    };
   }
   getHTMLforPromptResult(result: any) {
     const usageText = ``;
@@ -505,7 +628,7 @@ export class AnalyzerExtensionCommon {
   }
   async getSourceText(clearCache = false) {
     let sourceType = await this.getSourceType();
-    
+
     if (sourceType === 'scrape') {
       if (clearCache) {
         const url = await this.getURLContentSource();
