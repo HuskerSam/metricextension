@@ -1,7 +1,7 @@
 module.exports = {
     entry: {
-        'index': './index.ts',
-        'service-worker': './service-worker.ts',
+        'index': './src/index.ts',
+        'service-worker': './src/service-worker.ts',
     },
     output: {
         path: __dirname + '/models',
