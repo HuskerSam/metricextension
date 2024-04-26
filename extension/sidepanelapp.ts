@@ -98,6 +98,7 @@ export default class SidePanelApp {
     this["tabs-input-textarea-tab"].addEventListener('click',
       async () => chrome.storage.local.set({ sidePanelSource: 'text' }));
 
+    this["tabs-input-textarea-tab"].click();
     this.analysis_display = document.querySelector(".analysis_display");
     chrome.storage.local.onChanged.addListener(() => {
       this.paint();
