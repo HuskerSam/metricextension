@@ -7,9 +7,18 @@ export class AnalyzerExtensionCommon {
   chrome: any;
   query_source_tokens_length: any;
   previousSlimOptions = '';
+  activeTabsBeingScraped: any = [];
 
   constructor(chrome: any) {
     this.chrome = chrome;
+    // for detecting in browser scraping completion
+    chrome.tabs.onUpdated.addListener(
+      (tabId: number, changeInfo: any, tab: any) => {
+        if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
+          this.activeTabsBeingScraped[tabId]();
+        }
+      }
+    );
   }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -331,7 +340,7 @@ export class AnalyzerExtensionCommon {
       };
     };
 
-    let promises = [];
+    let promises: any[] = [];
     for (let prompt of prompts) {
       promises.push(runPrompt(prompt, text));
     }
@@ -627,12 +636,25 @@ export class AnalyzerExtensionCommon {
   }
   async getSourceText(clearCache = false) {
     let sourceType = await this.getSourceType();
+    let sidePanelScrapeType = await this.getStorageField("sidePanelScrapeType");
 
     if (sourceType === 'scrape') {
-      if (clearCache) {
+      if (clearCache && sidePanelScrapeType !== 'cache') {
         const url = await this.getURLContentSource();
-        const result = await this.scrapeURLUsingAPI(url, "");
-        let content = "";
+        let bulkUrl = {
+          url,
+          scrape: sidePanelScrapeType,
+          options: "",
+        }
+        if (sidePanelScrapeType === "browser scrape") {
+          this.enabledBrowserScrapePermissions();
+        }
+        const activeTab = await this.chrome.tabs.getCurrent();
+        const result: any = await this.scrapeBulkUrl(bulkUrl, activeTab?.id);
+        let text = "";
+        if (result && result.text) text = result.text;
+        if (result && result.length > 0 && result[0].result) text = result[0].result;
+        let content = text;
         if (result.success) {
           content = result.result.text;
           content = content.slice(0, 20000);
@@ -649,10 +671,96 @@ export class AnalyzerExtensionCommon {
       return await this.getTextContentSource();
     }
   }
+  async detectTabLoaded(tabId: number) {
+    return new Promise((resolve, reject) => {
+      this.activeTabsBeingScraped[tabId] = resolve;
+    });
+  }
   processPromptRows(rows: any[]): any[] {
     rows.forEach((row: any) => {
       if (!row.promptType) row.promptType = 'metric';
     });
     return rows;
   }
+  async scrapeTabPage(url: any, tabId: string) {
+    return new Promise(async (resolve, reject) => {
+
+      let tab = await this.chrome.tabs.create({
+        url
+      });
+
+      this.chrome.tabs.update(tabId, { active: true })
+
+      await this.detectTabLoaded(tab.id);
+      setTimeout(async () => {
+        try {
+          let scrapes = await this.chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => {
+              return document.body.innerText;
+            },
+          });
+          const updatedTab = await this.chrome.tabs.get(tab.id);
+          scrapes.title = updatedTab.title;
+          await this.chrome.tabs.remove(tab.id);
+          resolve(scrapes);
+        } catch (e) {
+          console.log("tab scrape error", e);
+          resolve("");
+        }
+      }, 3000);
+    });
+  }
+  async scrapeBulkUrl(bulkUrl: any, defaultTabId: string) {
+    let scrape = bulkUrl.scrape;
+    let url = bulkUrl.url || "";
+    let options = bulkUrl.options || "";
+    if (scrape === "server scrape") {
+      const result = await this.scrapeUrlServerSide(url, options);
+      if (result.success) {
+        return {
+          text: result.result.text,
+          title: result.result.title,
+        };
+      }
+      return {
+        text: "No text found in page",
+        title: "",
+      };
+    } else if (scrape === "browser scrape") {
+      let results = this.scrapeTabPage(url, defaultTabId);
+      console.log("active scrape results", results);
+      return results;
+    } else if (scrape === "override content") {
+      return {
+        text: bulkUrl.content,
+        url,
+        title: "",
+      };
+    } else {
+      return {
+        text: "No text found in page",
+        title: "",
+        url
+      };
+    }
+  }
+  async scrapeUrlServerSide(url: string, options: string) {
+    const result = await this.scrapeURLUsingAPI(url, options);
+    result.url = url;
+    return result;
+  }
+  async enabledBrowserScrapePermissions() {
+    // Permissions must be requested from inside a user gesture, like a button's
+    // click handler.
+    await this.chrome.permissions.request({
+        permissions: ["tabs"],
+        origins: ["https://*/*",
+            "http://*/*"]
+    }, (granted: any) => {
+        if (!granted) {
+            alert("Browser scraping permission denied. You can enable it from the extension settings page");
+        }
+    });
+}
 }

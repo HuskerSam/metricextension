@@ -28,17 +28,15 @@
         <li class="nav-item" role="presentation">
           <label
             class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
-            <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1"
-              aria-controls="tabs-input-url-panel" role="tab" type="radio">
+            <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1" aria-controls="tabs-input-url-panel"
+              role="tab" type="radio">
             &nbsp;Web Source
           </label>
         </li>
         <li class="nav-item" role="presentation">
           <label
             class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium active">
-            <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked
-              role="tab"
-              type="radio">
+            <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked role="tab" type="radio">
             &nbsp;Text Source
           </label>
         </li>
@@ -47,8 +45,8 @@
     <div class="flex-1 split_wrapper overflow-hidden">
       <div class="top_history_view_splitter flex flex-col overflow-hidden">
         <div class="tab-content flex-1 flex-col pb-0">
-          <div id="tabs-input-textarea-panel" class="flex flex-1 flex-col"
-            aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
+          <div id="tabs-input-textarea-panel" class="flex flex-1 flex-col" aria-labelledby="tabs-input-textarea-tab"
+            role="tabpanel" tabindex="0">
             <textarea
               class="user_text_content_field block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none"
               placeholder="Enter text for analysis..."></textarea>
@@ -64,11 +62,13 @@
               </label>
               <label
                 class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                <input type="radio" name="scrape_type" value="server scrape" class="server_scrape_type mb-1">&nbsp;Server
+                <input type="radio" name="scrape_type" value="server scrape"
+                  class="server_scrape_type mb-1">&nbsp;Server
               </label>
               <label
                 class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                <input type="radio" name="scrape_type" value="browser scrape" class="browser_scrape_type mb-1">&nbsp;Browser
+                <input type="radio" name="scrape_type" value="browser scrape"
+                  class="browser_scrape_type mb-1">&nbsp;Browser
               </label>
             </div>
             <textarea class="url_scrape_results block p-0 flex-1 border-none mx-0 resize-none" disabled
@@ -82,13 +82,11 @@
         </div>
       </div>
       <div class="bottom_history_view_splitter flex flex-col overflow-hidden">
-        <div class="">
-          <div class="flex-1 ml-2">
-            <select class="analysis_set_select w-full self-center h-10px mb-1" multiple>
-            </select>
-          </div>
+        <div class="flex flex-row">
+          <select class="analysis_set_select w-full self-center h-10px mb-1" multiple>
+          </select>
           <div class="p-1 text-right">
-            <button class="btn-ts-success run_analysis_btn">
+            <button class="btn-ts-success whitespace-nowrap run_analysis_btn self-center">
               Run Metrics
             </button>
           </div>

@@ -9,7 +9,6 @@ declare const chrome: any;
 
 export default class BulkHelper {
     extCommon = new AnalyzerExtensionCommon(chrome);
-    activeTabsBeingScraped: any = [];
     bulkUrlListTabulator: TabulatorFull;
     bulkResultsTabulator: TabulatorFull;
     bulkSelected: SlimSelect;
@@ -131,14 +130,6 @@ export default class BulkHelper {
                 gutterSize: 24,
             });
 
-        // for detecting in browser scraping completion
-        chrome.tabs.onUpdated.addListener(
-            (tabId: number, changeInfo: any, tab: any) => {
-                if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
-                    this.activeTabsBeingScraped[tabId]();
-                }
-            }
-        );
         this.bulkUrlListTabulator.on("cellClick", async (e: Event, cell: any) => {
             if (cell.getColumn().getField() === "delete") {
                 this.lastTableEdit = new Date();
@@ -286,79 +277,6 @@ export default class BulkHelper {
         this.bulkUrlListTabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
     }
-    async detectTabLoaded(tabId: number) {
-        return new Promise((resolve, reject) => {
-            this.activeTabsBeingScraped[tabId] = resolve;
-        });
-    }
-    async scrapeTabPage(url: any, tabId: string) {
-        return new Promise(async (resolve, reject) => {
-
-            let tab = await chrome.tabs.create({
-                url
-            });
-
-            chrome.tabs.update(tabId, { active: true })
-
-            await this.detectTabLoaded(tab.id);
-            setTimeout(async () => {
-                try {
-                    let scrapes = await chrome.scripting.executeScript({
-                        target: { tabId: tab.id },
-                        func: () => {
-                            return document.body.innerText;
-                        },
-                    });
-                    const updatedTab = await chrome.tabs.get(tab.id);
-                    scrapes.title = updatedTab.title;
-                    await chrome.tabs.remove(tab.id);
-                    resolve(scrapes);
-                } catch (e) {
-                    console.log("tab scrape error", e);
-                    resolve("");
-                }
-            }, 3000);
-        });
-    }
-    async scrapeBulkUrl(bulkUrl: any, defaultTabId: string) {
-        let scrape = bulkUrl.scrape;
-        let url = bulkUrl.url || "";
-        let options = bulkUrl.options || "";
-        if (scrape === "server scrape") {
-            const result = await this.scrapeUrlServerSide(url, options);
-            if (result.success) {
-                return {
-                    text: result.result.text,
-                    title: result.result.title,
-                };
-            }
-            return {
-                text: "No text found in page",
-                title: "",
-            };
-        } else if (scrape === "browser scrape") {
-            let results = this.scrapeTabPage(url, defaultTabId);
-            console.log("active scrape results", results);
-            return results;
-        } else if (scrape === "override content") {
-            return {
-                text: bulkUrl.content,
-                url,
-                title: "",
-            };
-        } else {
-            return {
-                text: "No text found in page",
-                title: "",
-                url
-            };
-        }
-    }
-    async scrapeUrlServerSide(url: string, options: string) {
-        const result = await this.extCommon.scrapeURLUsingAPI(url, options);
-        result.url = url;
-        return result;
-    }
     async runBulkAnalysis(rows: any[]) {
         let browserScrape = false;
         rows.forEach((row: any) => {
@@ -370,7 +288,7 @@ export default class BulkHelper {
             if (confirm("Browser scraping is enabled. This will open tabs in your browser to scrape the pages. Do you want to continue?") === false) {
                 return;
             }
-            await this.enabledBrowserScrapePermissions();
+            await this.extCommon.enabledBrowserScrapePermissions();
         }
 
         document.body.classList.add("extension_running");
@@ -383,7 +301,7 @@ export default class BulkHelper {
         const activeTab = await chrome.tabs.getCurrent();
         rows.forEach((row: any) => {
             urls.push(row.url);
-            promises.push(this.scrapeBulkUrl(row, activeTab.id));
+            promises.push(this.extCommon.scrapeBulkUrl(row, activeTab.id));
         });
 
         let results = await Promise.all(promises);
@@ -431,19 +349,6 @@ export default class BulkHelper {
         await chrome.storage.local.set({
             bulkHistory,
             running: false,
-        });
-    }
-    async enabledBrowserScrapePermissions() {
-        // Permissions must be requested from inside a user gesture, like a button's
-        // click handler.
-        await chrome.permissions.request({
-            permissions: ["tabs"],
-            origins: ["https://*/*",
-                "http://*/*"]
-        }, (granted: any) => {
-            if (!granted) {
-                alert("Browser scraping permission denied. You can enable it from the extension settings page");
-            }
         });
     }
     async paintAnalysisHistory() {

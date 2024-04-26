@@ -137,7 +137,6 @@ export default class SidePanelApp {
     this.extCommon.updateSessionKeyStatus();
 
     let type = await this.extCommon.getStorageField("sidePanelScrapeType");
-    console.log("type", type);
     if (type) {
       this.scrape_type_radios.forEach((radio) => {
         if (radio.value === type) {
@@ -212,7 +211,6 @@ export default class SidePanelApp {
       this["tabs-input-url-panel"].style.display = "none";
       this["tabs-input-textarea-panel"].style.display = "";
     }
-
 
     let text = await this.extCommon.getSourceText();
     this.source_text_length.innerHTML = text.length + ' characters';
