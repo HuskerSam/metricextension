@@ -21,47 +21,36 @@
       </div>
     </div>
     <input type="text" class="analysis_run_label block py-1.5 mt-2 pl-2 text-gray-900
-    placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
-    mb-1 ml-1 mr-1" placeholder="Enter label (optional)">
-    <div class="header_action_bar text-center">
-      Source:
-      <ul class="nav ml-2 mt-2 inline-flex" role="tablist">
+    placeholder:text-gray-400 sm:text-sm sm:leading-6 border-none
+    ml-1 mr-1" placeholder="Enter label (optional)">
+    <div class="header_action_bar text-left">
+      <ul class="nav ml-2 inline-flex" role="tablist">
         <li class="nav-item" role="presentation">
-          <button id="tabs-input-textarea-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-textarea-panel"
-            class="block text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md border border-transparent px-3 py-1 text-sm font-medium active"
-            aria-controls="tabs-input-textarea-panel" role="tab" type="button">
-            <span class="inline-flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-              </svg>
-              <span>&nbsp;Text</span>
-            </span>
-          </button>
+          <label
+            class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
+            <input id="tabs-input-url-tab" name="dataSourceType" data-bs-toggle="tab" class="mb-1"
+              data-bs-target="#tabs-input-url-panel" aria-controls="tabs-input-url-panel" role="tab" type="radio">
+            &nbsp;Web Source
+          </label>
         </li>
         <li class="nav-item" role="presentation">
-          <button id="tabs-input-url-tab" data-bs-toggle="tab" data-bs-target="#tabs-input-url-panel"
-            class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1 text-sm font-medium"
-            aria-controls="tabs-input-url-panel" role="tab" type="button">
-            <span class="inline-flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
-              </svg>
-              <span>&nbsp;Scrape</span>
-            </span>
-          </button>
+          <label
+            class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium active">
+            <input id="tabs-input-textarea-tab" name="dataSourceType" data-bs-toggle="tab" class="mb-1" checked
+              data-bs-target="#tabs-input-textarea-panel" aria-controls="tabs-input-textarea-panel" role="tab"
+              type="radio">
+            &nbsp;Text Source
+          </label>
         </li>
       </ul>
     </div>
     <div class="flex-1 split_wrapper overflow-hidden">
       <div class="top_history_view_splitter flex flex-col overflow-hidden">
-        <div class="tab-content flex-1">
+        <div class="tab-content flex-1 pb-0">
           <div id="tabs-input-textarea-panel" class="tab-pane fade show active h-full flex-col"
             aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
-            <textarea class="user_text_content_field block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none"
+            <textarea
+              class="user_text_content_field block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none"
               placeholder="Enter text for analysis..."></textarea>
           </div>
           <div id="tabs-input-url-panel" class="tab-pane fade -m-0.5 rounded-lg p-0.5"
@@ -69,34 +58,40 @@
             <input type="text" name="scrape-website" class="url_source_input block py-1.5 pl-2 text-gray-900
               placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
               mb-2 ml-1 mr-1" placeholder="Enter url (required)...">
-            <textarea class="url_scrape_results block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none"
-              disabled placeholder=""></textarea>
+            <div class="text-right mb-2">
+              <label
+                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
+                <input type="radio" name="scrape_type" checked class="cache_scrape_type mb-1">&nbsp;Cache
+              </label>
+              <label
+                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
+                <input type="radio" name="scrape_type" class="server_scrape_type mb-1">&nbsp;Server
+              </label>
+              <label
+                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
+                <input type="radio" name="scrape_type" class="browser_scrape_type mb-1">&nbsp;Browser
+              </label>
+            </div>
+            <textarea class="url_scrape_results block p-0 flex-1 border-none mx-0 resize-none" disabled
+              placeholder=""></textarea>
           </div>
         </div>
-        <div class="flex flex-row text-xs text-slate-500 px-3 pt-1">
+        <div class="flex flex-row text-xs text-slate-500 px-3 pb-1">
           <div class="source_text_length mr-3"></div>
           <div class="flex-1"></div>
           <div class="source_tokens_length">&nbsp;</div>
         </div>
-        <div class="flex flex-row">
+        <div class="">
           <div class="flex-1 ml-2">
-            <div class="self-center">
-              <div class="pl-3">
-                <label class="pt-1 text-center pb-1 text-xs font-bold">
-                  Prompts For Analysis</label>
-              </div>
-              <select class="analysis_set_select w-full self-center h-10px mb-1" multiple>
-              </select>
-            </div>
+            <select class="analysis_set_select w-full self-center h-10px mb-1" multiple>
+            </select>
           </div>
-          <div class="p-1 flex">
-            <button class="btn-ts-success run_analysis_btn self-end mb-1">
-              <span class="relative bottom-1 btn_text">Run</span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-6 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-              </svg>
+          <div class="p-1 text-right">
+            <button class="btn-ts-success run_semantic_query_btn">
+              Semantic Query
+            </button>
+            <button class="btn-ts-success run_analysis_btn">
+              Run Metrics
             </button>
           </div>
         </div>
