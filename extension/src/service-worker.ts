@@ -32,9 +32,12 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
         console.log("info", info);
         text = text.slice(0, 20000);
         let abc = new AnalyzerExtensionCommon(chrome);
-        await chrome.storage.local.set({ sidePanelScrapeContent: text });
-        await chrome.storage.local.set({ sidePanelSource: 'scrape' });
-        await chrome.storage.local.set({ sidePanelUrlSource: tab.url });
+        await chrome.storage.local.set({
+            sidePanelScrapeContent: text,
+            sidePanelSource: 'scrape',
+            sidePanelUrlSource: tab.url,
+            sidePanelScrapeType: "cache"
+        });
         let isAlreadyRunning = await abc.setRunning(true);
         if (isAlreadyRunning) return;
 
@@ -51,9 +54,12 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
         text = scrapes[0].result;
         text = text.slice(0, 20000);
         let abc = new AnalyzerExtensionCommon(chrome);
-        await chrome.storage.local.set({ sidePanelScrapeContent: text });
-        await chrome.storage.local.set({ sidePanelSource: 'scrape' });
-        await chrome.storage.local.set({ sidePanelUrlSource: tab.url });
+        await chrome.storage.local.set({
+            sidePanelScrapeContent: text,
+            sidePanelSource: 'scrape',
+            sidePanelUrlSource: tab.url,
+            sidePanelScrapeType: "cache"
+        });
         let isAlreadyRunning = await abc.setRunning(true);
         if (isAlreadyRunning) return;
         result = await abc.runAnalysisPrompts(text, tab.url);

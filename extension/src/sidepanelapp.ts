@@ -20,11 +20,14 @@ export default class SidePanelApp {
   top_history_view_splitter = document.querySelector('.top_history_view_splitter') as HTMLDivElement;
   bottom_history_view_splitter = document.querySelector('.bottom_history_view_splitter') as HTMLDivElement;
   analysis_run_label = document.querySelector('.analysis_run_label') as HTMLInputElement;
-  ["tabs-input-url-tab"] = document.querySelector('#tabs-input-url-tab') as HTMLDivElement;
-  ["tabs-input-textarea-tab"] = document.querySelector('#tabs-input-textarea-tab') as HTMLDivElement;
+  ["tabs-input-url-tab"] = document.querySelector('#tabs-input-url-tab') as HTMLInputElement;
+  ["tabs-input-textarea-tab"] = document.querySelector('#tabs-input-textarea-tab') as HTMLInputElement;
+  ["tabs-input-textarea-panel"] = document.querySelector('#tabs-input-textarea-panel') as HTMLDivElement;
+  ["tabs-input-url-panel"] = document.querySelector('#tabs-input-url-panel') as HTMLDivElement;
   url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
   sidepanel_last_credits_used = document.querySelector('.sidepanel_last_credits_used') as HTMLElement;
+  scrape_type_radios = document.querySelectorAll('input[name="scrape_type"]') as NodeListOf<HTMLInputElement>;
   lastSlimSelections = "";
   viewSplitter: Split.Instance;
   analysis_display: any;
@@ -97,8 +100,13 @@ export default class SidePanelApp {
       async () => chrome.storage.local.set({ sidePanelSource: 'scrape' }));
     this["tabs-input-textarea-tab"].addEventListener('click',
       async () => chrome.storage.local.set({ sidePanelSource: 'text' }));
+    this.scrape_type_radios.forEach((radio) => {
+      radio.addEventListener('input', async () => {
+        let type = radio.value;
+        await chrome.storage.local.set({ sidePanelScrapeType: type });
+      });
+    });
 
-    this["tabs-input-textarea-tab"].click();
     this.analysis_display = document.querySelector(".analysis_display");
     chrome.storage.local.onChanged.addListener(() => {
       this.paint();
@@ -127,6 +135,16 @@ export default class SidePanelApp {
       document.body.classList.add("extension_not_running");
     }
     this.extCommon.updateSessionKeyStatus();
+
+    let type = await this.extCommon.getStorageField("sidePanelScrapeType");
+    console.log("type", type);
+    if (type) {
+      this.scrape_type_radios.forEach((radio) => {
+        if (radio.value === type) {
+          radio.checked = true;
+        }
+      });
+    }
 
     this.renderResultsPanel();
     this.renderSlimSelect();
@@ -180,13 +198,21 @@ export default class SidePanelApp {
     this.extCommon.getFieldFromStorage(this.url_scrape_results, "sidePanelScrapeContent");
     this.extCommon.getFieldFromStorage(this.user_text_content_field, "sidePanelTextSource");
 
-    let value = await chrome.storage.local.get("sidePanelSource");
-    value = value["sidePanelSource"] || '';
+    let value = await this.extCommon.getStorageField("sidePanelSource");
     if (value === 'scrape') {
-      this["tabs-input-url-tab"].click();
+      this["tabs-input-url-tab"].classList.add('active');
+      this["tabs-input-url-tab"].checked = true;
+      this["tabs-input-textarea-tab"].classList.remove('active');
+      this["tabs-input-url-panel"].style.display = "";
+      this["tabs-input-textarea-panel"].style.display = "none";
     } else {
-      this["tabs-input-textarea-tab"].click();
+      this["tabs-input-url-tab"].classList.remove('active');
+      this["tabs-input-textarea-tab"].classList.add('active');
+      this["tabs-input-textarea-tab"].checked = true;
+      this["tabs-input-url-panel"].style.display = "none";
+      this["tabs-input-textarea-panel"].style.display = "";
     }
+
 
     let text = await this.extCommon.getSourceText();
     this.source_text_length.innerHTML = text.length + ' characters';

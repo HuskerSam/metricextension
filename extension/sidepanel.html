@@ -28,16 +28,16 @@
         <li class="nav-item" role="presentation">
           <label
             class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
-            <input id="tabs-input-url-tab" name="dataSourceType" data-bs-toggle="tab" class="mb-1"
-              data-bs-target="#tabs-input-url-panel" aria-controls="tabs-input-url-panel" role="tab" type="radio">
+            <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1"
+              aria-controls="tabs-input-url-panel" role="tab" type="radio">
             &nbsp;Web Source
           </label>
         </li>
         <li class="nav-item" role="presentation">
           <label
             class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium active">
-            <input id="tabs-input-textarea-tab" name="dataSourceType" data-bs-toggle="tab" class="mb-1" checked
-              data-bs-target="#tabs-input-textarea-panel" aria-controls="tabs-input-textarea-panel" role="tab"
+            <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked
+              role="tab"
               type="radio">
             &nbsp;Text Source
           </label>
@@ -47,29 +47,28 @@
     <div class="flex-1 split_wrapper overflow-hidden">
       <div class="top_history_view_splitter flex flex-col overflow-hidden">
         <div class="tab-content flex-1 flex-col pb-0">
-          <div id="tabs-input-textarea-panel" class="tab-pane fade show active flex-1 flex-col"
+          <div id="tabs-input-textarea-panel" class="flex flex-1 flex-col"
             aria-labelledby="tabs-input-textarea-tab" role="tabpanel" tabindex="0">
             <textarea
               class="user_text_content_field block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none"
               placeholder="Enter text for analysis..."></textarea>
           </div>
-          <div id="tabs-input-url-panel" class="tab-pane fade -m-0.5 rounded-lg p-0.5 flex-1"
-            aria-labelledby="tabs-input-url-tab" role="tabpanel" tabindex="0">
+          <div id="tabs-input-url-panel" class="flex flex-col -m-0.5 rounded-lg p-0.5 flex-1" tabindex="1">
             <input type="text" name="scrape-website" class="url_source_input block py-1.5 pl-2 text-gray-900
               placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
               mb-2 ml-1 mr-1" placeholder="Enter url (required)...">
             <div class="text-right mb-2">
               <label
                 class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                <input type="radio" name="scrape_type" checked class="cache_scrape_type mb-1">&nbsp;Cache
+                <input type="radio" name="scrape_type" value="cache" checked class="cache_scrape_type mb-1">&nbsp;Cache
               </label>
               <label
                 class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                <input type="radio" name="scrape_type" class="server_scrape_type mb-1">&nbsp;Server
+                <input type="radio" name="scrape_type" value="server scrape" class="server_scrape_type mb-1">&nbsp;Server
               </label>
               <label
                 class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                <input type="radio" name="scrape_type" class="browser_scrape_type mb-1">&nbsp;Browser
+                <input type="radio" name="scrape_type" value="browser scrape" class="browser_scrape_type mb-1">&nbsp;Browser
               </label>
             </div>
             <textarea class="url_scrape_results block p-0 flex-1 border-none mx-0 resize-none" disabled
