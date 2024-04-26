@@ -22,9 +22,6 @@
     padding-left: var(--spacing-large);
 }
 
-.extension_running .history_display {
-    display: none;
-}
 
 .history_display_results_running {
     display: none;

@@ -39,8 +39,14 @@
     padding: 4px;
 }
 
-.prompt_list_editor .tabulator-header {
+.tabulator_prompt_list_manager .tabulator-header {
     display: none;
+}
+
+#main_bulk_tab_view .tabulator .tabulator-header .tabulator-header-contents .tabulator-headers,
+#main_bulk_tab_view .tabulator .tabulator-header .tabulator-header-contents .tabulator-headers {
+    filter: contrast(0.94);
+    height: 40px;
 }
 
 .footer_actions_bar {
@@ -49,4 +55,8 @@
 
 .footer_actions_bar * {
     pointer-events: auto;
+}
+
+#main_bulk_tab_view .prompt_list_editor .tabulator-row .tabulator-cell.tabulator-row-handle {
+    background: white;
 }

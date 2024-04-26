@@ -62,7 +62,7 @@ export default class BulkHelper {
         this.bulkUrlListTabulator = new TabulatorFull(".bulk_url_list_tabulator", {
             layout: "fitColumns",
             movableRows: true,
-            rowHeader: { headerSort: false, resizable: false, minWidth: 30, width: 30, rowHandle: true, formatter: "handle" },
+            rowHeader: { headerSort: false, resizable: false, minWidth: 15, width: 15, rowHandle: true, formatter: "handle" },
             columns: [
                 { title: "URL", field: "url", editor: "input", headerSort: false },
                 {

@@ -24,7 +24,7 @@ export default class PromptHelper {
     input_datalist_prompt_list = document.querySelector('#input_datalist_prompt_list') as HTMLDataListElement;
     importButton = document.querySelector('.prompt_list_import_rows') as HTMLButtonElement;
     fileInput = document.getElementById('prompt_list_file_input') as HTMLInputElement;
-    prompt_list_editor = document.querySelector('.prompt_list_editor') as HTMLDivElement;
+    tabulator_prompt_list_manager = document.querySelector('.tabulator_prompt_list_manager') as HTMLDivElement;
     exportButton = document.querySelector('.prompt_list_export_rows') as HTMLButtonElement;
     prompt_manager_lower_pane = document.querySelector('.prompt_manager_lower_pane') as HTMLDivElement;
     prompt_manager_upper_pane = document.querySelector('.prompt_manager_upper_pane') as HTMLDivElement;
@@ -40,7 +40,7 @@ export default class PromptHelper {
                 gutterSize: 24,
             });
 
-        this.promptsTable = new TabulatorFull(".prompt_list_editor", {
+        this.promptsTable = new TabulatorFull(".tabulator_prompt_list_manager", {
             layout: "fitDataStretch",
             movableRows: true,
             groupBy: "setName",
@@ -153,7 +153,7 @@ export default class PromptHelper {
     }
     initPromptTable() {
         this.promptsTable.on("renderComplete", () => {
-            this.prompt_list_editor.querySelectorAll('.export_metric_set').forEach((button: any) => {
+            this.tabulator_prompt_list_manager.querySelectorAll('.export_metric_set').forEach((button: any) => {
                 if (!button.headerConfigured) {
                     button.headerConfigured = true;
                     button.addEventListener('click', async (e: any) => {

@@ -1,8 +1,10 @@
 <div class="top_bulk_view_splitter overflow-hidden flex flex-col sm:px-6 lg:px-8">
   <div class="md:flex md:items-center md:justify-between md:space-x-5">
     <div class="flex items-start space-x-5 pt-1.5">
+      <div class="pt-1.5">
         <h2 class="text-2xl font-bold text-gray-900">Bulk Analysis</h2>
         <p class="text-sm font-medium text-gray-500">Run metrics on a list of URL or text content</p>
+      </div>
     </div>
     <div
       class="mt-6 flex-1 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
@@ -53,14 +55,14 @@
       </svg>
     </button>
   </div>
-  <div class="flex-1 mt-2 bulk_url_list_tabulator border border-gray-300 rounded"></div>
+  <div class="flex-1 mt-2 bulk_url_list_tabulator prompt_list_editor rounded"></div>
 </div>
 <div class="bottom_bulk_view_splitter flex flex-col overflow-hidden sm:px-6 lg:px-8">
   <div class="bulk_result_display_container flex-1 overflow-hidden flex-col">
     <div class="tab-content flex-1 flex flex-col">
       <div id="bulk-csv-tab-view" class="tab-pane fade show active flex-1 overflow-hidden flex-col"
         aria-labelledby="bulk-csv-tab-btn" role="tabpanel" tabindex="0" aria-selected="true">
-        <div class="flex-1 bulk_analysis_results_tabulator border border-gray-300 rounded"></div>
+        <div class="flex-1 bulk_analysis_results_tabulator prompt_list_editor rounded"></div>
       </div>
       <div id="bulk-json-log-view" class="tab-pane fade flex-1 overflow-hidden flex-col"
         aria-labelledby="bulk-json-log-btn" role="tabpanel" tabindex="0">
