@@ -1,2 +1,23 @@
-this is the data mill tab!!!!!!!
-<div class="w-[30px] hidden top-[-4px]"></div>
+<div class="search_overlay">
+    <div class="search_header">
+      <div style="display:inline-block">
+        <select class="chunk_select form-select bg-dark text-white" style="width: auto;">
+          <option value="song" selected>Song</option>
+        </select>
+      </div>
+      <div style="display:inline-block">
+        <select class="form-select metric_filter_select bg-dark text-white"></select>
+      </div>
+      <button class="close_search_overlay btn-close btn-close-white"
+        style="float:right;padding:20px;margin:8px;"></button>
+      <button class="btn btn-primary play_all_button" style="float:right;margin:8px;display:none">Play All</button>
+    </div>
+    <div class="filter_container"></div>
+    <div class="search_container mt-1">
+      <input type="text" class="search_input analyze_prompt_textarea" placeholder="Song lyrics like...">
+      <button class="search_button analyze_prompt_button">
+        <i class="material-icons">search</i>
+      </button>
+    </div>
+    <div class="full_augmented_response"></div>
+  </div>
