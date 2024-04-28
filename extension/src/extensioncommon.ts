@@ -662,10 +662,12 @@ export class AnalyzerExtensionCommon {
     if (sourceType === 'scrape') {
       if (clearCache && sidePanelScrapeType !== 'cache') {
         const url = await this.getURLContentSource();
+        const options = await this.getStorageField("sidePanelUrlSourceOptions");
+        console.log("options", options);
         let bulkUrl = {
           url,
           scrape: sidePanelScrapeType,
-          options: "",
+          options,
         }
         if (sidePanelScrapeType === "browser scrape") {
           this.enabledBrowserScrapePermissions();

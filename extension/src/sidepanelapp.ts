@@ -29,6 +29,7 @@ export default class SidePanelApp {
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
   sidepanel_last_credits_used = document.querySelector('.sidepanel_last_credits_used') as HTMLElement;
   scrape_type_radios = document.querySelectorAll('input[name="scrape_type"]') as NodeListOf<HTMLInputElement>;
+  copy_url_scrape = document.querySelector('.copy_url_scrape') as HTMLButtonElement;
   lastSlimSelections = "";
   viewSplitter: Split.Instance;
   analysis_display: any;
@@ -108,6 +109,10 @@ export default class SidePanelApp {
         let type = radio.value;
         await chrome.storage.local.set({ sidePanelScrapeType: type });
       });
+    });
+    this.copy_url_scrape.addEventListener('click', async () => {
+      let text = this.url_scrape_results.value;
+      navigator.clipboard.writeText(text);
     });
 
     this.analysis_display = document.querySelector(".analysis_display");

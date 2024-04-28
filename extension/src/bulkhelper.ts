@@ -32,6 +32,7 @@ export default class BulkHelper {
     json_display_modal_content = document.querySelector('.json_display_modal_content') as HTMLDivElement;
     top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
     bottom_bulk_view_splitter = document.querySelector('.bottom_bulk_view_splitter') as HTMLDivElement;
+    lastSlimSelections = "";
     viewSplitter: Split.Instance;
     previousSlimOptions = "";
     lastTableEdit = new Date();
@@ -438,12 +439,19 @@ export default class BulkHelper {
             slimOptions.push({ text: setName, value: setName });
         });
         const slimOptionsString = JSON.stringify(slimOptions);
+        let dataChange = false;
         if (this.previousSlimOptions !== slimOptionsString) {
+            dataChange = true;
             this.bulkSelected.setData(slimOptions);
             this.previousSlimOptions = slimOptionsString;
         }
 
         if (selectedBulkAnalysisSets && selectedBulkAnalysisSets.selectedBulkAnalysisSets) {
+
+            let setCache = JSON.stringify(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
+            if (setCache !== this.lastSlimSelections || dataChange) {
+              this.lastSlimSelections = setCache;
+
             this.bulkSelected.setSelected(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
             let domSelections = this.bulkSelected.render.main.values.querySelectorAll('.ss-value');
             let indexMap: any = {};
@@ -457,6 +465,7 @@ export default class BulkHelper {
                     this.bulkSelected.render.main.values.appendChild(domSelections[domIndex]);
                 }
             });
+        }
         }
         if (this.bulkSelected.getSelected().length === 0) {
             this.bulkSelected.setSelected([setNames[0]]);
