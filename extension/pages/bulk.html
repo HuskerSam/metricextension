@@ -46,10 +46,14 @@
         </span>
       </button>
     </div>
+    <div class="hidden flex-col self-end flex-1 bulk_display_results_running mt-[-8px] text-right">
+      <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-12 h-12 self-center inline-block" loop
+        autoplay></lottie-player>
+    </div>
     <button class="run_bulk_analysis_btn btn-ts-primary self-end">
-      Run&nbsp;
+      Bulk Analyze&nbsp;
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-        class="w-6 h-6">
+        class="w-5 h-5">
         <path stroke-linecap="round" stroke-linejoin="round"
           d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
       </svg>
@@ -128,11 +132,6 @@
         <span class="bulk_selected_last_run_date px-2"></span>
       </div>
     </div>
-  </div>
-  <div class="hidden flex-col justify-center flex-1 bulk_display_results_running">
-    <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-32 h-32 self-center" loop
-      autoplay></lottie-player>
-    <h3 class="inline-block text-center"><br>Analysis in progress...</h3>
   </div>
   <div class="no_bulk_result_history_entry flex-2 flex-column">
     <div class="flex flex-col justify-center items-center h-full">
