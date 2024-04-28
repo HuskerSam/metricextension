@@ -86,6 +86,8 @@ export default class SidePanelApp {
       let label = await this.extCommon.getStorageField("analysisRunLabel");
       let text = await this.extCommon.getSourceText(true); // force a scrape here
       let type = await this.extCommon.getSourceType();
+      if (!label) label = await this.extCommon.getURLContentSource();
+      if (!label) label = "Manual Run";
       if (type === 'scrape') {
         await chrome.storage.local.set({ sidePanelScrapeContent: text });
       }

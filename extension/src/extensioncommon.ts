@@ -663,7 +663,6 @@ export class AnalyzerExtensionCommon {
       if (clearCache && sidePanelScrapeType !== 'cache') {
         const url = await this.getURLContentSource();
         const options = await this.getStorageField("sidePanelUrlSourceOptions");
-        console.log("options", options);
         let bulkUrl = {
           url,
           scrape: sidePanelScrapeType,
