@@ -291,9 +291,7 @@ export default class BulkHelper {
             await this.extCommon.enabledBrowserScrapePermissions();
         }
 
-        document.body.classList.add("extension_running");
-        document.body.classList.remove("extension_not_running");
-        let isAlreadyRunning = await this.extCommon.setRunning(true);
+        let isAlreadyRunning = await this.extCommon.setBulkRunning(true);
         if (isAlreadyRunning) return;
         const runId = new Date().toISOString();
         let urls: string[] = [];
@@ -332,8 +330,6 @@ export default class BulkHelper {
         const compactData = this.extCommon.processRawResultstoCompact(analysisResults);
         const csv = Papa.unparse(compactData);
         const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId, csv, "text/csv", "csv");
-        document.body.classList.remove("extension_running");
-        document.body.classList.add("extension_not_running");
 
         let bulkHistory = await chrome.storage.local.get('bulkHistory');
         let bulkHistoryRangeLimit = await chrome.storage.local.get('bulkHistoryRangeLimit');
@@ -348,12 +344,21 @@ export default class BulkHelper {
         bulkHistory = bulkHistory.slice(0, bulkHistoryRangeLimit);
         await chrome.storage.local.set({
             bulkHistory,
-            running: false,
+            bulk_running: false,
         });
     }
     async paintAnalysisHistory() {
         let bulkHistory = await chrome.storage.local.get('bulkHistory');
         bulkHistory = bulkHistory.bulkHistory || [];
+
+        let bulk_running = await chrome.storage.local.get('bulk_running');
+        if (bulk_running && bulk_running.bulk_running) {
+          document.body.classList.add("extension_bulk_running");
+          document.body.classList.remove("extension_not_bulk_running");
+        } else {
+          document.body.classList.remove("extension_bulk_running");
+          document.body.classList.add("extension_not_bulk_running");
+        }
 
         let bulkHistoryItem = bulkHistory[this.bulkSelectedIndex];
         if (bulkHistoryItem) {
@@ -421,15 +426,6 @@ export default class BulkHelper {
         }
 
         this.bulkUrlListTabulator.setData(allUrls);
-
-        let running = await chrome.storage.local.get('running');
-        if (running && running.running) {
-            document.body.classList.add("extension_running");
-            document.body.classList.remove("extension_not_running");
-        } else {
-            document.body.classList.remove("extension_running");
-            document.body.classList.add("extension_not_running");
-        }
 
         const setNames = await this.extCommon.getAnalysisSetNames();
         let html = "";

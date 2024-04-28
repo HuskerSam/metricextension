@@ -448,10 +448,6 @@ body {
     gap: var(--spacing-medium);
   }
 
-  .history_separator {
-    margin: var(--spacing-medium) 0;
-  }
-
   .history_text,
   .history_prompt {
     white-space: normal;
@@ -459,6 +455,7 @@ body {
 
   .history_separator {
     margin: var(--spacing-medium) 0;
+    clear: both;
   }
 
   .tab-content {
@@ -547,6 +544,8 @@ body {
   text-align: right;
   margin-right: 4px;
   margin-top: -2.2em;
+  position: relative;
+  z-index: 100;
 }
 
 .open_side_panel_from_main {

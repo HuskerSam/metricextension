@@ -23,21 +23,21 @@
     display: none;
 }
 
-.extension_running .bulk_analysis_history_placeholder {
+.extension_bulk_running .bulk_analysis_history_placeholder {
     display: block;
 }
 
-.extension_running .bulk_display_results_running {
+.extension_bulk_running .bulk_display_results_running {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-.extension_running .no_bulk_result_history_entry {
+.extension_bulk_running .no_bulk_result_history_entry {
     display: none;
 }
 
-.extension_running .bulk_result_display_container {
+.extension_bulk_running .bulk_result_display_container {
     display: none;
 }
 

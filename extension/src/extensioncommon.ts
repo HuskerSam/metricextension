@@ -312,6 +312,17 @@ export class AnalyzerExtensionCommon {
     });
     return false;
   }
+  async setBulkRunning(prompt = false) {
+    let bulk_running = await this.chrome.storage.local.get('bulk_running');
+    if (bulk_running && bulk_running.bulk_running) {
+      return true;
+    }
+
+    await this.chrome.storage.local.set({
+      bulk_running: true,
+    });
+    return false;
+  }
   async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
     if (text.length > 30000) text = text.slice(0, 30000);
     const runDate = new Date().toISOString();
@@ -407,7 +418,7 @@ export class AnalyzerExtensionCommon {
       resultsHTML += `
             <div class="history_entry_set_wrapper m-2">
                 <div class="history_entry_setname_wrapper relative">
-                  <div class="inline-flex">${historyIndexDisplay}  &nbsp;&nbsp;&nbsp;<h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6></div>
+                  <div class="inline-flex"><span class="history_index">${historyIndexDisplay}</span><h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6></div>
                   <button class="download_compact_results_btn btn_icon float-end text-xs inline-flex m-1" data-historyindex="${historyIndex}">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
@@ -444,17 +455,7 @@ export class AnalyzerExtensionCommon {
   }
   getHTMLforPromptResult(result: any) {
     const usageText = ``;
-    if (result.prompt.promptType === 'text') {
-      return `
-          <div class="prompt_result text_result">
-            <div class="prompt_header">
-              <span class="prompt_id">${result.prompt.id}</span>
-            </div>
-            <div class="result_content">${result.result.resultMessage}</div>
-            <div class="result_usage">${usageText}</div>
-          </div>
-        `;
-    } else if (result.prompt.promptType === 'metric') {
+    if (result.prompt.promptType === 'metric') {
       try {
         let json = JSON.parse(result.result.resultMessage);
         let metric = json.contentRating;
@@ -477,7 +478,7 @@ export class AnalyzerExtensionCommon {
             </div>
           `;
       }
-    } else {
+    } else if (result.prompt.promptType === 'json') {
       let resultDisplay = '';
       try {
         resultDisplay = JSON.stringify(JSON.parse(result.result.resultMessage), null, 2);
@@ -490,6 +491,16 @@ export class AnalyzerExtensionCommon {
               <span class="prompt_id">${result.prompt.id}</span>
             </div>
             <div class="result_content">${resultDisplay}</div>
+            <div class="result_usage">${usageText}</div>
+          </div>
+        `;
+    } else {
+      return `
+          <div class="prompt_result text_result">
+            <div class="prompt_header">
+              <span class="prompt_id">${result.prompt.id}</span>
+            </div>
+            <div class="result_content">${result.result.resultMessage}</div>
             <div class="result_usage">${usageText}</div>
           </div>
         `;
@@ -754,13 +765,13 @@ export class AnalyzerExtensionCommon {
     // Permissions must be requested from inside a user gesture, like a button's
     // click handler.
     await this.chrome.permissions.request({
-        permissions: ["tabs"],
-        origins: ["https://*/*",
-            "http://*/*"]
+      permissions: ["tabs"],
+      origins: ["https://*/*",
+        "http://*/*"]
     }, (granted: any) => {
-        if (!granted) {
-            alert("Browser scraping permission denied. You can enable it from the extension settings page");
-        }
+      if (!granted) {
+        alert("Browser scraping permission denied. You can enable it from the extension settings page");
+      }
     });
-}
+  }
 }
