@@ -416,7 +416,7 @@ export class AnalyzerExtensionCommon {
     const setNamesArray = Object.keys(setBasedResults);
     setNamesArray.forEach((setName: any) => {
       resultsHTML += `
-            <div class="history_entry_set_wrapper m-2">
+            <div class="history_entry_set_wrapper mx-2 my-1">
                 <div class="history_entry_setname_wrapper relative">
                   <div class="inline-flex"><span class="history_index">${historyIndexDisplay}</span><h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6></div>
                   <button class="download_compact_results_btn btn_icon float-end text-xs inline-flex m-1" data-historyindex="${historyIndex}">
