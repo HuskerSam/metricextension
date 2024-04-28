@@ -30,3 +30,11 @@
 .side_panel .history_index {
   display: none;
 }
+
+.url_source_options {
+  display: none;
+}
+
+.scrape_type_server_scrape .url_source_options  {
+  display: block;
+}

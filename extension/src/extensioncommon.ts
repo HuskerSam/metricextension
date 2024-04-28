@@ -8,6 +8,7 @@ export class AnalyzerExtensionCommon {
   query_source_tokens_length: any;
   previousSlimOptions = '';
   activeTabsBeingScraped: any = [];
+  debouncedInputTimeouts: any = {};
 
   constructor(chrome: any) {
     this.chrome = chrome;
@@ -619,9 +620,12 @@ export class AnalyzerExtensionCommon {
     }
   }
   async getFieldFromStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
-    let value = await this.chrome.storage.local.get(storageKey);
-    value = value[storageKey] || '';
-    if (domInput.value !== value) domInput.value = value;
+    clearTimeout(this.debouncedInputTimeouts[storageKey]);
+    this.debouncedInputTimeouts[storageKey] = setTimeout(async () => {
+      let value = await this.chrome.storage.local.get(storageKey);
+      value = value[storageKey] || '';
+      if (domInput.value !== value) domInput.value = value;
+    }, 500);
   }
   async setFieldToStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
     let value = domInput.value;

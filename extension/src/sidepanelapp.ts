@@ -25,6 +25,7 @@ export default class SidePanelApp {
   ["tabs-input-textarea-panel"] = document.querySelector('#tabs-input-textarea-panel') as HTMLDivElement;
   ["tabs-input-url-panel"] = document.querySelector('#tabs-input-url-panel') as HTMLDivElement;
   url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
+  url_source_options = document.querySelector('.url_source_options') as HTMLInputElement;
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
   sidepanel_last_credits_used = document.querySelector('.sidepanel_last_credits_used') as HTMLElement;
   scrape_type_radios = document.querySelectorAll('input[name="scrape_type"]') as NodeListOf<HTMLInputElement>;
@@ -96,6 +97,8 @@ export default class SidePanelApp {
       async () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
     this.url_source_input.addEventListener('input',
       async () => this.extCommon.setFieldToStorage(this.url_source_input, "sidePanelUrlSource"));
+      this.url_source_options.addEventListener('input',
+      async () => this.extCommon.setFieldToStorage(this.url_source_options, "sidePanelUrlSourceOptions"));
     this["tabs-input-url-tab"].addEventListener('click',
       async () => chrome.storage.local.set({ sidePanelSource: 'scrape' }));
     this["tabs-input-textarea-tab"].addEventListener('click',
@@ -141,6 +144,9 @@ export default class SidePanelApp {
       this.scrape_type_radios.forEach((radio) => {
         if (radio.value === type) {
           radio.checked = true;
+          document.body.classList.add("scrape_type_" + radio.value.replace(" ", "_"));
+        } else {
+          document.body.classList.remove("scrape_type_" + radio.value.replace(" ", "_"));
         }
       });
     }
@@ -194,6 +200,7 @@ export default class SidePanelApp {
   async renderSourceDetails() {
     this.extCommon.getFieldFromStorage(this.analysis_run_label, "analysisRunLabel");
     this.extCommon.getFieldFromStorage(this.url_source_input, "sidePanelUrlSource");
+    this.extCommon.getFieldFromStorage(this.url_source_options, "sidePanelUrlSourceOptions");
     this.extCommon.getFieldFromStorage(this.url_scrape_results, "sidePanelScrapeContent");
     this.extCommon.getFieldFromStorage(this.user_text_content_field, "sidePanelTextSource");
 
