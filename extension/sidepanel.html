@@ -20,8 +20,8 @@
           started.</span>
       </div>
     </div>
-    <input type="text" class="analysis_run_label block py-1.5 mt-2 pl-2 text-gray-900
-    placeholder:text-gray-400 sm:text-sm sm:leading-6 border-none
+    <input type="text" class="analysis_run_label block py-1.5 mt-2 pl-2 mx-2 text-gray-900
+    placeholder:text-gray-400 sm:text-sm sm:leading-6 border-none rounded-md
     ml-1 mr-1" placeholder="Enter label (optional)">
     <div class="header_action_bar text-left">
       <ul class="nav ml-2 inline-flex" role="tablist">
@@ -71,7 +71,7 @@
                   class="browser_scrape_type mb-1">&nbsp;Browser
               </label>
             </div>
-            <textarea class="url_scrape_results block p-0 flex-1 border-none mx-0 resize-none" disabled
+            <textarea class="url_scrape_results block pt-0 flex-1 border-none mr-1 resize-none" disabled
               placeholder=""></textarea>
           </div>
         </div>
@@ -80,8 +80,6 @@
           <div class="flex-1"></div>
           <div class="source_tokens_length">&nbsp;</div>
         </div>
-      </div>
-      <div class="bottom_history_view_splitter flex flex-col overflow-hidden">
         <div class="flex flex-row">
           <select class="analysis_set_select w-full self-center h-10px mb-1" multiple>
           </select>
@@ -91,6 +89,8 @@
             </button>
           </div>
         </div>
+      </div>
+      <div class="bottom_history_view_splitter flex flex-col overflow-hidden">
         <div class="flex flex-col flex-1 overflow-hidden">
           <div class="history_display_results_running flex flex-col justify-center flex-1">
             <lottie-player src="media/lottie.json" background="transparent" speed="1"
@@ -109,7 +109,7 @@
             d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
         </svg>
       </button>
-      <div class="float-end sidepanel_last_credits_used"></div>
+      <div class="float-end sidepanel_last_credits_used pt-2 pr-2"></div>
     </div>
   </div>
 </body>
