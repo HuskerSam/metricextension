@@ -1,16 +1,27 @@
 <div class="top_bulk_view_splitter overflow-hidden flex flex-col sm:px-6 lg:px-8">
-  <div class="md:flex md:items-center md:justify-between md:space-x-5">
-    <div class="flex items-start space-x-5 pt-1.5">
+  <div class="flex flex-row">
+    <div class="flex flex-1 items-start space-x-5 pt-1.5">
       <div class="pt-1.5">
         <h2 class="text-2xl font-bold text-gray-900">Bulk Analysis</h2>
         <p class="text-sm font-medium text-gray-500">Run metrics on a list of URL or text content</p>
       </div>
     </div>
-    <div
-      class="mt-6 flex-1 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
-      <div class="flex-1 flex relative mt-1 analysis_sets_configuration self-center flex-col">
-        <select class="bulk_analysis_sets_select md:w-9/12 self-center mb-1" multiple></select>
+    <div class="flex-1 flex flex-row">
+      <div class="flex-1 flex flex-row relative analysis_sets_configuration">
+        <select class="bulk_analysis_sets_select flex-1 self-center" multiple></select>
       </div>
+      <div class="hidden flex-col flex-1 bulk_display_results_running mt-[-8px] text-right">
+        <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-12 h-12 self-center inline-block" loop
+          autoplay></lottie-player>
+      </div>
+      <button class="run_bulk_analysis_btn btn-ts-primary h-[42px] self-center ml-2">
+        Bulk&nbsp;
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+        </svg>
+      </button>
     </div>
   </div>
   <div class="flex justify-between items-center mt-2 gap-2 analysis_actions">
@@ -46,18 +57,6 @@
         </span>
       </button>
     </div>
-    <div class="hidden flex-col self-end flex-1 bulk_display_results_running mt-[-8px] text-right">
-      <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-12 h-12 self-center inline-block" loop
-        autoplay></lottie-player>
-    </div>
-    <button class="run_bulk_analysis_btn btn-ts-primary self-end">
-      Bulk Analyze&nbsp;
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-        class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-      </svg>
-    </button>
   </div>
   <div class="flex-1 mt-2 bulk_url_list_tabulator prompt_list_editor rounded"></div>
 </div>

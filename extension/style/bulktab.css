@@ -36,7 +36,9 @@
 }
 
 .analysis_sets_configuration {
-    width: 80%;
+    flex: 1;
+    position: relative;
+    margin-top: 4px;
 }
 
 .top_bulk_view_splitter .ss-main .ss-values .ss-value {

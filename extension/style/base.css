@@ -170,13 +170,6 @@ body {
   flex: 1;
 }
 
-.analysis_sets_configuration {
-  flex: 1;
-  display: flex;
-  position: relative;
-  margin-top: 4px;
-}
-
 .analysis_actions {
   display: flex;
   flex-direction: row;
