@@ -416,21 +416,24 @@ export class AnalyzerExtensionCommon {
     const setNamesArray = Object.keys(setBasedResults);
     setNamesArray.forEach((setName: any) => {
       resultsHTML += `
-            <div class="history_entry_set_wrapper mx-2 my-1">
-                <div class="history_entry_setname_wrapper relative">
-                  <div class="inline-flex"><span class="history_index">${historyIndexDisplay}</span><h6 class="history_entry_prompt_setname py-2 font-bold fs-5">${setName}</h6></div>
-                  <button class="download_compact_results_btn btn_icon float-end text-xs inline-flex m-1" data-historyindex="${historyIndex}">
+            <div class="history_entry_set_wrapper mx-2 my-1 flex flex-col">
+            <div class="flex flex-row">
+                <h6 class="history_entry_prompt_setname pl-2 pr-1 flex-1 py-2 fs-5">${setName}</h6>
+                <div class="whitespace-nowrap">
+                  <button class="download_compact_results_btn btn_icon text-xs inline-flex m-1" data-historyindex="${historyIndex}">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                       </svg>                
                     CSV</button>
-                  <button class="download_full_results_btn btn_icon float-end text-xs inline-flex m-1 mr-0" data-historyindex="${historyIndex}">
+                  <button class="download_full_results_btn btn_icon text-xs inline-flex m-1 mr-0" data-historyindex="${historyIndex}">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                       </svg>    
                     Full</button>
-                </div>
-                <hr class="history_separator" />
+                    <span class="history_index pr-2 font-bold">${historyIndexDisplay}</span>
+                  </div>
+              </div>
+              <hr class="history_separator">
             `;
       let promptSetResults = setBasedResults[setName];
       promptSetResults.forEach((result: any) => {
