@@ -3,6 +3,7 @@ import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
 import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
+import DataMillHelper from './datamillhelper';
 declare const chrome: any;
 
 export default class MainPageApp {
@@ -11,11 +12,13 @@ export default class MainPageApp {
     promptHelper: PromptHelper | null = null;
     historyHelper: HistoryHelper | null = null;
     settingsHelper: SettingsHelper | null = null;
+    dataMillHelper: DataMillHelper | null = null;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
     main_history_tab_view = document.querySelector('#main_history_tab_view') as HTMLDivElement;
     main_prompt_manager_tab_view = document.querySelector('#main_prompt_manager_tab_view') as HTMLDivElement;
     main_bulk_tab_view = document.querySelector('#main_bulk_tab_view') as HTMLDivElement;
     main_options_tab_view = document.querySelector('#main_options_tab_view') as HTMLDivElement;
+    main_datamill_tab_view = document.querySelector('#main_datamill_tab_view') as HTMLDivElement;
 
     constructor() {
         this.load();
@@ -30,10 +33,12 @@ export default class MainPageApp {
         await this.loadHTMLTemplate("pages/bulk.html", this.main_bulk_tab_view);
         await this.loadHTMLTemplate("pages/prompts.html", this.main_prompt_manager_tab_view);
         await this.loadHTMLTemplate("pages/settings.html", this.main_options_tab_view);
+        await this.loadHTMLTemplate("pages/datamill.html", this.main_datamill_tab_view);
         this.settingsHelper = new SettingsHelper();
         this.bulkHelper = new BulkHelper();
         this.promptHelper = new PromptHelper();
         this.historyHelper = new HistoryHelper();
+        this.dataMillHelper = new DataMillHelper();
         this.initEventHandlers();
 
         // list for changes to local storage and update the UI

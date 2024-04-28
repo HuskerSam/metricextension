@@ -6,39 +6,51 @@
   .btn_icon {
     @apply rounded-full bg-white p-1 text-gray-900 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-gray-300;
   }
+
   .btn-ts-secondary {
     @apply inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50;
   }
+
   .btn-ts-primary {
-    @apply inline-flex items-center justify-center rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white  hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+    @apply inline-flex items-center justify-center rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
   }
+
   .btn-ts-success {
     @apply inline-flex items-center justify-center rounded-md bg-green-500 px-3 py-2.5 text-sm font-semibold text-white border-gray-300 hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600;
   }
+
   .btn-ts-warning {
     @apply inline-flex items-center justify-center rounded-md bg-yellow-500 px-3 py-2.5 text-sm font-semibold text-white border-gray-300 hover:bg-yellow-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600;
   }
+
   .textarea-ts {
     @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 resize-y;
   }
+
   .btn-ts-action-menu {
     @apply bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 ml-2 rounded-md border border-transparent px-3 py-1 text-sm font-medium border-gray-300;
   }
+
   .form-input-ts {
     @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6;
   }
+
   .form-input-label-ts {
     @apply block text-sm font-medium leading-6 text-gray-900;
   }
+
   .form-select-ts {
     @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6;
   }
+
   .form-note-ts {
     @apply mt-3 text-xs leading-6 text-gray-600;
   }
+
   .form-textarea-ts {
     @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6;
   }
+
   .nav-ts-link {
     @apply group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-indigo-200 hover:bg-indigo-700 hover:text-white;
   }
@@ -278,6 +290,7 @@ body {
   margin-left: var(--spacing-small);
 }
 
+
 .metric_score .outofscore {
   font-size: .75em;
   opacity: .75;
@@ -310,23 +323,32 @@ body {
   flex-direction: row;
   padding-bottom: 8px;
 }
-.text_result .prompt_id,
+
 .json_result .prompt_id {
-  padding-top:4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  display: inline-block;
+}
+
+.text_result .prompt_id {
+  padding-top: 12px;
   padding-bottom: 4px;
   display: inline-block;
 }
 
 .prompt_id {
   font-weight: bold;
-  width: 150px;
   overflow: hidden;
   align-self: center;
   word-break: break-word;
-    padding: 4px;
+  padding: 4px;
   font-size: 0.75em;
+  padding-right: 8px;
 }
 
+.metric_result .prompt_id {
+  width: 150px;
+}
 
 .error_result {
   background-color: #ffe0e0;
@@ -512,7 +534,7 @@ body {
 
 .page-item.count span {
   line-height: 1em;
-  font-size: .5em;  
+  font-size: .5em;
   color: var(--secondary-color);
   padding-top: 4px;
   display: inline-block;

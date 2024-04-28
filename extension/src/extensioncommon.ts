@@ -406,7 +406,6 @@ export class AnalyzerExtensionCommon {
     let resultsHTML = `<div class="history_results flex flex-wrap flex-1">`;
     let allResults = entry.results;
     let setBasedResults: any = {};
-    let historyIndexDisplay = historyIndex + 1;
     allResults.forEach((result: any) => {
       if (!setBasedResults[result.prompt.setName]) {
         setBasedResults[result.prompt.setName] = [];
@@ -414,23 +413,27 @@ export class AnalyzerExtensionCommon {
       setBasedResults[result.prompt.setName].push(result);
     });
     const setNamesArray = Object.keys(setBasedResults);
-    setNamesArray.forEach((setName: any) => {
+    setNamesArray.forEach((setName: any, index: number) => {
+      let historyIndexDisplay = (historyIndex + 1).toString();
+      if (setNamesArray.length > 1) {
+        historyIndexDisplay += String.fromCharCode(97 + index);
+      }
       resultsHTML += `
             <div class="history_entry_set_wrapper mx-2 my-1 flex flex-col">
             <div class="flex flex-row">
                 <h6 class="history_entry_prompt_setname pl-2 pr-1 flex-1 py-2 fs-5">${setName}</h6>
                 <div class="whitespace-nowrap">
-                  <button class="download_compact_results_btn btn_icon text-xs inline-flex m-1" data-historyindex="${historyIndex}">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <button class="download_compact_results_btn btn_icon text-sm inline-flex m-1 p-2" data-historyindex="${historyIndex}">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                       </svg>                
                     CSV</button>
-                  <button class="download_full_results_btn btn_icon text-xs inline-flex m-1 mr-0" data-historyindex="${historyIndex}">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <button class="download_full_results_btn btn_icon text-sm inline-flex m-1 mr-0 p-2" data-historyindex="${historyIndex}">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
                       </svg>    
                     Full</button>
-                    <span class="history_index pr-2 font-bold">${historyIndexDisplay}</span>
+                    <span class="history_index pr-2 font-bold inline-block w-[30px] relative top-[-4px] text-right text-slate-500">${historyIndexDisplay}</span>
                   </div>
               </div>
               <hr class="history_separator">
@@ -463,7 +466,7 @@ export class AnalyzerExtensionCommon {
         let json = JSON.parse(result.result.resultMessage);
         let metric = json.contentRating;
         return `
-            <div class="prompt_result metric_result">
+            <div class="prompt_result metric_result mx-2 py-2">
               <span class="prompt_id">${result.prompt.id}</span>
               <span class="metric_score">${metric}<span class="outofscore">/10</span></span>
               <div class="metric_bar">
@@ -473,7 +476,7 @@ export class AnalyzerExtensionCommon {
           `;
       } catch (error) {
         return `
-            <div class="prompt_result error_result">
+            <div class="prompt_result error_result mx-2 py-2">
               <div class="prompt_header">
                 <span class="prompt_id">${result.prompt.id}</span>
               </div>
@@ -489,7 +492,7 @@ export class AnalyzerExtensionCommon {
         resultDisplay = result.result.resultMessage;
       }
       return `
-          <div class="prompt_result json_result">
+          <div class="prompt_result json_result mx-2 py-2">
             <div class="prompt_header">
               <span class="prompt_id">${result.prompt.id}</span>
             </div>
@@ -499,7 +502,7 @@ export class AnalyzerExtensionCommon {
         `;
     } else {
       return `
-          <div class="prompt_result text_result">
+          <div class="prompt_result text_result mx-2 py-2">
             <div class="prompt_header">
               <span class="prompt_id">${result.prompt.id}</span>
             </div>

@@ -8,7 +8,8 @@ module.exports = {
     './mainpageapp.ts',
     './sidepanel.html',
     './sidepanelapp.ts',
-    './extensioncommons.ts',
+    './extensioncommon.ts',
+    './datamillhelper.ts',
   ],
   theme: {
     accentColor: ({ theme }) => ({
