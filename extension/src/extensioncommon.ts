@@ -420,7 +420,7 @@ export class AnalyzerExtensionCommon {
         historyIndexDisplay += String.fromCharCode(97 + index);
       }
       resultsHTML += `
-            <div class="history_entry_set_wrapper mx-2 my-1 flex flex-col">
+            <div class="history_entry_set_wrapper mx-1 my-1 flex flex-col">
             <div class="flex flex-row">
                 <h6 class="history_entry_prompt_setname pl-2 pr-1 flex-1 py-2 fs-5">${setName}</h6>
                 <div class="whitespace-nowrap">

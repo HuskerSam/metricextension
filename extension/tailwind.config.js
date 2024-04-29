@@ -4,12 +4,9 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 module.exports = {
   content: [
     './main.html',
-    './pages/*.html',
-    './mainpageapp.ts',
     './sidepanel.html',
-    './sidepanelapp.ts',
-    './extensioncommon.ts',
-    './datamillhelper.ts',
+    './pages/*.html',
+    './src/**/*.ts',
   ],
   theme: {
     accentColor: ({ theme }) => ({

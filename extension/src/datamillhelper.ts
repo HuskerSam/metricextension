@@ -39,9 +39,14 @@ export default class DataMillHelper {
             this.analyze_prompt_textarea.select();
             this.analyze_prompt_button.innerHTML = "...";
             this.saveSelectFilters();
+            document.body.classList.add("semantic_search_running");
             await this.renderSongSearchChunks();
             this.analyze_prompt_button.disabled = false;
-            this.analyze_prompt_button.innerHTML = "Analyze";
+            this.analyze_prompt_button.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg> &nbsp; Search`;
+            document.body.classList.remove("semantic_search_running");
         });
         this.dmtab_change_session_select.addEventListener("change", () => {
             const selectedValue = Number(this.dmtab_change_session_select.value);
@@ -92,7 +97,7 @@ export default class DataMillHelper {
         this.filter_container.innerHTML = "";
         this.selectedFilters.forEach((filter: any, filterIndex: number) => {
             let filterDiv = document.createElement("div");
-            filterDiv.classList.add("filter-element");
+            filterDiv.classList.add("filter_chips");
             filterDiv.innerHTML = this.selectedFilterTemplate(filter, filterIndex);
             this.filter_container.appendChild(filterDiv);
         });
@@ -129,7 +134,12 @@ export default class DataMillHelper {
     }
     async renderSongSearchChunks() {
         if (this.runningQuery === true) return;
-        this.full_augmented_response.innerHTML = `<span class="font-bold text-lg">Search running...</span>`;
+        this.full_augmented_response.innerHTML = `
+        <div class="hidden flex-col flex-1 semantic_search_running_loader h-full justify-center text-center align-middle">
+        <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-12 h-12 self-center inline-block" loop
+          autoplay></lottie-player>
+          <span class="font-bold text-lg">Search running...</span>
+        </div>`;
         this.runningQuery = true;
         const message = this.analyze_prompt_textarea.value.trim();
         let result = await this.getMatchingVectors(message, this.chunkSizeMeta.topK,
@@ -152,9 +162,9 @@ export default class DataMillHelper {
             }
 
             const generateSongCard = (match: any) => {
-                let similarityScore = `<span class="similarity_score_badge">${(match.score * 100).toFixed()}%</span>`;
-                let metaString = `<div class="meta_field_row">
-                <span class="meta_field_col_name text-bold text-sm mr-2">Id</span>
+                let similarityScore = `<span class="similarity_score_badge mb-2">${(match.score * 100).toFixed()}%</span>`;
+                let metaString = `<div class="meta_field_row border-b border-b-slate-300 text-nowrap p-1">
+                <span class="meta_field_col_name font-bold text-sm mr-2 w-28 overflow-hidden inline-block">$ Id</span>
                 <span class="meta_field_col_value">${match.id}</span>
                 </div>`;
                 let metaFields = Object.keys(match.metadata);
@@ -169,23 +179,23 @@ export default class DataMillHelper {
                     if (isNumber) {
                         value = Number(match.metadata[category]) || 0;
                     }
-                    metaString += `<div class="meta_field_row">
-                            <span class="meta_field_col_name text-bold text-sm mr-2">${category}</span>
-                            <span class="meta_field_col_value">${numStr} ${value}</span>
+                    metaString += `<div class="meta_field_row border-b border-b-slate-400 text-nowrap p-1">
+                            <span class="meta_field_col_name font-bold text-sm mr-2 w-28 overflow-hidden inline-block">${numStr} ${category}</span>
+                            <span class="meta_field_col_value">${value}</span>
                             </div>`;
                 });
                 const title = match.metadata.title || "";
                 return `
-                    <div class="rounded border m-1 p-1" data-songcardid="${match.id}">
+                    <div class="rounded border mr-1 mb-2 p-2" data-songcardid="${match.id}">
                         <div class="flex flex-row">
                             <div class="flex-1 font-bold">
-                            ${title}<br>
+                            <h4>${title}</h4>
                             ${url}</div>
                             <div>${similarityScore}</div>
                         </div>
                         <div class="h-[150px] flex flex-row">
                             <div class="whitespace-pre-wrap overflow-auto flex-1">${match.fullText}</div>
-                            <div class="overflow-auto flex-1">${metaString}</div>
+                            <div class="overflow-auto flex-1 pl-2">${metaString}</div>
                         </div>
                     </div>`;
             }
@@ -292,17 +302,17 @@ export default class DataMillHelper {
         return `<div class="filter-header">
                    <span class="metric-filter-title">${title}</span>
                 </div>
-                <div class="filter-body">
-                    <div class="filter-select">
-                        <select class="" data-filterindex="${filterIndex}">
-                            <option value="$lte" ${lessThan}>&lt;=</option>
-                            <option value="$gte" ${greaterThan}>&gt;=</option>
-                            <option value="$e" ${numberEqual}>#=</option>
-                            <option value="$se" ${stringEqual}>$=</option>
+                <div class="flex flex-row gap-1">
+                    <div>
+                        <select class="form-select-ts w-16" data-filterindex="${filterIndex}">
+                            <option value="$lte" ${lessThan}>&#8804;</option>
+                            <option value="$gte" ${greaterThan}>&#8805</option>
+                            <option value="$e" ${numberEqual}># number</option>
+                            <option value="$se" ${stringEqual}>$ string</option>
                         </select>
                     </div>
                     <div>
-                        <input type="text" class="filter-input-value" value="${filter.value}" data-filterindex="${filterIndex}">
+                        <input type="text" class="filter-input-value form-input-ts w-12" value="${filter.value}" data-filterindex="${filterIndex}">
                     </div>
                 </div>
                 <button class="delete-button" data-filterindex="${filterIndex}">X</button>`;
