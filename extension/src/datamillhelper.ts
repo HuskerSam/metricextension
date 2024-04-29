@@ -4,10 +4,6 @@ import { prompts } from "./metrics";
 declare const chrome: any;
 export default class DataMillHelper {
     extCommon = new AnalyzerExtensionCommon(chrome);
-    byVerseAPIToken = "9b2b6dcc-900d-4051-9947-a42830853d86";
-    byVerseSessionId = "lh3a4fui9n7j";
-    byChapterToken = "a1316745-313f-4bdf-b073-3705bf11a0e7";
-    byChapterSessionId = "vkuyk8lg74nq";
     promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
     queryUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/vectorquery`;
     loaded = false;
@@ -19,6 +15,24 @@ export default class DataMillHelper {
     lastSearchMatches: any[] = [];
     metricPrompts: any[] = [];
     selectedFilters: any[] = [];
+    songChunkSizeMeta = {
+        apiToken: "cfbde57f-a4e6-4eb9-aea4-36d5fbbdad16",
+        sessionId: "8umxl4rdt32x",
+        lookupPath: "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fsong-demo-v3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
+        topK: 15,
+    };
+    bibleChunkSizeMeta = {
+        apiToken: "a1316745-313f-4bdf-b073-3705bf11a0e7",
+        sessionId: "vkuyk8lg74nq",
+        lookupPath: "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fbiblechapters-gen3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
+        topK: 15,
+    };
+    chunkSizeMeta = {
+        apiToken: "cfbde57f-a4e6-4eb9-aea4-36d5fbbdad16",
+        sessionId: "8umxl4rdt32x",
+        lookupPath: "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fsong-demo-v3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
+        topK: 15,
+    };
     full_augmented_response = document.querySelector(".full_augmented_response") as HTMLDivElement;
     analyze_prompt_textarea = document.querySelector(".analyze_prompt_textarea") as HTMLTextAreaElement;
     analyze_prompt_button = document.querySelector(".analyze_prompt_button") as HTMLButtonElement;
@@ -104,8 +118,8 @@ export default class DataMillHelper {
         this.full_augmented_response.innerHTML = `<span class="font-bold text-lg">Search running...</span>`;
         this.runningQuery = true;
         const message = this.analyze_prompt_textarea.value.trim();
-        const chunkSizeMeta = this.getChunkSizeMeta();
-        let result = await this.getMatchingVectors(message, chunkSizeMeta.topK, chunkSizeMeta.apiToken, chunkSizeMeta.sessionId);
+        let result = await this.getMatchingVectors(message, this.chunkSizeMeta.topK,
+            this.chunkSizeMeta.apiToken, this.chunkSizeMeta.sessionId);
         if (result.success === false) {
             console.log("FAILED TO FETCH", result);
             this.full_augmented_response.innerHTML = "Error fetching results. Please refer to console for details.";
@@ -133,10 +147,14 @@ export default class DataMillHelper {
                 }
                 metaFields.forEach(category => {
                     const isNumber = Number(match.metadata[category]) === match.metadata[category];
-                    let value = Number(match.metadata[category]) || 0;
+                    const numStr = isNumber ? "#" : "$";
+                    let value = match.metadata[category];
+                    if (isNumber) {
+                        value = Number(match.metadata[category]) || 0;
+                    }
                     metaString += `<div class="meta_field_row">
                             <span class="meta_field_col_name text-bold text-sm mr-2">${category}</span>
-                            <span class="meta_field_col_value">${match.metadata[category]}</span>
+                            <span class="meta_field_col_value">${numStr} ${value}</span>
                             </div>`;
                 });
                 const title = match.metadata.title || "";
@@ -213,6 +231,9 @@ export default class DataMillHelper {
         idList.forEach((chunkId: string) => {
             const parts = chunkId.split("_");
             let docId = parts[0];
+            if (parts.length === 2) {
+                docId = parts[0] + "_" + parts[1];
+            }
             if (this.lookedUpIds[docId] !== true)
                 docIdMap[docId] = true;
         });
@@ -228,7 +249,7 @@ export default class DataMillHelper {
     }
     async loadDocumentLookup(docId: string): Promise<any> {
         try {
-            let lookupPath = this.getChunkSizeMeta().lookupPath;
+            let lookupPath: string = this.chunkSizeMeta.lookupPath;
             lookupPath = lookupPath.replace("DOC_ID_URIENCODED", docId);
             console.log(lookupPath);
             const r = await fetch(lookupPath);
@@ -238,14 +259,6 @@ export default class DataMillHelper {
             console.log("FAILED TO FETCH CHUNK MAP", docId, error);
             return {};
         }
-    }
-    getChunkSizeMeta(): any {
-        return {
-            apiToken: "cfbde57f-a4e6-4eb9-aea4-36d5fbbdad16",
-            sessionId: "8umxl4rdt32x",
-            lookupPath: "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fsong-demo-v3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
-            topK: 15,
-        };
     }
     generateDisplayText(matchId: string, highlight = false): string {
         const displayDocHTML = this.lookupData[matchId];
