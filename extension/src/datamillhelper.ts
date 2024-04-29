@@ -1,7 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { prompts } from "./metrics";
-const metricCategories = ['romantic', 'comedic', 'inappropriatelanguage', 'mature', 'seasonal', 'motivational', 'political', 'religious', 'sad', 'violent'];
-
 
 declare const chrome: any;
 export default class DataMillHelper {
@@ -17,7 +15,6 @@ export default class DataMillHelper {
     lookedUpIds: any = {};
     lookupData: any = {};
     songMatchLookup: any = {};
-    metricPromptMap: any = {};
     displayDocHtmlDoc: any = {};
     lastSearchMatches: any[] = [];
     metricPrompts: any[] = [];
@@ -26,9 +23,7 @@ export default class DataMillHelper {
     analyze_prompt_textarea = document.querySelector(".analyze_prompt_textarea") as HTMLTextAreaElement;
     analyze_prompt_button = document.querySelector(".analyze_prompt_button") as HTMLButtonElement;
     filter_container = document.body.querySelector(".filter_container") as HTMLDivElement;
-    metric_filter_select = document.body.querySelector(".metric_filter_select") as HTMLSelectElement;
-
-
+    dmtab_add_meta_filter_button = document.body.querySelector(".dmtab_add_meta_filter_button") as HTMLButtonElement;
     runningQuery = false;
 
     constructor() {
@@ -36,22 +31,34 @@ export default class DataMillHelper {
             this.analyze_prompt_button.disabled = true;
             this.analyze_prompt_textarea.select();
             this.analyze_prompt_button.innerHTML = "...";
+            this.saveSelectFilters();
             await this.renderSongSearchChunks();
             this.analyze_prompt_button.disabled = false;
             this.analyze_prompt_button.innerHTML = "Analyze";
         });
-        this.metric_filter_select.addEventListener("input", () => this.addMetricFilter());
         this.load();
+
+        this.analyze_prompt_textarea.addEventListener("keydown", (e: any) => {
+            if (e.key === "Enter" && e.shiftKey === false) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.analyze_prompt_button.click();
+            }
+        });
+        this.dmtab_add_meta_filter_button.addEventListener("click", () => {
+            this.addMetaFilter();
+        });
     }
-    load() {
+    async load() {
         this.metricPrompts = prompts;
         this.loaded = true;
         this.lookupData = {};
         this.lookedUpIds = {};
-        this.metricPromptMap = {};
-        this.metricPrompts.forEach((prompt: any) => {
-            this.metricPromptMap[prompt.id] = prompt;
-        });
+        this.selectedFilters = (await this.extCommon.getStorageField("selectedSemanticFilters")) || [];
+        this.paintData();
+    }
+    paintData() {
+        this.renderFilters();
     }
     renderFilters() {
         this.filter_container.innerHTML = "";
@@ -66,33 +73,35 @@ export default class DataMillHelper {
                 let filterIndex = Number(button.getAttribute("data-filterindex"));
                 this.selectedFilters.splice(filterIndex, 1);
                 this.renderFilters();
+                this.saveSelectFilters();
+            });
+        });
+        this.filter_container.querySelectorAll(".filter-input-value").forEach((ele: Element) => {
+            ele.addEventListener("input", () => {
+                let filterIndex = Number(ele.getAttribute("data-filterindex"));
+                this.selectedFilters[filterIndex].value = (ele as HTMLInputElement).value;
+            });
+        });
+        this.filter_container.querySelectorAll(".filter-input-value").forEach((ele: Element) => {
+            ele.addEventListener("input", () => {
+                let filterIndex = Number(ele.getAttribute("data-filterindex"));
+                this.selectedFilters[filterIndex].value = (ele as HTMLInputElement).value;
             });
         });
         this.filter_container.querySelectorAll(".filter-select select").forEach((select: Element) => {
             select.addEventListener("input", () => {
                 let filterIndex = Number(select.getAttribute("data-filterindex"));
                 this.selectedFilters[filterIndex].operator = (select as any).value;
+                this.saveSelectFilters();
             });
         });
-        this.filter_container.querySelectorAll(".filter-value select").forEach((select: Element) => {
-            select.addEventListener("input", () => {
-                let filterIndex = Number(select.getAttribute("data-filterindex"));
-                this.selectedFilters[filterIndex].value = (select as any).value;
-            });
-        });
-        let html = "<option>metric...</option>";
-        this.metricPrompts.forEach((prompt: any) => {
-            let promptUsed = false;
-            this.selectedFilters.forEach((filter: any) => {
-                if (filter.metaField === prompt.id) promptUsed = true;
-            });
-            if (promptUsed === false) html += `<option value="${prompt.id}">${prompt.title}</option>`;
-        });
-        this.metric_filter_select.innerHTML = html;
+    }
+    async saveSelectFilters() {
+        await chrome.storage.local.set({ "selectedSemanticFilters": this.selectedFilters });
     }
     async renderSongSearchChunks() {
         if (this.runningQuery === true) return;
-        this.full_augmented_response.innerHTML = `<span class="text-light">Search running...</span>`;
+        this.full_augmented_response.innerHTML = `<span class="font-bold text-lg">Search running...</span>`;
         this.runningQuery = true;
         const message = this.analyze_prompt_textarea.value.trim();
         const chunkSizeMeta = this.getChunkSizeMeta();
@@ -116,40 +125,32 @@ export default class DataMillHelper {
 
             const generateSongCard = (match: any) => {
                 let similarityScore = `<span class="similarity_score_badge">${(match.score * 100).toFixed()}%</span>`;
-                let catString = ``;
-                metricCategories.forEach(category => {
-                    if (match.metadata[category] !== 0) {
-                        catString += `
-                            <span class="badge bg-primary me-1">${this.metricPromptMap[category].title}: ${match.metadata[category]}</span>`;
-                    }
+                let metaString = ``;
+                let metaFields = Object.keys(match.metadata);
+                let url = match.metadata.url || "";
+                if (url) {
+                    url = `<a href="${url}" target="_blank" class="text-blue-500">View Source</a>`;
+                }
+                metaFields.forEach(category => {
+                    const isNumber = Number(match.metadata[category]) === match.metadata[category];
+                    let value = Number(match.metadata[category]) || 0;
+                    metaString += `<div class="meta_field_row">
+                            <span class="meta_field_col_name text-bold text-sm mr-2">${category}</span>
+                            <span class="meta_field_col_value">${match.metadata[category]}</span>
+                            </div>`;
                 });
+                const title = match.metadata.title || "";
                 return `
-                    <div class="song_card card mb-1 text-white" data-songcardid="${match.id}" style="background:rgba(50, 50, 50, .25);">
-                        <div class="card-body match-card">
-                            <div class="d-flex">
-                                <div class="me-3" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                                    ${similarityScore}
-                                </div>
-                                <div style="flex:1">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h5 class="card-title" style="flex:1">${match.metadata.artist} - ${match.metadata.title}</h5>
-                                        <button class="btn play_song me-2 text-white" data-song="${match.id}">
-                                            <i class="material-icons">play_arrow</i>
-                                        </button>
-                                        <button class="btn add_song text-white" data-song="${match.id}">
-                                            <i class="material-icons">playlist_add</i>
-                                        </button>
-                                    </div>
-                                    <div style="display:flex; flex-direction:row;">
-                                        <div style="flex:1">${catString}</div>
-                                        <div>
-                                            <button class="btn show_lyrics_modal text-white" data-song="${match.id}">
-                                                <i class="material-icons">lyrics</i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="rounded border m-1 p-1" data-songcardid="${match.id}">
+                        <div class="flex flex-row">
+                            <div class="flex-1 font-bold">
+                            ${title}<br>
+                            ${url}</div>
+                            <div>${similarityScore}</div>
+                        </div>
+                        <div class="h-[150px] flex flex-row">
+                            <div class="whitespace-pre-wrap overflow-auto flex-1">${match.fullText}</div>
+                            <div class="overflow-auto flex-1">${metaString}</div>
                         </div>
                     </div>`;
             }
@@ -165,18 +166,35 @@ export default class DataMillHelper {
         this.runningQuery = false;
         return;
     }
-    addMetricFilter() {
-        const metaField = this.metric_filter_select.value;
-        this.selectedFilters.push({ metaField, value: 1, operator: "$gte" });
+    addMetaFilter(metaField = "") {
+        if (!metaField) {
+            let newValue = prompt("Enter a metric name");
+            if (!newValue) return;
+            metaField = newValue;
+        }
+        this.selectedFilters.push({ metaField, value: "", operator: "$se" });
         this.renderFilters();
-        this.metric_filter_select.selectedIndex = 0;
+        this.saveSelectFilters();
     }
     async getMatchingVectors(message: string, topK: number, apiToken: string, sessionId: string): Promise<any> {
+        const filter: any = {};
+        this.selectedFilters.forEach((selectedFilter: any) => {
+            if (selectedFilter.operator === "$se") {
+                filter[selectedFilter.metaField] = { ["$eq"]: selectedFilter.value };
+            } else if (selectedFilter.operator === "$e") {
+                const value = Number(selectedFilter.value) || 0;
+                filter[selectedFilter.metaField] = { ["$eq"]: value };
+            } else {
+                filter[selectedFilter.metaField] = { [selectedFilter.operator]: Number(selectedFilter.value) };
+            }
+        });
+
         const body = {
             message,
             apiToken,
             sessionId,
             topK,
+            filter,
         };
         const fetchResults = await fetch(this.queryUrl, {
             method: "POST",
@@ -234,27 +252,27 @@ export default class DataMillHelper {
         return displayDocHTML;
     }
     selectedFilterTemplate(filter: any, filterIndex: number): string {
-        const title = this.metricPromptMap[filter.metaField].title;
+        const title = filter.metaField;
         const lessThan = filter.operator === "$lte" ? "selected" : "";
         const greaterThan = filter.operator === "$gte" ? "selected" : "";
+        const numberEqual = filter.operation === "$e" ? "selected" : "";
+        const stringEqual = filter.operation === "$se" ? "selected" : "";
         return `<div class="filter-header">
-                    <span class="metric-filter-title">${title}</span>
-                    </div>
-                    <div class="filter-body">
+                   <span class="metric-filter-title">${title}</span>
+                </div>
+                <div class="filter-body">
                     <div class="filter-select">
-                        <select class="bg-dark text-white" data-filterindex="${filterIndex}">
-                        <option value="$lte" ${lessThan}>≤</option>
-                        <option value="$gte" ${greaterThan}>≥</option>
+                        <select class="" data-filterindex="${filterIndex}">
+                            <option value="$lte" ${lessThan}>&lt;=</option>
+                            <option value="$gte" ${greaterThan}>&gt;=</option>
+                            <option value="$e" ${numberEqual}>#=</option>
+                            <option value="$se" ${stringEqual}>$=</option>
                         </select>
                     </div>
-                    <div class="filter-value">
-                        <select class="bg-dark text-white" data-filterindex="${filterIndex}">
-                        ${Array.from({ length: 11 }, (_, i) => `<option value="${i}" ${Number(filter.value) === i ? 'selected' : ''}>${i}</option>`).join('')}
-                        </select>
+                    <div>
+                        <input type="text" class="filter-input-value" value="${filter.value}" data-filterindex="${filterIndex}">
                     </div>
-                    </div>
-                    <button class="delete-button bg-dark text-white" data-filterindex="${filterIndex}">
-                    <i class="material-icons">close</i>
-                    </button>`;
+                </div>
+                <button class="delete-button" data-filterindex="${filterIndex}">X</button>`;
     }
 }

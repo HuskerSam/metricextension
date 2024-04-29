@@ -447,7 +447,6 @@ export default class BulkHelper {
         }
 
         if (selectedBulkAnalysisSets && selectedBulkAnalysisSets.selectedBulkAnalysisSets) {
-
             let setCache = JSON.stringify(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
             if (setCache !== this.lastSlimSelections || dataChange) {
               this.lastSlimSelections = setCache;

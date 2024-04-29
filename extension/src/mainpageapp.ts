@@ -50,12 +50,11 @@ export default class MainPageApp {
     initEventHandlers() {
         this.open_side_panel_from_main.addEventListener('click', async () => this.extCommon.toggleSidePanel());
     }
-    
-
     async paintData(forceUpdate = false) {
         this.historyHelper?.renderHistoryDisplay();
         this.bulkHelper?.paintAnalysisHistory();
         this.bulkHelper?.paintBulkURLList(forceUpdate);
+        this.dataMillHelper?.paintData();
         this.extCommon.updateSessionKeyStatus();
     }
 }

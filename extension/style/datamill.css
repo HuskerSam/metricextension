@@ -1,0 +1,54 @@
+
+.filter-element {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: solid 1px #ccc;
+    margin: 4px;
+}
+
+.filter-element .filter-header {
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.filter-element .delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: color 0.3s;
+}
+
+.filter-element .delete-button:hover {
+    color: #ff4d4d;
+}
+
+.filter-element .filter-body {
+    display: flex;
+    align-items: center;
+}
+
+.filter-element .filter-select {
+    margin-right: 10px;
+}
+
+.filter-element .form-select {
+    width: auto;
+    padding: 4px 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.similarity_score_badge {
+    background-color: #28a745;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: .8em .4em;
+    border-radius: 0.2em;
+    display: inline-block;
+    font-family: monospace;
+}
