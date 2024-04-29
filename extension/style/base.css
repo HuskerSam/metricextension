@@ -343,7 +343,7 @@ body {
   word-break: break-word;
   padding: 4px;
   font-size: 0.75em;
-  padding-right: 8px;
+  padding-right: 24px;
 }
 
 .metric_result .prompt_id {

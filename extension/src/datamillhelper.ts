@@ -1,5 +1,6 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { prompts } from "./metrics";
+import chunkSizeMetaData from './dmdefaultindexes.json';
 
 declare const chrome: any;
 export default class DataMillHelper {
@@ -15,23 +16,13 @@ export default class DataMillHelper {
     lastSearchMatches: any[] = [];
     metricPrompts: any[] = [];
     selectedFilters: any[] = [];
-    songChunkSizeMeta = {
-        apiToken: "cfbde57f-a4e6-4eb9-aea4-36d5fbbdad16",
-        sessionId: "8umxl4rdt32x",
-        lookupPath: "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fsong-demo-v3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
-        topK: 15,
-    };
-    bibleChunkSizeMeta = {
-        apiToken: "a1316745-313f-4bdf-b073-3705bf11a0e7",
-        sessionId: "vkuyk8lg74nq",
-        lookupPath: "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fbiblechapters-gen3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
-        topK: 15,
-    };
-    chunkSizeMeta = {
-        apiToken: "cfbde57f-a4e6-4eb9-aea4-36d5fbbdad16",
-        sessionId: "8umxl4rdt32x",
-        lookupPath: "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fsong-demo-v3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
-        topK: 15,
+    dmtab_change_session_select = document.querySelector(".dmtab_change_session_select") as HTMLSelectElement;
+    chunkSizeMeta: any = {
+        apiToken: "",
+        sessionId: "",
+        lookupPath: "",
+        topK: 10,
+        numberOfParts: 0,
     };
     full_augmented_response = document.querySelector(".full_augmented_response") as HTMLDivElement;
     analyze_prompt_textarea = document.querySelector(".analyze_prompt_textarea") as HTMLTextAreaElement;
@@ -41,6 +32,8 @@ export default class DataMillHelper {
     runningQuery = false;
 
     constructor() {
+        this.load();
+        this.loadSessionData();
         this.analyze_prompt_button.addEventListener("click", async () => {
             this.analyze_prompt_button.disabled = true;
             this.analyze_prompt_textarea.select();
@@ -50,7 +43,11 @@ export default class DataMillHelper {
             this.analyze_prompt_button.disabled = false;
             this.analyze_prompt_button.innerHTML = "Analyze";
         });
-        this.load();
+        this.dmtab_change_session_select.addEventListener("change", () => {
+            const selectedValue = Number(this.dmtab_change_session_select.value);
+            this.chunkSizeMeta = chunkSizeMetaData[selectedValue];
+            this.load();
+        });
 
         this.analyze_prompt_textarea.addEventListener("keydown", (e: any) => {
             if (e.key === "Enter" && e.shiftKey === false) {
@@ -68,8 +65,25 @@ export default class DataMillHelper {
         this.loaded = true;
         this.lookupData = {};
         this.lookedUpIds = {};
-        this.selectedFilters = (await this.extCommon.getStorageField("selectedSemanticFilters")) || [];
         this.paintData();
+    }
+    async loadSessionData() {
+        this.selectedFilters = (await this.extCommon.getStorageField("selectedSemanticFilters")) || [];
+
+        let chunkSizeMetaDataKeys = Object.keys(chunkSizeMetaData);
+        let chunkTitles: any = chunkSizeMetaDataKeys.map((key: string) => chunkSizeMetaData[Number(key)].title);
+        let chunkValues = chunkSizeMetaDataKeys.map((key: string) => key);
+        this.dmtab_change_session_select.innerHTML = "";
+        chunkTitles.forEach((title: string, index: number) => {
+            let option = document.createElement("option");
+            option.value = chunkValues[index];
+            option.text = title;
+            this.dmtab_change_session_select.appendChild(option);
+        });
+        this.chunkSizeMeta = chunkSizeMetaData[Number(chunkValues[0])];
+        this.dmtab_change_session_select.value = chunkValues[0];
+        this.dmtab_change_session_select.dispatchEvent(new Event("change"));
+        this.saveSelectFilters();
     }
     paintData() {
         this.renderFilters();
@@ -139,7 +153,10 @@ export default class DataMillHelper {
 
             const generateSongCard = (match: any) => {
                 let similarityScore = `<span class="similarity_score_badge">${(match.score * 100).toFixed()}%</span>`;
-                let metaString = ``;
+                let metaString = `<div class="meta_field_row">
+                <span class="meta_field_col_name text-bold text-sm mr-2">Id</span>
+                <span class="meta_field_col_value">${match.id}</span>
+                </div>`;
                 let metaFields = Object.keys(match.metadata);
                 let url = match.metadata.url || "";
                 if (url) {
@@ -231,8 +248,10 @@ export default class DataMillHelper {
         idList.forEach((chunkId: string) => {
             const parts = chunkId.split("_");
             let docId = parts[0];
-            if (parts.length === 2) {
+            if (this.chunkSizeMeta.numberOfParts === 2) {
                 docId = parts[0] + "_" + parts[1];
+            } else if (this.chunkSizeMeta.numberOfParts === 3) {
+                docId = parts[0] + "_" + parts[1] + "_" + parts[2];
             }
             if (this.lookedUpIds[docId] !== true)
                 docIdMap[docId] = true;
