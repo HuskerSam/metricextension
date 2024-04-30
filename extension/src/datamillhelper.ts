@@ -100,18 +100,18 @@ export default class DataMillHelper {
         await chrome.storage.local.set({ "selectedSemanticFilters": this.extCommon.selectedSemanticMetaFilters });
     }
     async runSemanticQuery() {
-        if (this.runningQuery === true) {
-            return {
-                success: false,
-            };
-        }
-
         this.full_augmented_response.innerHTML = `<div class="hidden flex-col flex-1 semantic_search_running_loader h-full justify-center text-center align-middle">
         <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-12 h-12 self-center inline-block" loop
           autoplay></lottie-player>
           <span class="font-bold text-lg">Search running...</span>
         </div>`;
+        if (this.runningQuery === true) {
+            return {
+                success: false,
+            };
+        }
         this.runningQuery = true;
+
         const message = this.analyze_prompt_textarea.value.trim();
         let topK = this.extCommon.chunkSizeMeta.topK;
         let apiToken = this.extCommon.chunkSizeMeta.apiToken;
@@ -243,8 +243,7 @@ export default class DataMillHelper {
             optionHtml += `<option>${this.extCommon.chunkSizeMetaDataMap[key].title}</option>`;
         });
         this.dmtab_change_session_select.innerHTML = optionHtml;
-        let selectedSession = await this.extCommon.getStorageField("selectedSemanticSource");
-        const selectedSemanticSource = selectedSession || "song full lyrics chunk";
+        let selectedSemanticSource = await this.extCommon.getSelectedSemanticSource();
         this.dmtab_add_meta_filter_button.value = selectedSemanticSource;
 
         await this.extCommon.selectSemanticSource(selectedSemanticSource);

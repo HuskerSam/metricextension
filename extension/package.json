@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
+    "@types/handlebars": "^4.1.0",
     "@types/mustache": "^4.2.5",
     "@types/papaparse": "^5.3.14",
     "@types/tabulator-tables": "^6.2.0",

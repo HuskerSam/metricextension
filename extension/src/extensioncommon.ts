@@ -27,6 +27,7 @@ export class AnalyzerExtensionCommon {
   semanticLoaded = false;
   chunkSizeMetaDataMap: any = {};
   semanticPromptTemplatesMap: any = {};
+  semanticQueryRunning = false;
 
   constructor(chrome: any) {
     this.chrome = chrome;
@@ -888,10 +889,33 @@ export class AnalyzerExtensionCommon {
     this.semanticLoaded = true;
     this.lookupData = {};
     this.lookedUpIds = {};
-}
-async selectSemanticSource(selectedSemanticSource: string) {
+  }
+  async selectSemanticSource(selectedSemanticSource: string) {
     this.chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
     await this.chrome.storage.local.set({ selectedSemanticSource });
     await this.semanticLoad();
-}
+  }
+  async querySemanticChunks(message: string) {
+    this.semanticQueryRunning  = true;
+    let selectedSemanticSource = await this.getSelectedSemanticSource();
+    const chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
+    this.chunkSizeMeta = chunkSizeMeta;
+    let topK = chunkSizeMeta.topK;
+    let apiToken = chunkSizeMeta.apiToken;
+    let sessionId = chunkSizeMeta.sessionId;
+    if (chunkSizeMeta.useDefaultSession) {
+        topK = 15;
+        sessionId = await this.chrome.storage.local.get('sessionId');
+        sessionId = sessionId?.sessionId || "";
+        apiToken = await this.chrome.storage.local.get('apiToken');
+        apiToken = apiToken?.apiToken || "";
+    }
+    console.log("querying semantic chunks", chunkSizeMeta, message, topK, apiToken, sessionId);
+    const result = await this.getMatchingVectors(message, topK, apiToken, sessionId);
+    this.semanticQueryRunning = false;
+    return result;
+  }
+  async getSelectedSemanticSource() {
+    return (await this.getStorageField("selectedSemanticSource")) || "song full lyrics chunk";
+  }
 }
