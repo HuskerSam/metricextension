@@ -1,14 +1,32 @@
 import Mustache from 'mustache';
+import chunkSizeMetaData from './dmdefaultindexes.json';
+import semanticPromptTemplates from '../defaults/semanticPromptTemplates.json';
 
 export class AnalyzerExtensionCommon {
   promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
   cloudWriteUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/cloudwrite`;
   cloudScrapeUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/scrapeurl`;
+  queryUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/vectorquery`;
   chrome: any;
   query_source_tokens_length: any;
   previousSlimOptions = '';
   activeTabsBeingScraped: any = [];
   debouncedInputTimeouts: any = {};
+  selectedSemanticMetaFilters: any[] = [];
+  lookUpKeys: string[] = [];
+  lookedUpIds: any = {};
+  lookupData: any = {};
+  chunkSizeMeta: any = {
+    apiToken: "",
+    sessionId: "",
+    lookupPath: "",
+    topK: 10,
+    numberOfParts: 0,
+    useDefaultSession: false,
+  };
+  semanticLoaded = false;
+  chunkSizeMetaDataMap: any = {};
+  semanticPromptTemplatesMap: any = {};
 
   constructor(chrome: any) {
     this.chrome = chrome;
@@ -20,6 +38,16 @@ export class AnalyzerExtensionCommon {
         }
       }
     );
+    chunkSizeMetaData.forEach((defaultData: any) => {
+      let key = defaultData.title;
+      if (!key) console.log("chunkSizeMetaData missing title", defaultData);
+      this.chunkSizeMetaDataMap[key] = defaultData;
+    });
+    semanticPromptTemplates.forEach((defaultData: any) => {
+      let key = defaultData.title;
+      if (!key) console.log("semanticPromptTemplates missing title", defaultData);
+      this.semanticPromptTemplatesMap[key] = defaultData;
+    });
   }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -785,4 +813,85 @@ export class AnalyzerExtensionCommon {
       }
     });
   }
+  async getMatchingVectors(message: string, topK: number, apiToken: string, sessionId: string): Promise<any> {
+    const filter: any = {};
+    this.selectedSemanticMetaFilters.forEach((selectedFilter: any) => {
+      if (selectedFilter.operator === "$se") {
+        filter[selectedFilter.metaField] = { ["$eq"]: selectedFilter.value };
+      } else if (selectedFilter.operator === "$e") {
+        const value = Number(selectedFilter.value) || 0;
+        filter[selectedFilter.metaField] = { ["$eq"]: value };
+      } else {
+        filter[selectedFilter.metaField] = { [selectedFilter.operator]: Number(selectedFilter.value) };
+      }
+    });
+
+    const body = {
+      message,
+      apiToken,
+      sessionId,
+      topK,
+      filter,
+    };
+    const fetchResults = await fetch(this.queryUrl, {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    return await fetchResults.json();
+  }
+  async fetchDocumentsLookup(idList: string[]) {
+    const promises: any[] = [];
+    const docIdMap: any = {};
+    idList.forEach((chunkId: string) => {
+      const parts = chunkId.split("_");
+      let docId = parts[0];
+      if (this.chunkSizeMeta.numberOfParts === 2) {
+        docId = parts[0] + "_" + parts[1];
+      } else if (this.chunkSizeMeta.numberOfParts === 3) {
+        docId = parts[0] + "_" + parts[1] + "_" + parts[2];
+      }
+      if (this.lookedUpIds[docId] !== true)
+        docIdMap[docId] = true;
+    });
+    Object.keys(docIdMap).forEach((id: string) => promises.push(this.loadDocumentLookup(id)));
+    let chunkMaps = await Promise.all(promises);
+    chunkMaps.forEach((chunkMap: any) => {
+      Object.keys(chunkMap).forEach((chunkId: string) => {
+        this.lookupData[chunkId] = chunkMap[chunkId];
+      });
+    });
+    Object.assign(this.lookedUpIds, docIdMap);
+    this.lookUpKeys = Object.keys(this.lookupData).sort();
+  }
+  async loadDocumentLookup(docId: string): Promise<any> {
+    try {
+      let lookupPath: string = this.chunkSizeMeta.lookupPath;
+      lookupPath = lookupPath.replace("DOC_ID_URIENCODED", docId);
+      console.log(lookupPath);
+      const r = await fetch(lookupPath);
+      const result = await r.json();
+      return result;
+    } catch (error: any) {
+      console.log("FAILED TO FETCH CHUNK MAP", docId, error);
+      return {};
+    }
+  }
+  async initDatamillSessionList() {
+    this.selectedSemanticMetaFilters = (await this.getStorageField("selectedSemanticFilters")) || [];
+  }
+  async semanticLoad() {
+    this.semanticLoaded = true;
+    this.lookupData = {};
+    this.lookedUpIds = {};
+}
+async selectSemanticSource(selectedSemanticSource: string) {
+    this.chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
+    await this.chrome.storage.local.set({ selectedSemanticSource });
+    await this.semanticLoad();
+}
 }

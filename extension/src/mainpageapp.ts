@@ -14,7 +14,7 @@ export default class MainPageApp {
     historyHelper: HistoryHelper | null = null;
     settingsHelper: SettingsHelper | null = null;
     dataMillHelper: DataMillHelper | null = null;
-    LLMChatApp: LLMChatApp | null = null;
+    llmChatApp: LLMChatApp | null = null;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
     main_history_tab_view = document.querySelector('#main_history_tab_view') as HTMLDivElement;
     main_prompt_manager_tab_view = document.querySelector('#main_prompt_manager_tab_view') as HTMLDivElement;
@@ -43,7 +43,7 @@ export default class MainPageApp {
         this.promptHelper = new PromptHelper();
         this.historyHelper = new HistoryHelper();
         this.dataMillHelper = new DataMillHelper();
-        this.LLMChatApp = new LLMChatApp();
+        this.llmChatApp = new LLMChatApp();
         this.initEventHandlers();
 
         // list for changes to local storage and update the UI
@@ -60,6 +60,7 @@ export default class MainPageApp {
         this.bulkHelper?.paintAnalysisHistory();
         this.bulkHelper?.paintBulkURLList(forceUpdate);
         this.dataMillHelper?.paintData();
+        this.llmChatApp?.paint();
         this.extCommon.updateSessionKeyStatus();
     }
 }

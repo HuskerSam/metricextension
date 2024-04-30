@@ -14,7 +14,7 @@
         "lookupPath": "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fbibleverses-gen3-v2%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
         "topK": 15
     },
-    {   
+    {
         "title": "song full lyrics chunk",
         "apiToken": "cfbde57f-a4e6-4eb9-aea4-36d5fbbdad16",
         "sessionId": "8umxl4rdt32x",
@@ -96,5 +96,9 @@
         "sessionId": "1gcrc37j1miq",
         "lookupPath": "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/projectLookups%2FHlm0AZ9mUCeWrMF6hI7SueVPbrq1%2Fcovid-sentencechunk-v3%2FbyDocument%2FDOC_ID_URIENCODED.json?alt=media",
         "topK": 10
+    },
+    {
+        "useDefaultSession": true,
+        "title": "Klyde Session"
     }
 ]

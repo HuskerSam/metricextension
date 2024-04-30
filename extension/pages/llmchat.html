@@ -53,32 +53,39 @@
     <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="templateModalLabel">Configuration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
                 <div class="modal-body">
                     <div class="row py-3" style="justify-content:space-evenly">
                         <div class="d-flex flex-column gap-3 col-12 col-lg-6">
+                            <div style="padding:4px;">
+                                <select class="form-select-ts embedding_type_select">
+                                  <option class="embed_distinct_chunks_option">Embed 5 Document Chunks</option>
+                                  <option class="embed_sequential_chunks_option">Embed 2 Document Chunks</option>
+                                  <option class="embed_sequential_chunks2_option">Embed 1 Chunk with Additional Context</option>
+                                </select>
+                              </div>
+                            <label class="form-check-label" style="font-weight: normal;font-size:1em;">
+                                <input class="form-check-input uniqueDocsCheck" type="checkbox">
+                                &nbsp;Use 1 chunk per doc
+                              </label>
                             <label class="pt-3 pt-lg-0">Customize the Prompt!</label>
                             <div style="padding:4px">
-                                <select class="form-select prompt_template_select_preset">
+                                <select class="form-select-ts llm_prompt_template_select_preset">
                                     <option selected>Select a prompt</option>
-                                    <option>wow</option>
-                                    <option>poopie</option>
-                                    <option>pants</option>
+                                    <option>Answer with Doc Summary</option>
+                                    <option>OpenAI Cookbook Primitive</option>
+                                    <option>Answer with Doc Keywords</option>
                                 </select>
                             </div>
                             <div style="padding:4px;">
-                                <textarea style="height:15em;width:100%;border-color: rgb(100,100,255);"
-                                    class="prompt_template_text_area monospace form-control"></textarea>
+                                <textarea 
+                                    class="llm_prompt_template_text_area monospace form-textarea-ts min-h-[300px]"></textarea>
                             </div>
                             <span class="small ms-2" style="position: relative;margin-top:-16px;margin-bottom:-16px;">
                                 id, doc_id,
                                 primary_category, published, title, url, matchIndex, prompt, text</span>
                             <div style="padding:4px;">
-                                <textarea style="height:7em;width:100%;border-color: rgb(100,100,255);"
-                                    class="document_template_text_area monospace form-control"></textarea>
+                                <textarea 
+                                    class="llm_document_template_text_area monospace form-textarea-ts"></textarea>
                             </div>
                         </div>
                     </div>
