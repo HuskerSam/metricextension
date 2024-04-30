@@ -315,6 +315,10 @@ export default class DataMillHelper {
                         <input type="text" class="filter-input-value form-input-ts w-12" value="${filter.value}" data-filterindex="${filterIndex}">
                     </div>
                 </div>
-                <button class="delete-button" data-filterindex="${filterIndex}">X</button>`;
+                <button class="delete-button" data-filterindex="${filterIndex}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>`;
     }
 }

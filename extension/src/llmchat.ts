@@ -37,23 +37,16 @@ export default class LLMChatApp {
         this.llm_full_augmented_response.innerHTML = "Processing Query...<br><br>";
         if (this.semanticEnabled) {
             this.semanticResults = [];// await this.lookupAIDocumentChunks();
-            this.llm_full_augmented_response.innerHTML +=
-                `<a class="response_verse_link p-2 mt-4" href="see verses">Top k Search Results</a> retrieved...
-    <a class="response_detail_link p-2" href="see details">Prompt Details</a>`;
 //            this._addFeedHandlers();
         }
 
         this.llm_full_augmented_response.innerHTML = await this.sendPromptToLLM();
-        this.llm_full_augmented_response.innerHTML +=
-            `<br><div class="d-flex flex-column link-primary" style="white-space:normal;">
-<a class="response_verse_link p-2 mt-4" href="see verses">Top k Search Results</a>
-<a class="response_detail_link p-2" href="see details">Prompt Details</a></div>`;
      //   this._addFeedHandlers();
 
         this.llm_analyze_prompt_button.removeAttribute("disabled");
-        this.llm_analyze_prompt_button.innerHTML = `<span class="material-icons-outlined mt-1">
-        send
-        </span>`;
+        this.llm_analyze_prompt_button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+      </svg> `;
         this.running = false;
         document.body.classList.add("complete");
         document.body.classList.remove("running");
