@@ -25,8 +25,9 @@ export default class LLMChatApp {
             return [];
         }
         this.llm_analyze_prompt_button.setAttribute("disabled", "");
-        this.llm_analyze_prompt_button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span class="visually-hidden">Loading...</span>`;
+        this.llm_analyze_prompt_button.innerHTML = `<span>
+        <lottie-player src="media/heartlottie.json" background="transparent" speed="1"
+        style="height:100px;width:100px;align-self:center;" loop autoplay></lottie-player></span>`;
         this.summary_details.innerHTML = "Compiling Prompt...";
         this.running = true;
 

@@ -18,14 +18,6 @@ body {
   display: flex;
 }
 
-.verse_card {
-  margin: 8px;
-  border-bottom: solid 1px gray;
-  padding: 8px;
-  color: black;
-  font-size: 18px;
-}
-
 .message_text,
 .augmented_message_text {
   width: 100%;
@@ -33,12 +25,8 @@ body {
   margin-bottom: 12px;
 }
 
-.verse_card .selected {
-  font-weight: bold;
-}
-
 .full_augmented_prompt,
-.full_augmented_response {
+.llm_full_augmented_response {
   white-space: pre-wrap;
 }
 
