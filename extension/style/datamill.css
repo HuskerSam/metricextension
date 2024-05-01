@@ -1,6 +1,6 @@
 .filter_container .filter_chips {
     gap:4px;
-    margin-bottom: 4px;
+    margin: 4px;
     display: flex;
     display: inline-flex;
     align-items: center;

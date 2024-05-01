@@ -270,7 +270,7 @@ export default class DataMillHelper {
                 </div>
                 <div class="flex flex-row gap-1">
                     <div>
-                        <select class="form-select-ts w-16" data-filterindex="${filterIndex}">
+                        <select class="form-select-ts h-8 text-sm w-16" data-filterindex="${filterIndex}">
                             <option value="$lte" ${lessThan}>&#8804;</option>
                             <option value="$gte" ${greaterThan}>&#8805</option>
                             <option value="$e" ${numberEqual}># number</option>
@@ -278,7 +278,7 @@ export default class DataMillHelper {
                         </select>
                     </div>
                     <div>
-                        <input type="text" class="filter-input-value form-input-ts w-12" value="${filter.value}" data-filterindex="${filterIndex}">
+                        <input type="text" class="filter-input-value form-input-ts w-12 h-8 text-sm" value="${filter.value}" data-filterindex="${filterIndex}">
                     </div>
                 </div>
                 <button class="delete-button" data-filterindex="${filterIndex}">
