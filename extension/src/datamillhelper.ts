@@ -16,14 +16,10 @@ export default class DataMillHelper {
     llm_embedding_type_select = document.querySelector('.llm_embedding_type_select') as HTMLSelectElement;
     uniqueDocsCheck = document.body.querySelector(".uniqueDocsCheck") as HTMLInputElement;
     verboseDebugging = false;
-    semanticResults: any[] = [];
     lookUpKeys: string[] = [];
     semanticEnabled = true;
-    songMatchLookup: any = {};
-    displayDocHtmlDoc: any = {};
-    lastSearchMatches: any[] = [];
     dmtab_change_session_select = document.querySelector(".dmtab_change_session_select") as HTMLSelectElement;
-    full_augmented_response = document.querySelector(".full_augmented_response") as HTMLDivElement;
+    semantic_full_augmented_response = document.querySelector(".semantic_full_augmented_response") as HTMLDivElement;
     analyze_prompt_textarea = document.querySelector(".analyze_prompt_textarea") as HTMLTextAreaElement;
     analyze_prompt_button = document.querySelector(".analyze_prompt_button") as HTMLButtonElement;
     filter_container = document.body.querySelector(".filter_container") as HTMLDivElement;
@@ -50,9 +46,13 @@ export default class DataMillHelper {
             this.analyze_prompt_button.disabled = false;
             document.body.classList.remove("semantic_search_running");
         });
-        this.dmtab_change_session_select.addEventListener("change", async () => {
+        this.dmtab_change_session_select.addEventListener("input", async () => {
             const selectedValue = this.dmtab_change_session_select.value;
             await this.extCommon.selectSemanticSource(selectedValue, true);
+        });
+        this.llm_embedding_type_select.addEventListener("input", async () => {
+            const selectedValue = this.llm_embedding_type_select.value;
+            await chrome.storage.local.set({ selectedEmbeddingType: selectedValue });
         });
 
         this.analyze_prompt_textarea.addEventListener("keydown", (e: any) => {
@@ -93,14 +93,16 @@ export default class DataMillHelper {
         let result = await this.extCommon.getStorageField("semanticResults");
         if (result.success) {
             await this.renderSearchChunks(result);
-            this.analyze_prompt_button.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg> &nbsp; Search`;
+
         } else {
-            //handle error
+            this.semantic_full_augmented_response.innerHTML = "Please run new query";
         }
         this.paintPromptTemplateView();
+
+        let selectedEmbeddingType = await this.extCommon.getStorageField("selectedEmbeddingType");
+        if (selectedEmbeddingType) {
+            this.llm_embedding_type_select.value = selectedEmbeddingType;
+        }
     }
     renderFilters() {
         this.filter_container.innerHTML = "";
@@ -142,23 +144,21 @@ export default class DataMillHelper {
         await chrome.storage.local.set({ "selectedSemanticFilters": this.extCommon.selectedSemanticMetaFilters });
     }
     async runSemanticQuery() {
+        if (this.runningQuery === true) return;
+        this.runningQuery = true;
+
         await chrome.storage.local.set({
             semanticResults: {
                 success: true,
-                matches: []
-            }
+                matches: [],
+            },
+            semanticIncludeMatchIndexes: [],
         });
-        this.full_augmented_response.innerHTML = `<div class="hidden flex-col flex-1 semantic_search_running_loader h-full justify-center text-center align-middle">
+        this.semantic_full_augmented_response.innerHTML = `<div class="hidden flex-col flex-1 semantic_search_running_loader h-full justify-center text-center align-middle">
         <lottie-player src="media/lottie.json" background="transparent" speed="1" class="w-12 h-12 self-center inline-block" loop
           autoplay></lottie-player>
           <span class="font-bold text-lg">Search running...</span>
         </div>`;
-        if (this.runningQuery === true) {
-            return {
-                success: false,
-            };
-        }
-        this.runningQuery = true;
 
         const message = this.analyze_prompt_textarea.value.trim();
         let topK = this.extCommon.chunkSizeMeta.topK;
@@ -174,13 +174,18 @@ export default class DataMillHelper {
         let result = await this.extCommon.getMatchingVectors(message, topK, apiToken, sessionId);
         if (result.success === false) {
             console.log("FAILED TO FETCH", result);
-            this.full_augmented_response.innerHTML = "Error fetching results. Please refer to console for details.";
+            this.semantic_full_augmented_response.innerHTML = "Error fetching results. Please refer to console for details.";
             this.runningQuery = false;
         }
+
+        this.analyze_prompt_button.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg> &nbsp; Search`;
         await chrome.storage.local.set({ semanticResults: result });
-        return result;
     }
-    semanticChunkResultCardHTML(match: any): string {
+    semanticChunkResultCardHTML(match: any, includeInfo: any): string {
+        let matchedClass = includeInfo ? "matched" : "not-matched";
         let similarityScore = `<span class="similarity_score_badge mb-2">${(match.score * 100).toFixed()}%</span>`;
         let metaString = `<div class="meta_field_row border-b border-b-slate-300 text-nowrap p-1">
         <span class="meta_field_col_name font-bold text-sm mr-2 w-28 overflow-hidden inline-block">$ Id</span>
@@ -205,7 +210,7 @@ export default class DataMillHelper {
         });
         const title = match.metadata.title || "";
         return `
-            <div class="rounded border mr-1 mb-2 p-2" data-songcardid="${match.id}">
+            <div class="semantic_result_card rounded border mr-1 mb-2 p-2 ${matchedClass}" data-songcardid="${match.id}">
                 <div class="flex flex-row">
                     <div class="flex-1 font-bold">
                     <h4>${title}</h4>
@@ -220,24 +225,23 @@ export default class DataMillHelper {
     }
     async renderSearchChunks(result: any) {
         let html = "";
+        const includes = (await this.extCommon.getStorageField("semanticIncludeMatchIndexes")) || [];
+        const chunkIncludedMap: any = {};
+        includes.forEach((include: any) => {
+            chunkIncludedMap[include.id] = include;
+        });
         await this.extCommon.fetchDocumentsLookup(result.matches.map((match: any) => match.id));
         result.matches.forEach((match: any) => {
-            this.songMatchLookup[match.id] = match;
             let displayDocHTML = this.generateDisplayText(match.id, true);
             match.fullText = this.generateDisplayText(match.id);
             if (!displayDocHTML) {
-                console.log(match.id, this.extCommon.lookupData)
+                console.log(match.id, this.extCommon.lookupData);
             }
 
-            let block = this.semanticChunkResultCardHTML(match);
-            this.displayDocHtmlDoc[match.id] = displayDocHTML;
+            let block = this.semanticChunkResultCardHTML(match, chunkIncludedMap[match.id]);
             html += block;
         });
-
-        this.lastSearchMatches = result.matches;
-
-        this.full_augmented_response.innerHTML = html;
-
+        this.semantic_full_augmented_response.innerHTML = html;
         this.runningQuery = false;
         return;
     }
@@ -302,8 +306,8 @@ export default class DataMillHelper {
             return;
         }
         const message = this.llm_analyze_prompt_textarea.value.trim();
-        if (!message || message.length < 10) {
-            alert("please supply a message of at least 10 characters");
+        if (!message || message.length < 3) {
+            alert("please supply a message of at least 3 characters");
             return [];
         }
         this.llm_analyze_prompt_button.setAttribute("disabled", "");
@@ -317,7 +321,7 @@ export default class DataMillHelper {
 
         this.llm_full_augmented_response.innerHTML = "Processing Query...<br><br>";
         if (this.semanticEnabled) {
-            this.semanticResults = await this.lookupDocumentChunks();
+            await this.lookupDocumentChunks();
         }
 
         this.llm_full_augmented_response.innerHTML = await this.sendPromptToLLM();
@@ -331,7 +335,7 @@ export default class DataMillHelper {
 
         return;
     }
-    async lookupDocumentChunks(): Promise<any[]> {
+    async lookupDocumentChunks() {
         await chrome.storage.local.set({
             semanticResults: {
                 success: true,
@@ -346,7 +350,7 @@ export default class DataMillHelper {
             this.llm_full_augmented_response.innerHTML = "Error fetching results. Please refer to console for details.";
             return [];
         }
-        
+
         if (!result.success) {
             console.log("error", result);
             this.llm_full_augmented_response.innerHTML = result.errorMessage;
@@ -355,13 +359,11 @@ export default class DataMillHelper {
             console.log(result);
         }
 
-        let html = "";
         let matches = this.filterUniqueDocs(result.matches);
         await this.extCommon.fetchDocumentsLookup(matches.map((match: any) => match.id));
 
         await chrome.storage.local.set({ semanticResults: result });
-
-        return result.matches;
+        return;
     }
     escapeHTML(str: string): string {
         if (!str) str = "";
@@ -385,12 +387,13 @@ export default class DataMillHelper {
         }
 
         if (this.semanticEnabled) {
-           message = await this.embedPrompt(message, this.semanticResults);
-           console.log("embedded message", message);
+            const semanticResults = await this.extCommon.getStorageField("semanticResults");
+            message = await this.embedPrompt(message, semanticResults.matches);
+            console.log("embedded message", message);
         }
         let result = await this.extCommon.processPromptUsingUnacogAPI(message);
         return result.resultMessage;
-    } 
+    }
     filterUniqueDocs(matches: any[]): any[] {
         let uniqueDocsChecked = this.uniqueDocsCheck.checked;
         if (uniqueDocsChecked) {
@@ -449,7 +452,7 @@ export default class DataMillHelper {
         return text + chunkText + " ";
     }
     async embedPrompt(prompt: string, matches: any[]): Promise<string> {
-        const embedIndex = 0;
+        const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
         const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         let documentsEmbedText = "";
@@ -473,6 +476,9 @@ export default class DataMillHelper {
                 merge.text = merge.text.replaceAll("\n", " ");
                 documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
             });
+            await chrome.storage.local.set({
+                semanticIncludeMatchIndexes: includes,
+            });
             // include halfK doc w/ halfK chunks
         } else if (embedIndex === 1) {
             let filteredMatches = this.filterUniqueDocs(matches);
@@ -491,6 +497,10 @@ export default class DataMillHelper {
                 merge.text = merge.text.replaceAll("\n", " ");
                 documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
             });
+
+            await chrome.storage.local.set({
+                semanticIncludeMatchIndexes: includes,
+            });
             // include 1 doc w includeK chunks
         } else if (embedIndex === 2) {
             const match = matches[0];
@@ -502,6 +512,9 @@ export default class DataMillHelper {
             merge.text = this.getSmallToBig(match.id, includeK);
             merge.text = merge.text.replaceAll("\n", " ");
             documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
+            await chrome.storage.local.set({
+                semanticIncludeMatchIndexes: [merge],
+            });
         }
 
         const mainMerge = {
@@ -513,7 +526,7 @@ export default class DataMillHelper {
         return mainPrompt;
     }
     async paintPromptTemplateView() {
-        const selectedSemanticPromptTemplate = (await this.extCommon.getStorageField("selectedSemanticPromptTemplate"))|| "Answer with Doc Summary";
+        const selectedSemanticPromptTemplate = (await this.extCommon.getStorageField("selectedSemanticPromptTemplate")) || "Answer with Doc Summary";
         const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
 
         this.llm_prompt_template_text_area.value = promptTemplate.mainPrompt;

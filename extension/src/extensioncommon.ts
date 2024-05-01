@@ -898,8 +898,9 @@ export class AnalyzerExtensionCommon {
         semanticResults: {
             success: true,
             matches: []
-        }
-    });
+        },
+        semanticIncludeMatchIndexes: [],
+      });
     }
     await this.semanticLoad();
   }

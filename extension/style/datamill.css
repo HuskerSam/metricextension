@@ -43,3 +43,6 @@
     justify-content: center;
     align-items: center;
 }
+.semantic_result_card.matched {
+    background: red;
+}

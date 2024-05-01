@@ -80,7 +80,7 @@
           </svg> &nbsp; Search
         </button>
       </div>
-      <div class="full_augmented_response flex-1 overflow-auto mb-5"></div>
+      <div class="semantic_full_augmented_response flex-1 overflow-auto mb-5"></div>
     </div>
   </div>
 </div>
@@ -94,15 +94,15 @@
         <div class="row py-3" style="justify-content:space-evenly">
           <div class="d-flex flex-column gap-3 col-12 col-lg-6">
             <div style="padding:4px;">
-              <select class="form-select-ts embedding_type_select">
-                <option class="embed_distinct_chunks_option">Embed 5 Document Chunks</option>
-                <option class="embed_sequential_chunks_option">Embed 2 Document Chunks</option>
-                <option class="embed_sequential_chunks2_option">Embed 1 Chunk with Additional Context</option>
+              <select class="form-select-ts llm_embedding_type_select">
+                <option class="embed_distinct_chunks_option" value="0">Embed 5 Document Chunks</option>
+                <option class="embed_sequential_chunks_option" value="1">Embed 2 Document Chunks</option>
+                <option class="embed_sequential_chunks2_option" value="2">Embed 1 Chunk with Additional Context</option>
               </select>
             </div>
             <label class="form-check-label" style="font-weight: normal;font-size:1em;">
               <input class="form-check-input uniqueDocsCheck" type="checkbox">
-              &nbsp;Use 1 chunk per doc
+              &nbsp;Only include each document once
             </label>
             <label class="pt-3 pt-lg-0">Customize the Prompt!</label>
             <div style="padding:4px">
