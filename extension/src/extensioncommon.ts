@@ -890,9 +890,17 @@ export class AnalyzerExtensionCommon {
     this.lookupData = {};
     this.lookedUpIds = {};
   }
-  async selectSemanticSource(selectedSemanticSource: string) {
+  async selectSemanticSource(selectedSemanticSource: string, clearStorage = false) {
     this.chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
     await this.chrome.storage.local.set({ selectedSemanticSource });
+    if (clearStorage) {
+      await this.chrome.storage.local.set({
+        semanticResults: {
+            success: true,
+            matches: []
+        }
+    });
+    }
     await this.semanticLoad();
   }
   async querySemanticChunks(message: string) {
