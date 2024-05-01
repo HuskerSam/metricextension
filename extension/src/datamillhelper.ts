@@ -180,13 +180,21 @@ export default class DataMillHelper {
         let matchedClass = includeInfo ? "matched" : "not-matched";
         let similarityScore = `<span class="similarity_score_badge mb-2">${(match.score * 100).toFixed()}%</span>`;
         let metaString = `<div class="meta_field_row border-b border-b-slate-300 text-nowrap p-1">
-        <span class="meta_field_col_name font-bold text-sm mr-2 w-28 overflow-hidden inline-block">$ Id</span>
-        <span class="meta_field_col_value">${match.id}</span>
+        <span class="meta_field_col_name font-semibold text-sm mr-2 w-28 overflow-hidden inline-block">$ Id</span>
+        <span class="meta_field_col_value text-sm">${match.id}</span>
         </div>`;
         let metaFields = Object.keys(match.metadata);
         let url = match.metadata.url || "";
         if (url) {
-            url = `<a href="${url}" target="_blank" class="text-blue-500">View Source</a>`;
+            url = `
+                <a href="${url}" target="_blank" class="text-blue-500 inline-block">
+                  <div class="flex flex-row items-center">
+                    Source&nbsp;
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg> 
+                  </div>
+                </a>`;
         }
         metaFields.forEach(category => {
             const isNumber = Number(match.metadata[category]) === match.metadata[category];
@@ -195,23 +203,23 @@ export default class DataMillHelper {
             if (isNumber) {
                 value = Number(match.metadata[category]) || 0;
             }
-            metaString += `<div class="meta_field_row border-b border-b-slate-400 text-nowrap p-1">
-                    <span class="meta_field_col_name font-bold text-sm mr-2 w-28 overflow-hidden inline-block">${numStr} ${category}</span>
+            metaString += `<div class="meta_field_row border-b border-b-slate-400 text-nowrap p-1 text-sm">
+                    <span class="meta_field_col_name font-bold text-sm mr-2 w-32 overflow-hidden inline-block">${numStr} ${category}</span>
                     <span class="meta_field_col_value">${value}</span>
                     </div>`;
         });
         const title = match.metadata.title || "";
         return `
-            <div class="semantic_result_card rounded border mr-1 mb-2 p-2 ${matchedClass}" data-songcardid="${match.id}">
-                <div class="flex flex-row">
-                    <div class="flex-1 font-bold">
-                    <h4>${title}</h4>
+            <div class="semantic_result_card border-b mb-2 p-2 ${matchedClass}" data-songcardid="${match.id}">
+                <div class="flex flex-row pb-2 text-sm">
+                    <div class="flex-1">
+                    <span class="font-semibold pr-2">${title}</span>
                     ${url}</div>
                     <div>${similarityScore}</div>
                 </div>
                 <div class="h-[150px] flex flex-row">
-                    <div class="whitespace-pre-wrap overflow-auto flex-1">${match.fullText}</div>
-                    <div class="overflow-auto flex-1 pl-2">${metaString}</div>
+                    <div class="whitespace-pre-wrap overflow-auto flex-1 text-sm">${match.fullText}</div>
+                    <div class="overflow-auto flex-1 pl-2 text-sm">${metaString}</div>
                 </div>
             </div>`;
     }
