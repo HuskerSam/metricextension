@@ -20,7 +20,6 @@ export default class DataMillHelper {
     semanticEnabled = true;
     dmtab_change_session_select = document.querySelector(".dmtab_change_session_select") as HTMLSelectElement;
     semantic_full_augmented_response = document.querySelector(".semantic_full_augmented_response") as HTMLDivElement;
-    analyze_prompt_textarea = document.querySelector(".analyze_prompt_textarea") as HTMLTextAreaElement;
     analyze_prompt_button = document.querySelector(".analyze_prompt_button") as HTMLButtonElement;
     filter_container = document.body.querySelector(".filter_container") as HTMLDivElement;
     dmtab_add_meta_filter_button = document.body.querySelector(".dmtab_add_meta_filter_button") as HTMLButtonElement;
@@ -38,7 +37,7 @@ export default class DataMillHelper {
         })();
         this.analyze_prompt_button.addEventListener("click", async () => {
             this.analyze_prompt_button.disabled = true;
-            this.analyze_prompt_textarea.select();
+            this.llm_analyze_prompt_textarea.select();
             this.analyze_prompt_button.innerHTML = "...";
             this.saveSelectFilters();
             document.body.classList.add("semantic_search_running");
@@ -55,20 +54,13 @@ export default class DataMillHelper {
             await chrome.storage.local.set({ selectedEmbeddingType: selectedValue });
         });
 
-        this.analyze_prompt_textarea.addEventListener("keydown", (e: any) => {
-            if (e.key === "Enter" && e.shiftKey === false) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.analyze_prompt_button.click();
-            }
-        });
         this.dmtab_add_meta_filter_button.addEventListener("click", () => {
             this.addMetaFilter();
         });
 
         this.viewSplitter = Split([this.left_semantic_view_splitter, this.right_semantic_view_splitter],
             {
-                sizes: [50, 50],
+                sizes: [70, 30],
                 direction: 'horizontal',
                 minSize: 100, // min size of both panes
                 gutterSize: 16,
@@ -95,7 +87,7 @@ export default class DataMillHelper {
             await this.renderSearchChunks(result);
 
         } else {
-            this.semantic_full_augmented_response.innerHTML = "Please run new query";
+            this.semantic_full_augmented_response.innerHTML = "Please run new query for chunk results";
         }
         this.paintPromptTemplateView();
 
@@ -160,7 +152,7 @@ export default class DataMillHelper {
           <span class="font-bold text-lg">Search running...</span>
         </div>`;
 
-        const message = this.analyze_prompt_textarea.value.trim();
+        const message = this.llm_analyze_prompt_textarea.value.trim();
         let topK = this.extCommon.chunkSizeMeta.topK;
         let apiToken = this.extCommon.chunkSizeMeta.apiToken;
         let sessionId = this.extCommon.chunkSizeMeta.sessionId;
