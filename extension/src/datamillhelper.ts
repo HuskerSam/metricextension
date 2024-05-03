@@ -238,7 +238,7 @@ export default class DataMillHelper {
             chunkIncludedMap[include.id] = include;
         });
         if (result.matches.length === 0) {
-            this.semantic_full_augmented_response.innerHTML = "No results found";
+            this.semantic_full_augmented_response.innerHTML = `<div class="no_semantic_results_found">No results found</div>`;
             this.runningQuery = false;
             return;
         }
