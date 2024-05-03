@@ -42,6 +42,12 @@
             <h2 class="text-2xl font-bold text-gray-900">Search</h2>
             <p class="text-sm font-medium text-gray-500">Enter query to search data source</p>
           </div>
+          <div class="flex flex-row self-end">
+            <label class="text-xs inline-block">
+              <input class="form-input-ts w-[18px] inline-block uniqueDocsCheck" type="checkbox">
+              &nbsp;include each document once
+            </label>
+          </div>
           <button class="dmtab_add_meta_filter_button btn-ts-secondary m-1 h-[46px] text-xs self-end px-1.5 py-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -81,7 +87,7 @@
       </div>
       <div class="flex flex-row">
         <select class="dmtab_change_session_select form-select-ts flex-1 self-center mr-1"></select>
-        <button class="search_button analyze_prompt_button btn-ts-primary">
+        <button class="run_semantic_search_query_button btn-ts-primary">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
             class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -115,10 +121,6 @@
                 <option class="embed_sequential_chunks2_option" value="2">Embed 1 Chunk with Additional Context</option>
               </select>
             </div>
-            <label class="form-check-label" style="font-weight: normal;font-size:1em;">
-              <input class="form-check-input uniqueDocsCheck" type="checkbox">
-              &nbsp;Only include each document once
-            </label>
             <label class="pt-3 pt-lg-0">Customize the Prompt!</label>
             <div style="padding:4px">
               <select class="form-select-ts llm_prompt_template_select_preset">
