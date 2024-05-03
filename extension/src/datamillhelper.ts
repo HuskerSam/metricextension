@@ -16,7 +16,6 @@ export default class DataMillHelper {
     llm_embedding_type_select = document.querySelector('.llm_embedding_type_select') as HTMLSelectElement;
     uniqueDocsCheck = document.body.querySelector(".uniqueDocsCheck") as HTMLInputElement;
     verboseDebugging = false;
-    lookUpKeys: string[] = [];
     dmtab_change_session_select = document.querySelector(".dmtab_change_session_select") as HTMLSelectElement;
     semantic_full_augmented_response = document.querySelector(".semantic_full_augmented_response") as HTMLDivElement;
     run_semantic_search_query_button = document.querySelector(".run_semantic_search_query_button") as HTMLButtonElement;
@@ -165,7 +164,7 @@ export default class DataMillHelper {
             return [];
         }
         await this.lookupDocumentChunks(message);
-        await this.processIncludedChunks(message);
+        await this.processIncludedChunks();
 
         this.run_semantic_search_query_button.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-5 h-5">
@@ -348,7 +347,7 @@ export default class DataMillHelper {
         }
         let querySemanticResults = false;
         const semanticResults = await this.extCommon.getStorageField("semanticResults");
-        if (!semanticResults.success) {
+        if (semanticResults && semanticResults.success) {
             const includes = (await this.extCommon.getStorageField("semanticIncludeMatchIndexes")) || [];
             if (includes.length > 0) {
                 if (confirm("You have selected some documents to include. Do you want to proceed without them?")) {
@@ -401,7 +400,7 @@ export default class DataMillHelper {
         if (!message) {
             return "please supply a message";
         }
-        message = await this.embedPrompt(message);
+        message = await this.embedPrompt(message, resolveNewIncludes);
         console.log("embedded message", message);
 
         let result = await this.extCommon.processPromptUsingUnacogAPI(message);
@@ -425,16 +424,16 @@ export default class DataMillHelper {
         return matches;
     }
     getSmallToBig(matchId: string, includeK: number): string {
-        const lookUpIndex = this.lookUpKeys.indexOf(matchId);
+        const lookUpIndex = this.extCommon.lookUpKeys.indexOf(matchId);
         let firstIndex = lookUpIndex - Math.floor(includeK / 2);
         let lastIndex = lookUpIndex + Math.ceil(includeK / 2);
         if (firstIndex < 0) firstIndex = 0;
-        if (lastIndex > this.lookUpKeys.length - 1) lastIndex = this.lookUpKeys.length - 1;
+        if (lastIndex > this.extCommon.lookUpKeys.length - 1) lastIndex = this.extCommon.lookUpKeys.length - 1;
         const parts = matchId.split("_");
         const docID = parts[0];
         let text = "";
         for (let i = firstIndex; i <= lastIndex; i++) {
-            const chunkKey = this.lookUpKeys[i];
+            const chunkKey = this.extCommon.lookUpKeys[i];
             if (!chunkKey) continue;
             if (chunkKey.indexOf(docID) === 0) {
                 if (this.extCommon.lookupData[chunkKey]) {
@@ -464,12 +463,10 @@ export default class DataMillHelper {
             console.log("no overlap");
         return text + chunkText + " ";
     }
-    async processIncludedChunks(message: string): Promise<any> {
+    async processIncludedChunks(): Promise<any> {
         const semanticResults = await this.extCommon.getStorageField("semanticResults");
         const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
-        const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
-        const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
-        let documentsEmbedText = "";
+
         let includeK = this.extCommon.chunkSizeMeta.topK;
         let halfK = Math.ceil(includeK / 2);
         let semanticIncludeMatchIndexes: any[] = [];
@@ -477,6 +474,32 @@ export default class DataMillHelper {
         if (embedIndex === 0) {
             let filteredMatches = this.filterUniqueDocs(semanticResults.matches);
             semanticIncludeMatchIndexes = filteredMatches.slice(0, includeK);
+            await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
+            // include halfK doc w/ halfK chunks
+        } else if (embedIndex === 1) {
+            let filteredMatches = this.filterUniqueDocs(semanticResults.matches);
+            semanticIncludeMatchIndexes = filteredMatches.slice(0, halfK);
+            await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
+            // include 1 doc w includeK chunks
+        } else if (embedIndex === 2) {
+            const match = semanticResults.matches[0];
+            await this.extCommon.fetchDocumentsLookup([match.id]);
+        }
+        await chrome.storage.local.set({
+            semanticIncludeMatchIndexes,
+        });
+
+        return semanticIncludeMatchIndexes;
+    }
+    async buildChunkEmbedText(message: string, semanticIncludeMatchIndexes: any[]): Promise<string> {
+        const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
+        const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
+        const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
+        let documentsEmbedText = "";
+        let includeK = this.extCommon.chunkSizeMeta.topK;
+        let halfK = Math.ceil(includeK / 2);
+        // include K chunks as doc
+        if (embedIndex === 0) {
             await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             semanticIncludeMatchIndexes.forEach((match: any, index: number) => {
                 const merge = Object.assign({}, match.metadata);
@@ -493,8 +516,6 @@ export default class DataMillHelper {
             });
             // include halfK doc w/ halfK chunks
         } else if (embedIndex === 1) {
-            let filteredMatches = this.filterUniqueDocs(semanticResults.matches);
-            semanticIncludeMatchIndexes = filteredMatches.slice(0, halfK);
             await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             semanticIncludeMatchIndexes.forEach((match: any, index: number) => {
                 const merge = Object.assign({}, match.metadata);
@@ -511,7 +532,7 @@ export default class DataMillHelper {
             });
             // include 1 doc w includeK chunks
         } else if (embedIndex === 2) {
-            const match = semanticResults.matches[0];
+            const match = semanticIncludeMatchIndexes[0];
             await this.extCommon.fetchDocumentsLookup([match.id]);
             const merge = Object.assign({}, match.metadata);
             merge.id = match.id;
@@ -520,23 +541,24 @@ export default class DataMillHelper {
             merge.text = this.getSmallToBig(match.id, includeK);
             merge.text = merge.text.replaceAll("\n", " ");
             documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
-            semanticIncludeMatchIndexes = [merge];
-        } 
+        }
         await chrome.storage.local.set({
-            semanticIncludeMatchIndexes,
+            documentsEmbedText,
         });
 
-        return {
-            semanticIncludeMatchIndexes,
-            documentsEmbedText,
-        };
+        return documentsEmbedText;
     }
-    async embedPrompt(prompt: string): Promise<string> {
-        const processedMatches = await this.processIncludedChunks(prompt);
+    async embedPrompt(prompt: string, resolveNewIncludes: boolean): Promise<string> {
+        if (resolveNewIncludes) {
+            await this.processIncludedChunks();
+        }
+
+        const semanticIncludeMatchIndexes = await this.extCommon.getStorageField("semanticIncludeMatchIndexes") || [];
+        let documentsEmbedText = await this.buildChunkEmbedText(prompt, semanticIncludeMatchIndexes);
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
         const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         const mainMerge = {
-            documents: processedMatches.documentsEmbedText,
+            documents: documentsEmbedText,
             prompt,
         };
         const promptT = promptTemplate.mainPrompt;
