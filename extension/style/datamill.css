@@ -46,3 +46,16 @@
 .semantic_result_card.matched {
 
 }
+
+.semantic_results_none_found {
+    display: none;
+}
+
+.semantic_search_running.no_semantic_result .semantic_results_none_found {
+    display: none;
+}
+
+.no_semantic_result .semantic_results_none_found {
+    display: block;
+    margin-top: 20px;
+}

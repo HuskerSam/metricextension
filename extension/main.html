@@ -35,8 +35,19 @@
           <ul class="flex flex-1 flex-col mx-2 space-y-1 gap-y-4" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link active gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left"
+                id="main_feed_tab_btn" data-bs-toggle="tab" data-bs-target="#main_feed_tab_view" type="button"
+                role="tab" aria-controls="main_feed_tab_view" aria-selected="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                  stroke="currentColor" class="w-5 h-5 inline-block">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+                </svg> &nbsp;Feed
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left"
                 id="main_history_tab_btn" data-bs-toggle="tab" data-bs-target="#main_history_tab_view" type="button"
-                role="tab" aria-controls="main_history_tab_view" aria-selected="true">
+                role="tab" aria-controls="main_history_tab_view" aria-selected="false">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                   stroke="currentColor" class="w-5 h-5 inline-block">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -99,9 +110,11 @@
         </div>
         <div class="flex-1 flex flex-col overflow-hidden h-full right_panel_view">
           <div class="tab-content">
+            <div class="tab-pane fade show active" id="main_feed_tab_view" role="tabpanel"
+              aria-labelledby="main_feed_tab_btn"></div>
             <div class="tab-pane fade" id="main_prompt_manager_tab_view" role="tabpanel"
               aria-labelledby="main_prompt_manager_tab_btn"></div>
-            <div class="tab-pane fade show active" id="main_history_tab_view" role="tabpanel"
+            <div class="tab-pane fade" id="main_history_tab_view" role="tabpanel"
               aria-labelledby="main_history_tab_btn"></div>
             <div class="tab-pane fade overflow-hidden" id="main_bulk_tab_view" role="tabpanel"
               aria-labelledby="main_bulk_tab_btn">

@@ -16,10 +16,10 @@ export default class BulkHelper {
     bulkSelectedIndex = 0;
     currentPageIndex = 0;
     bulk_analysis_sets_select: any = document.querySelector('.bulk_analysis_sets_select');
-    add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLButtonElement;
+    add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLAnchorElement;
     run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
-    download_url_list = document.querySelector('.download_url_list') as HTMLButtonElement;
-    upload_url_list = document.querySelector('.upload_url_list') as HTMLButtonElement;
+    download_url_list = document.querySelector('.download_url_list') as HTMLAnchorElement;
+    upload_url_list = document.querySelector('.upload_url_list') as HTMLAnchorElement;
     url_file_input = document.getElementById('url_file_input') as HTMLInputElement;
     download_full_json = document.querySelector('.download_full_json') as HTMLButtonElement;
     download_compact_csv = document.querySelector('.download_compact_csv') as HTMLButtonElement;
@@ -32,6 +32,7 @@ export default class BulkHelper {
     json_display_modal_content = document.querySelector('.json_display_modal_content') as HTMLDivElement;
     top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
     bottom_bulk_view_splitter = document.querySelector('.bottom_bulk_view_splitter') as HTMLDivElement;
+    bulk_option_scrape_url = document.querySelector('.bulk_option_scrape_url') as HTMLInputElement;
     lastSlimSelections = "";
     viewSplitter: Split.Instance;
     previousSlimOptions = "";
@@ -96,6 +97,10 @@ export default class BulkHelper {
             ],
         });
 
+        this.bulk_option_scrape_url.addEventListener('click', async () => {
+            this.scrapeUrlAndPopulate();
+        });
+
         this.bulkSelected = new SlimSelect({
             select: '.bulk_analysis_sets_select',
             settings: {
@@ -151,12 +156,13 @@ export default class BulkHelper {
             let bulkUrlList = this.bulkUrlListTabulator.getData();
             await chrome.storage.local.set({ bulkUrlList });
         });
-        this.add_bulk_url_row.addEventListener('click', async () => {
+        this.add_bulk_url_row.addEventListener('click', async (e) => {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulkUrlListTabulator.getData();
             bulkUrlList.push({ url: "", scrape: "server scrape", options: "", content: "" });
             this.bulkUrlListTabulator.setData(bulkUrlList);
             await chrome.storage.local.set({ bulkUrlList });
+            e.preventDefault();
         });
         this.run_bulk_analysis_btn.addEventListener('click', async () => {
             let emptyRows = await this.checkForEmptyRows();
@@ -187,7 +193,7 @@ export default class BulkHelper {
             let rows = this.bulkUrlListTabulator.getData();
             await this.runBulkAnalysis(rows);
         });
-        this.download_url_list.addEventListener('click', async () => {
+        this.download_url_list.addEventListener('click', async (e) => {
             if (this.bulkUrlListTabulator.getData().length === 0) {
                 alert("No data to download");
                 return;
@@ -205,6 +211,7 @@ export default class BulkHelper {
             a.download = "bulk_url_list.csv";
             a.click();
             document.body.removeChild(a);
+            e.preventDefault();
         });
         this.upload_url_list.addEventListener('click', async () => {
             this.url_file_input.click();
@@ -229,7 +236,7 @@ export default class BulkHelper {
             };
             reader.readAsText(file);
         });
-        this.download_full_json.addEventListener('click', async () => {
+        this.download_full_json.addEventListener('click', async (e) => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
             bulkHistory = bulkHistory.bulkHistory || [];
             let historyItem = bulkHistory[this.bulkSelectedIndex];
@@ -238,6 +245,7 @@ export default class BulkHelper {
             a.href = historyItem.analysisResultPath;
             a.click();
             document.body.removeChild(a);
+            e.preventDefault();
         });
         this.download_compact_csv.addEventListener('click', async () => {
             let bulkHistory = await chrome.storage.local.get('bulkHistory');
@@ -269,6 +277,24 @@ export default class BulkHelper {
             return true;
         }
         return false
+    }
+    async scrapeUrlAndPopulate() {
+        let url = prompt("Enter the URL to scrape");
+        if (!url) return;
+        let scrapeResult = await this.extCommon.serverScrapeUrl(url);
+        let urlText = scrapeResult.text;
+        let urls = urlText.split("\n");
+        let csv = Papa.unparse(urls.map((url: any) => {
+            return { url };
+        }));
+        let blob = new Blob([csv], { type: "text/csv" });
+        let urlBlob = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = urlBlob;
+        a.download = "urlscraperesults.csv";
+        a.click();
+        document.body.removeChild(a);
     }
     async trimEmptyRows() {
         let bulkUrlList = this.bulkUrlListTabulator.getData();

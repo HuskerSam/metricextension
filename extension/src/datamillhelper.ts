@@ -81,11 +81,8 @@ export default class DataMillHelper {
     async paintData() {
         this.renderFilters();
         let result = await this.extCommon.getStorageField("semanticResults");
-        if (result.success) {
-            await this.renderSearchChunks(result);
-        } else {
-            this.semantic_full_augmented_response.innerHTML = "Please run new query for chunk results";
-        }
+        await this.renderSearchChunks(result);
+
         this.paintPromptTemplateView();
 
         let selectedEmbeddingType = await this.extCommon.getStorageField("selectedEmbeddingType");
@@ -238,9 +235,12 @@ export default class DataMillHelper {
             chunkIncludedMap[include.id] = include;
         });
         if (result.matches.length === 0) {
-            this.semantic_full_augmented_response.innerHTML = `<div class="no_semantic_results_found">No results found</div>`;
+            document.body.classList.add("no_semantic_result");
+            this.semantic_full_augmented_response.innerHTML = `<div class="semantic_results_none_found">No results found</div>`;
             this.runningQuery = false;
             return;
+        } else {
+            document.body.classList.remove("no_semantic_result");
         }
         await this.extCommon.fetchDocumentsLookup(result.matches.map((match: any) => match.id));
         result.matches.forEach((match: any) => {

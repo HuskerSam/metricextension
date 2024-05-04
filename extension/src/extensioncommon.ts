@@ -542,6 +542,21 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
+  async serverScrapeUrl(url: string) {
+    let result = await this.scrapeUrlServerSide(url, "urlScrape=true");
+
+    if (result.success) {
+      return {
+        text: result.result.text,
+        title: result.result.title,
+      };
+    }
+    return {
+      text: "No text found in page",
+      title: "",
+    };
+
+  }
   async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
     let apiToken = await this.chrome.storage.local.get('apiToken');
     apiToken = apiToken.apiToken || '';
@@ -896,8 +911,8 @@ export class AnalyzerExtensionCommon {
     if (clearStorage) {
       await this.chrome.storage.local.set({
         semanticResults: {
-            success: true,
-            matches: []
+          success: true,
+          matches: []
         },
         semanticIncludeMatchIndexes: [],
       });
@@ -905,7 +920,7 @@ export class AnalyzerExtensionCommon {
     await this.semanticLoad();
   }
   async querySemanticChunks(message: string) {
-    this.semanticQueryRunning  = true;
+    this.semanticQueryRunning = true;
     let selectedSemanticSource = await this.getSelectedSemanticSource();
     const chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
     this.chunkSizeMeta = chunkSizeMeta;
@@ -913,11 +928,11 @@ export class AnalyzerExtensionCommon {
     let apiToken = chunkSizeMeta.apiToken;
     let sessionId = chunkSizeMeta.sessionId;
     if (chunkSizeMeta.useDefaultSession) {
-        topK = 15;
-        sessionId = await this.chrome.storage.local.get('sessionId');
-        sessionId = sessionId?.sessionId || "";
-        apiToken = await this.chrome.storage.local.get('apiToken');
-        apiToken = apiToken?.apiToken || "";
+      topK = 15;
+      sessionId = await this.chrome.storage.local.get('sessionId');
+      sessionId = sessionId?.sessionId || "";
+      apiToken = await this.chrome.storage.local.get('apiToken');
+      apiToken = apiToken?.apiToken || "";
     }
     console.log("querying semantic chunks", chunkSizeMeta, message, topK, apiToken, sessionId);
     const result = await this.getMatchingVectors(message, topK, apiToken, sessionId);
