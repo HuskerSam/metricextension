@@ -26,13 +26,14 @@
   </div>
   <div class="flex justify-between items-center mt-2 gap-2 analysis_actions">
     <div class="dropdown inline-block 4px">
-      <button class="btn-ts-secondary dropdown-toggle" type="button" id="bulkMenuOption"
-        data-bs-toggle="dropdown" aria-expanded="false">
+      <button class="btn-ts-secondary dropdown-toggle" type="button" id="bulkMenuOption" data-bs-toggle="dropdown"
+        aria-expanded="false">
         Actions
       </button>
       <ul class="dropdown-menu" aria-labelledby="bulkMenuOption">
         <li>
-          <a class="add_bulk_url_row  flex flex-row px-3 py-2 text-sm leading-6 hover:text-blue-700 text-gray-900 hover:bg-gray-50">
+          <a
+            class="add_bulk_url_row  flex flex-row px-3 py-2 cursor-pointer text-sm leading-6 hover:text-blue-700 text-gray-900 hover:bg-gray-50">
             <span class="inline-flex items-center">
               Add New Row &nbsp;&nbsp;
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -43,7 +44,8 @@
           </a>
         </li>
         <li>
-          <a class="upload_url_list flex flex-row px-3 py-2 text-sm leading-6  hover:text-blue-700 text-gray-900 hover:bg-gray-50">
+          <a
+            class="upload_url_list flex flex-row px-3 py-2 cursor-pointer text-sm leading-6  hover:text-blue-700 text-gray-900 hover:bg-gray-50">
             <span class="inline-flex items-center">
               Upload Urls &nbsp;&nbsp;
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -55,7 +57,8 @@
           </a>
         </li>
         <li>
-          <a class="download_url_list  flex flex-row px-3 py-2 text-sm leading-6 hover:text-blue-700 text-gray-900 hover:bg-gray-50">
+          <a
+            class="download_url_list  flex flex-row px-3 py-2 cursor-pointer text-sm leading-6 hover:text-blue-700 text-gray-900 hover:bg-gray-50">
             <span class="inline-flex items-center">
               Download Urls &nbsp;&nbsp;
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -68,12 +71,14 @@
           <input type="file" id="url_file_input" accept=".csv" class="hidden">
         </li>
         <li>
-          <a class="bulk_option_scrape_url flex flex-row px-3 py-1 text-sm leading-6 hover:text-blue-700 text-gray-900 hover:bg-gray-50">
+          <a
+            class="bulk_option_scrape_url cursor-pointer flex flex-row px-3 py-1 text-sm leading-6 hover:text-blue-700 text-gray-900 hover:bg-gray-50">
             <span class="inline-flex items-center">
               Scrape URLs &nbsp;&nbsp;
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
               </svg>
             </span>
           </a>
@@ -158,6 +163,29 @@
   <div class="no_bulk_result_history_entry flex-2 flex-column">
     <div class="flex flex-col justify-center items-center h-full">
       <div class="text-gray-600 text-lg">No bulk analysis results found. Instructions needed.</div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="bulkScrapeURLModal" tabindex="-1"">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content h-[80vh] flex flex-col overflow-hidden">
+      <div class="modal-body flex flex-1 flex-col overflow-hidden">
+        <div>
+          <label class="form-input-label-ts">Site URL:
+            <input type="text" class="form-input-ts bulk_modal_input_url" required>
+          </label>
+          <br>
+          <button class="scrape_url_button btn-ts-primary">Scrape</button>
+        </div>
+        <div class="url_result_list flex-1 p-1 m-1 border border-gray-300 rounded overflow-auto"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        &nbsp;
+        <button type="button" class="overwrite_urls_button btn btn-secondary">Overwrite List</button>
+        &nbsp;
+        <button type="button" class="append_urls_button btn btn-primary">Append URLs</button>
+      </div>
     </div>
   </div>
 </div>

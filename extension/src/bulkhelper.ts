@@ -6,6 +6,7 @@ import Split from 'split.js';
 import hljs from 'highlight.js';
 import json from 'highlight.js/lib/languages/json';
 declare const chrome: any;
+declare const bootstrap: any;
 
 export default class BulkHelper {
     extCommon = new AnalyzerExtensionCommon(chrome);
@@ -33,6 +34,11 @@ export default class BulkHelper {
     top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
     bottom_bulk_view_splitter = document.querySelector('.bottom_bulk_view_splitter') as HTMLDivElement;
     bulk_option_scrape_url = document.querySelector('.bulk_option_scrape_url') as HTMLInputElement;
+    scrape_url_button = document.querySelector('.scrape_url_button') as HTMLButtonElement;
+    bulk_modal_input_url = document.querySelector('.bulk_modal_input_url') as HTMLInputElement;
+    overwrite_urls_button = document.querySelector('.overwrite_urls_button') as HTMLButtonElement;
+    append_urls_button = document.querySelector('.append_urls_button') as HTMLButtonElement;
+    url_result_list = document.querySelector('.url_result_list') as HTMLDivElement;
     lastSlimSelections = "";
     viewSplitter: Split.Instance;
     previousSlimOptions = "";
@@ -96,11 +102,8 @@ export default class BulkHelper {
                 },
             ],
         });
-
-        this.bulk_option_scrape_url.addEventListener('click', async () => {
-            this.scrapeUrlAndPopulate();
-        });
-
+        this.bulk_option_scrape_url.addEventListener('click', () => this.showBulkURLScrapeDialog());
+        this.scrape_url_button.addEventListener('click', () => this.scrapeModalBulkUrl());
         this.bulkSelected = new SlimSelect({
             select: '.bulk_analysis_sets_select',
             settings: {
@@ -278,7 +281,12 @@ export default class BulkHelper {
         }
         return false
     }
-    async scrapeUrlAndPopulate() {
+    async showBulkURLScrapeDialog() {
+        let modalDom = document.querySelector('#bulkScrapeURLModal') as HTMLDivElement;
+        const bdModal = new bootstrap.Modal(modalDom);
+        this.bulk_modal_input_url.value = "";
+        bdModal.show();
+        /*
         let url = prompt("Enter the URL to scrape");
         if (!url) return;
         let scrapeResult = await this.extCommon.serverScrapeUrl(url);
@@ -295,6 +303,17 @@ export default class BulkHelper {
         a.download = "urlscraperesults.csv";
         a.click();
         document.body.removeChild(a);
+        */
+    }
+    async scrapeModalBulkUrl() {
+        let url = this.bulk_modal_input_url.value;
+        if (!url) {
+            alert("Please enter a URL to scrape");
+            return;
+        }
+        this.url_result_list.innerText = "Loading...";
+        let scrapeResult = await this.extCommon.serverScrapeUrl(url);
+        this.url_result_list.innerText = scrapeResult.text;
     }
     async trimEmptyRows() {
         let bulkUrlList = this.bulkUrlListTabulator.getData();
@@ -380,11 +399,11 @@ export default class BulkHelper {
 
         let bulk_running = await chrome.storage.local.get('bulk_running');
         if (bulk_running && bulk_running.bulk_running) {
-          document.body.classList.add("extension_bulk_running");
-          document.body.classList.remove("extension_not_bulk_running");
+            document.body.classList.add("extension_bulk_running");
+            document.body.classList.remove("extension_not_bulk_running");
         } else {
-          document.body.classList.remove("extension_bulk_running");
-          document.body.classList.add("extension_not_bulk_running");
+            document.body.classList.remove("extension_bulk_running");
+            document.body.classList.add("extension_not_bulk_running");
         }
 
         let bulkHistoryItem = bulkHistory[this.bulkSelectedIndex];
@@ -475,22 +494,22 @@ export default class BulkHelper {
         if (selectedBulkAnalysisSets && selectedBulkAnalysisSets.selectedBulkAnalysisSets) {
             let setCache = JSON.stringify(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
             if (setCache !== this.lastSlimSelections || dataChange) {
-              this.lastSlimSelections = setCache;
+                this.lastSlimSelections = setCache;
 
-            this.bulkSelected.setSelected(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
-            let domSelections = this.bulkSelected.render.main.values.querySelectorAll('.ss-value');
-            let indexMap: any = {};
-            domSelections.forEach((item: any, index: any) => {
-                indexMap[item.innerText] = index;
-            });
-            let setOrder = selectedBulkAnalysisSets.selectedBulkAnalysisSets;
-            setOrder.forEach((setName: any, index: any) => {
-                let domIndex = indexMap[setName];
-                if (domSelections[domIndex]) {
-                    this.bulkSelected.render.main.values.appendChild(domSelections[domIndex]);
-                }
-            });
-        }
+                this.bulkSelected.setSelected(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
+                let domSelections = this.bulkSelected.render.main.values.querySelectorAll('.ss-value');
+                let indexMap: any = {};
+                domSelections.forEach((item: any, index: any) => {
+                    indexMap[item.innerText] = index;
+                });
+                let setOrder = selectedBulkAnalysisSets.selectedBulkAnalysisSets;
+                setOrder.forEach((setName: any, index: any) => {
+                    let domIndex = indexMap[setName];
+                    if (domSelections[domIndex]) {
+                        this.bulkSelected.render.main.values.appendChild(domSelections[domIndex]);
+                    }
+                });
+            }
         }
         if (this.bulkSelected.getSelected().length === 0) {
             this.bulkSelected.setSelected([setNames[0]]);
