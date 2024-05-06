@@ -172,7 +172,7 @@
     <div class="modal-body flex flex-1 flex-col overflow-hidden">
       <div>
         <label class="form-input-label-ts">Site URL:
-          <input type="text" class="form-input-ts bulk_modal_input_url">
+          <input type="text" class="form-input-ts bulk_modal_input_url" spellcheck="false">
         </label>
         <label class="form-input-label-ts">Scrape Options:
           <input type="text" class="bulk_url_modal_source_options form-input-ts"
@@ -204,5 +204,6 @@
   <option value="htmlElementsSelector=h1,h2,h3,h4"></option>
   <option value="htmlElementsSelector=.specificClassName"></option>
   <option value="urlScrape=true"></option>
-  <option value="name=apnews||urlScrape=true||htmlElementsSelector=.Page-content .PagePromo-title a"></option>
+  <option value="url=https://apnews.com||urlScrape=true||htmlElementsSelector=.Page-content .PagePromo-title a"></option>
+  <option value="url=https://cnn.com||urlScrape=true||htmlElementsSelector=.stack_condensed a"></option>
 </datalist>

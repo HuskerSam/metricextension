@@ -946,4 +946,24 @@ export class AnalyzerExtensionCommon {
   async getSelectedSemanticSource() {
     return (await this.getStorageField("selectedSemanticSource")) || "song full lyrics chunk";
   }
+  /**
+ * @param { string } options string with options split by || and key=value entries
+ * @return { any }
+ */
+  static processOptions(options: string): any {
+    const opts = options.split("||");
+    const optionsMap: any = {};
+    opts.forEach((opt: string) => {
+      const pieces = opt.trim().split("=");
+      const key = pieces[0].trim();
+      if (key !== "") {
+        let value = "";
+        if (pieces.length > 1) value = pieces.slice(1).join("=").trim();
+
+        optionsMap[key] = value;
+      }
+    });
+
+    return optionsMap;
+  }
 }

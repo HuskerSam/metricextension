@@ -352,6 +352,12 @@ export default class BulkHelper {
             document.getElementById('history-tab')?.click();
         });
         hljs.registerLanguage('json', json);
+        this.bulk_url_modal_source_options.addEventListener("input", async () => {
+           const optionsMap = AnalyzerExtensionCommon.processOptions(this.bulk_url_modal_source_options.value);
+           if (optionsMap.url && this.bulk_modal_input_url.value.trim() === "") {
+                this.bulk_modal_input_url.value = optionsMap.url;
+           }
+        });
     }
     async checkForEmptyRows() {
         let bulkUrlList = this.bulkUrlListTabulator.getData();
@@ -379,8 +385,16 @@ export default class BulkHelper {
         let options = this.bulk_url_modal_source_options.value;
         let scrapeResult = await this.extCommon.serverScrapeUrl(url, options);
         let urlList = scrapeResult.text.split("\n");
+        let urlMap: any = {};
+        let uniqueUrlList: string[] = [];
+        urlList.forEach((url: string) => {
+            if (url && !urlMap[url]) {
+                urlMap[url] = true;
+                uniqueUrlList.push(url);
+            }
+        });
         let results: any[] = [];
-        urlList.forEach((url: string, index: number) => {
+        uniqueUrlList.forEach((url: string, index: number) => {
             results.push({ url, rowIndex: index });
         });
         this.bulkUrlScrapeResultsTabulator.setData(results);
