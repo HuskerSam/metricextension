@@ -39,19 +39,19 @@ export default class SettingsHelper {
                 await chrome.storage.local.set({ history: [] });
             }
         });
-        this.show_analyze_text_in_context_menu.addEventListener('click', async (e) => {
+        this.show_analyze_text_in_context_menu.addEventListener('input', async (e) => {
             let hideAnalyzeInPageContextMenu = !this.show_analyze_text_in_context_menu.checked;
             chrome.storage.local.set({ hideAnalyzeInPageContextMenu });
         });
-        this.show_analyze_selection_in_context_menu.addEventListener('click', async (e) => {
+        this.show_analyze_selection_in_context_menu.addEventListener('input', async (e) => {
             let hideAnalyzeInSelectionContextMenu = !this.show_analyze_selection_in_context_menu.checked;
             chrome.storage.local.set({ hideAnalyzeInSelectionContextMenu });
         });
-        this.show_query_selection_in_context_menu.addEventListener('click', async (e) => {
+        this.show_query_selection_in_context_menu.addEventListener('input', async (e) => {
             let showQueryInSelectionContextMenu = this.show_query_selection_in_context_menu.checked;
             chrome.storage.local.set({ showQueryInSelectionContextMenu });
         });
-        this.show_query_text_in_context_menu.addEventListener('click', async (e) => {
+        this.show_query_text_in_context_menu.addEventListener('input', async (e) => {
             let showQueryInPageContextMenu = this.show_query_text_in_context_menu.checked;
             chrome.storage.local.set({ showQueryInPageContextMenu });
         });
@@ -99,5 +99,6 @@ export default class SettingsHelper {
 
         let showQueryInSelectionContextMenu = await this.extCommon.getStorageField('showQueryInSelectionContextMenu');
         this.show_query_selection_in_context_menu.checked = showQueryInSelectionContextMenu;
+        this.extCommon.updateBrowserContextMenus();
     }
 }
