@@ -28,6 +28,7 @@ export class AnalyzerExtensionCommon {
   chunkSizeMetaDataMap: any = {};
   semanticPromptTemplatesMap: any = {};
   semanticQueryRunning = false;
+  lastSeenContextMenuSettings: any = {};
 
   constructor(chrome: any) {
     this.chrome = chrome;
@@ -542,8 +543,12 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-  async serverScrapeUrl(url: string) {
-    let result = await this.scrapeUrlServerSide(url, "urlScrape=true");
+  async serverScrapeUrl(url: string, htmlElementsSelector: string) {
+    let options = `urlScrape=true`;
+    if (htmlElementsSelector) {
+      options += `||htmlElementsSelector=${htmlElementsSelector}`;
+    }
+    let result = await this.scrapeUrlServerSide(url, options);
 
     if (result.success) {
       return {
@@ -941,5 +946,101 @@ export class AnalyzerExtensionCommon {
   }
   async getSelectedSemanticSource() {
     return (await this.getStorageField("selectedSemanticSource")) || "song full lyrics chunk";
+  }
+  /**
+ * @param { string } options string with options split by || and key=value entries
+ * @return { any }
+ */
+  static processOptions(options: string): any {
+    const opts = options.split("||");
+    const optionsMap: any = {};
+    opts.forEach((opt: string) => {
+      const pieces = opt.trim().split("=");
+      const key = pieces[0].trim();
+      if (key !== "") {
+        let value = "";
+        if (pieces.length > 1) value = pieces.slice(1).join("=").trim();
+
+        optionsMap[key] = value;
+      }
+    });
+
+    return optionsMap;
+  }
+  async updateBrowserContextMenus() {
+    let hideAnalyzeInPageContextMenu = await this.getStorageField('hideAnalyzeInPageContextMenu');
+    let showQueryInPageContextMenu = await this.getStorageField('showQueryInPageContextMenu');
+    let hideAnalyzeInSelectionContextMenu = await this.getStorageField('hideAnalyzeInSelectionContextMenu');
+    let showQueryInSelectionContextMenu = await this.getStorageField('showQueryInSelectionContextMenu');
+
+    let updateContextMenu = false;
+    if (this.lastSeenContextMenuSettings.hideAnalyzeInSelectionContextMenu !== hideAnalyzeInSelectionContextMenu) {
+      this.lastSeenContextMenuSettings.hideAnalyzeInSelectionContextMenu = hideAnalyzeInSelectionContextMenu;
+      updateContextMenu = true;
+    }
+    if (this.lastSeenContextMenuSettings.hideAnalyzeInPageContextMenu !== hideAnalyzeInPageContextMenu) {
+      this.lastSeenContextMenuSettings.hideAnalyzeInPageContextMenu = hideAnalyzeInPageContextMenu;
+      updateContextMenu = true;
+    }
+    if (this.lastSeenContextMenuSettings.showQueryInSelectionContextMenu !== showQueryInSelectionContextMenu) {
+      this.lastSeenContextMenuSettings.showQueryInSelectionContextMenu = showQueryInSelectionContextMenu;
+      updateContextMenu = true;
+    }
+    if (this.lastSeenContextMenuSettings.showQueryInPageContextMenu !== showQueryInPageContextMenu) {
+      this.lastSeenContextMenuSettings.showQueryInPageContextMenu = showQueryInPageContextMenu;
+      updateContextMenu = true;
+    }
+
+    if (!updateContextMenu) return;
+    await this.chrome.contextMenus.removeAll();
+    
+    if (!hideAnalyzeInSelectionContextMenu) {
+      this.chrome.contextMenus.create({
+        id: 'hideAnalyzeInSelectionContextMenu',
+        title: 'Analyze selection',
+        type: 'normal',
+        contexts: ['selection']
+      });
+    } 
+
+    if (!hideAnalyzeInPageContextMenu) {
+      this.chrome.contextMenus.create({
+        id: 'hideAnalyzeInPageContextMenu',
+        title: 'Analyze page',
+        type: 'normal',
+        contexts: ['page']
+      });
+    }
+
+    if (showQueryInSelectionContextMenu) {
+      this.chrome.contextMenus.create({
+        id: 'showQueryInSelectionContextMenu',
+        title: 'Semantic query Selection',
+        type: 'normal',
+        contexts: ['selection']
+      });
+    } 
+
+    if (showQueryInPageContextMenu) {
+      this.chrome.contextMenus.create({
+        id: 'showQueryInPageContextMenu',
+        title: 'Semantic query page',
+        type: 'normal',
+        contexts: ['page']
+      });
+    }
+  }
+  async processAnalysisContextMenuAction(text: string, url: string) {
+    text = text.slice(0, 20000);
+    let extCommon = new AnalyzerExtensionCommon(this.chrome);
+    await this.chrome.storage.local.set({
+        sidePanelScrapeContent: text,
+        sidePanelSource: 'scrape',
+        sidePanelUrlSource: url,
+        sidePanelScrapeType: "cache"
+    });
+    let isAlreadyRunning = await extCommon.setRunning(true);
+    if (isAlreadyRunning) return;
+    return await extCommon.runAnalysisPrompts(text, url);
   }
 }

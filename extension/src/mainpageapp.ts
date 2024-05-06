@@ -73,5 +73,6 @@ export default class MainPageApp {
         this.dataMillHelper?.paintData();
         this.extCommon.updateSessionKeyStatus();
         this.promptHelper?.paintPromptTab();
+        this.settingsHelper?.paintData();
     }
 }

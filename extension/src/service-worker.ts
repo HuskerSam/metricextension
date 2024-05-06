@@ -1,4 +1,3 @@
-
 import { AnalyzerExtensionCommon } from "./extensioncommon";
 declare const chrome: any;
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
@@ -7,19 +6,8 @@ chrome.runtime.onInstalled.addListener(async (reason: any) => {
             url: "https://unacog.com/klyde/"
         });
     }
-
-    chrome.contextMenus.create({
-        id: 'analyzeSelection',
-        title: 'Analyze selection',
-        type: 'normal',
-        contexts: ['selection']
-    });
-    chrome.contextMenus.create({
-        id: 'analyzePage',
-        title: 'Analyze page',
-        type: 'normal',
-        contexts: ['page']
-    });
+    const extCommon = new AnalyzerExtensionCommon(chrome);
+    extCommon.updateBrowserContextMenus();
 });
 
 chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
@@ -27,23 +15,13 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
 
     let text = '';
     let result: any = {};
-    if (info.menuItemId === 'analyzeSelection') {
+    let extCommon = new AnalyzerExtensionCommon(chrome);
+    if (info.menuItemId === 'hideAnalyzeInSelectionContextMenu') {
         text = info.selectionText;
-        console.log("info", info);
-        text = text.slice(0, 20000);
-        let abc = new AnalyzerExtensionCommon(chrome);
-        await chrome.storage.local.set({
-            sidePanelScrapeContent: text,
-            sidePanelSource: 'scrape',
-            sidePanelUrlSource: tab.url,
-            sidePanelScrapeType: "cache"
-        });
-        let isAlreadyRunning = await abc.setRunning(true);
-        if (isAlreadyRunning) return;
 
-        result = await abc.runAnalysisPrompts(text, tab.url);
+        result = await extCommon.processAnalysisContextMenuAction(text, tab.url);
     }
-    else if (info.menuItemId === 'analyzePage') {
+    else if (info.menuItemId === 'hideAnalyzeInPageContextMenu') {
         function getDom() {
             return document.body.innerText;
         }
@@ -52,31 +30,23 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
             func: getDom,
         });
         text = scrapes[0].result;
-        text = text.slice(0, 20000);
-        let abc = new AnalyzerExtensionCommon(chrome);
-        await chrome.storage.local.set({
-            sidePanelScrapeContent: text,
-            sidePanelSource: 'scrape',
-            sidePanelUrlSource: tab.url,
-            sidePanelScrapeType: "cache"
-        });
-        let isAlreadyRunning = await abc.setRunning(true);
-        if (isAlreadyRunning) return;
-        result = await abc.runAnalysisPrompts(text, tab.url);
+
+        result = await extCommon.processAnalysisContextMenuAction(text, tab.url);
+    } else if (info.menuItemId === 'showQueryInSelectionContextMenu') {
+        console.log('showQueryInSelectionContextMenu');
+    } else if (info.menuItemId === 'showQueryInPageContextMenu') {
+        console.log('showQueryInPageContextMenu');
     }
 
-    let abc = new AnalyzerExtensionCommon(chrome);
-    console.log("super result", result);
     let def = '';
     result.results.forEach((result: any) => {
-        def += abc.getHTMLforPromptResult(result);
+        def += extCommon.getHTMLforPromptResult(result);
     });
 
 });
 
-chrome.action.onClicked.addListener(async (tab: any) => {
-    const extCommon = new AnalyzerExtensionCommon(chrome);
-    await extCommon.toggleSidePanel(tab);
+chrome.action.onClicked.addListener((tab: any) => {
+    new AnalyzerExtensionCommon(chrome).toggleSidePanel(tab);
 });
 
 chrome.runtime.onMessageExternal.addListener(
@@ -95,8 +65,7 @@ chrome.runtime.onMessageExternal.addListener(
             chrome.sidePanel.open({ tabId: sender.tab.id });
         }
         if (request.specialAction === 'openMainPage') {
-            let abc = new AnalyzerExtensionCommon(chrome);
-            abc.toggleExentionPage("main.html");
+            new AnalyzerExtensionCommon(chrome).toggleExentionPage("main.html");
         }
     }
 );
