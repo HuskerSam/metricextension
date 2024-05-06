@@ -167,25 +167,42 @@
   </div>
 </div>
 <div class="modal fade" id="bulkScrapeURLModal" tabindex="-1"">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content h-[80vh] flex flex-col overflow-hidden">
-      <div class="modal-body flex flex-1 flex-col overflow-hidden">
-        <div>
-          <label class="form-input-label-ts">Site URL:
-            <input type="text" class="form-input-ts bulk_modal_input_url" required>
-          </label>
-          <br>
+  <div class=" modal-dialog modal-xl">
+  <div class="modal-content h-[80vh] flex flex-col overflow-hidden">
+    <div class="modal-body flex flex-1 flex-col overflow-hidden">
+      <div>
+        <label class="form-input-label-ts">Site URL:
+          <input type="text" class="form-input-ts bulk_modal_input_url">
+        </label>
+        <label class="form-input-label-ts">Scrape Options:
+          <input type="text" class="bulk_url_modal_source_options form-input-ts"
+            placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
+        </label>
+        <div class="mt-2 text-right">
           <button class="scrape_url_button btn-ts-primary">Scrape</button>
         </div>
-        <div class="url_result_list flex-1 p-1 m-1 border border-gray-300 rounded overflow-auto"></div>
+        <br>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        &nbsp;
-        <button type="button" class="overwrite_urls_button btn btn-secondary">Overwrite List</button>
-        &nbsp;
-        <button type="button" class="append_urls_button btn btn-primary">Append URLs</button>
+      <div class="flex-1 mt-2 url_result_list p-1 m-1 border border-gray-300 rounded overflow-hidden"></div>
+      <hr>
+      <div class="p-2">
+        <div class="url_results_selected float-end"></div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      &nbsp;
+      <button type="button" class="overwrite_urls_button btn btn-secondary">Overwrite List</button>
+      &nbsp;
+      <button type="button" class="append_urls_button btn btn-primary">Append URLs</button>
     </div>
   </div>
 </div>
+<datalist id="server_scrape_options_list">
+  <option value="htmlElementsSelector=innerText"></option>
+  <option value="htmlElementsSelector=h1,h2,h3,h4,p"></option>
+  <option value="htmlElementsSelector=h1,h2,h3,h4"></option>
+  <option value="htmlElementsSelector=.specificClassName"></option>
+  <option value="urlScrape=true"></option>
+  <option value="name=apnews||urlScrape=true||htmlElementsSelector=.Page-content .PagePromo-title a"></option>
+</datalist>

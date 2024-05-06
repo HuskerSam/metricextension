@@ -12,6 +12,7 @@ export default class BulkHelper {
     extCommon = new AnalyzerExtensionCommon(chrome);
     bulkUrlListTabulator: TabulatorFull;
     bulkResultsTabulator: TabulatorFull;
+    bulkUrlScrapeResultsTabulator: TabulatorFull;
     bulkSelected: SlimSelect;
     itemsPerView = 5;
     bulkSelectedIndex = 0;
@@ -38,7 +39,10 @@ export default class BulkHelper {
     bulk_modal_input_url = document.querySelector('.bulk_modal_input_url') as HTMLInputElement;
     overwrite_urls_button = document.querySelector('.overwrite_urls_button') as HTMLButtonElement;
     append_urls_button = document.querySelector('.append_urls_button') as HTMLButtonElement;
-    url_result_list = document.querySelector('.url_result_list') as HTMLDivElement;
+    bulk_url_modal_source_options = document.querySelector('.bulk_url_modal_source_options') as HTMLInputElement;
+    url_results_selected = document.querySelector('.url_results_selected') as HTMLDivElement;
+    bulkScrapeURLModal = document.querySelector('#bulkScrapeURLModal') as HTMLDivElement;
+    bdModal = new bootstrap.Modal(this.bulkScrapeURLModal);
     lastSlimSelections = "";
     viewSplitter: Split.Instance;
     previousSlimOptions = "";
@@ -102,6 +106,31 @@ export default class BulkHelper {
                 },
             ],
         });
+        this.bulkUrlScrapeResultsTabulator = new TabulatorFull(".url_result_list", {
+            layout: "fitColumns",
+            selectableRange: true,
+            rowHeader: {
+                resizable: false,
+                frozen: true,
+                hozAlign: "center",
+                formatter: "rownum",
+                width: 40,
+                headerSort: false,
+            },
+            clipboard: true,
+            headerVisible: false,
+            clipboardCopyRowRange: "range",
+            clipboardPasteParser: "range",
+            clipboardPasteAction: "range",
+            clipboardCopyConfig: {
+                rowHeaders: false, //do not include row headers in clipboard output
+                columnHeaders: false, //do not include column headers in clipboard output
+            },
+            clipboardCopyStyled: false,
+            columns: [
+                { title: "URL", field: "url", headerSort: true },
+            ],
+        });
         this.bulk_option_scrape_url.addEventListener('click', () => this.showBulkURLScrapeDialog());
         this.scrape_url_button.addEventListener('click', () => this.scrapeModalBulkUrl());
         this.bulkSelected = new SlimSelect({
@@ -158,6 +187,59 @@ export default class BulkHelper {
             this.lastTableEdit = new Date();
             let bulkUrlList = this.bulkUrlListTabulator.getData();
             await chrome.storage.local.set({ bulkUrlList });
+        });
+        this.bulkUrlScrapeResultsTabulator.on("rangeChanged", async () => {
+            let selectedRanges: any[] = (this.bulkUrlScrapeResultsTabulator as any).getRangesData();
+            let urlsMap: any = {};
+            selectedRanges.forEach((dataRows: any[]) => {
+                dataRows.forEach((row: any) => {
+                    if (row.url) urlsMap[row.url] = true;
+                });
+            });
+            let urls = Object.keys(urlsMap);
+            this.url_results_selected.innerHTML = urls.length + " URLs selected";
+        });
+        this.append_urls_button.addEventListener('click', async () => {
+            let selectedRanges: any[] = (this.bulkUrlScrapeResultsTabulator as any).getRangesData();
+            let urlsMap: any = {};
+            selectedRanges.forEach((dataRows: any[]) => {
+                dataRows.forEach((row: any) => {
+                    if (row.url) urlsMap[row.url] = true;
+                });
+            });
+            let urls = Object.keys(urlsMap);
+            let bulkUrlList = this.bulkUrlListTabulator.getData();
+            if (bulkUrlList.length === 0) {
+                alert("No URLs to append to");
+                return;
+            }
+            urls.forEach((url: string) => {
+                bulkUrlList.push({ url, scrape: "server scrape", options: "", content: "" });
+            });
+            this.bulkUrlListTabulator.setData(bulkUrlList);
+            chrome.storage.local.set({ bulkUrlList });
+
+            this.bulk_modal_input_url.value = "";
+            this.bdModal.hide();
+        });
+        this.overwrite_urls_button.addEventListener('click', async () => {
+            let selectedRanges: any[] = (this.bulkUrlScrapeResultsTabulator as any).getRangesData();
+            let urlsMap: any = {};
+            selectedRanges.forEach((dataRows: any[]) => {
+                dataRows.forEach((row: any) => {
+                    if (row.url) urlsMap[row.url] = true;
+                });
+            });
+            let urls = Object.keys(urlsMap);
+            let bulkUrlList: any[] = [];
+            urls.forEach((url: string) => {
+                bulkUrlList.push({ url, scrape: "server scrape", options: "", content: "" });
+            });
+            this.bulkUrlListTabulator.setData(bulkUrlList);
+            chrome.storage.local.set({ bulkUrlList });
+
+            this.bulk_modal_input_url.value = "";
+            this.bdModal.hide();
         });
         this.add_bulk_url_row.addEventListener('click', async (e) => {
             this.lastTableEdit = new Date();
@@ -282,28 +364,8 @@ export default class BulkHelper {
         return false
     }
     async showBulkURLScrapeDialog() {
-        let modalDom = document.querySelector('#bulkScrapeURLModal') as HTMLDivElement;
-        const bdModal = new bootstrap.Modal(modalDom);
         this.bulk_modal_input_url.value = "";
-        bdModal.show();
-        /*
-        let url = prompt("Enter the URL to scrape");
-        if (!url) return;
-        let scrapeResult = await this.extCommon.serverScrapeUrl(url);
-        let urlText = scrapeResult.text;
-        let urls = urlText.split("\n");
-        let csv = Papa.unparse(urls.map((url: any) => {
-            return { url };
-        }));
-        let blob = new Blob([csv], { type: "text/csv" });
-        let urlBlob = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        a.href = urlBlob;
-        a.download = "urlscraperesults.csv";
-        a.click();
-        document.body.removeChild(a);
-        */
+        this.bdModal.show();
     }
     async scrapeModalBulkUrl() {
         let url = this.bulk_modal_input_url.value;
@@ -311,9 +373,17 @@ export default class BulkHelper {
             alert("Please enter a URL to scrape");
             return;
         }
-        this.url_result_list.innerText = "Loading...";
-        let scrapeResult = await this.extCommon.serverScrapeUrl(url);
-        this.url_result_list.innerText = scrapeResult.text;
+        this.bulkUrlScrapeResultsTabulator.setData([{
+            url: "Loading " + url + " ...",
+        }]);
+        let options = this.bulk_url_modal_source_options.value;
+        let scrapeResult = await this.extCommon.serverScrapeUrl(url, options);
+        let urlList = scrapeResult.text.split("\n");
+        let results: any[] = [];
+        urlList.forEach((url: string, index: number) => {
+            results.push({ url, rowIndex: index });
+        });
+        this.bulkUrlScrapeResultsTabulator.setData(results);
     }
     async trimEmptyRows() {
         let bulkUrlList = this.bulkUrlListTabulator.getData();

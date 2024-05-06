@@ -542,8 +542,12 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-  async serverScrapeUrl(url: string) {
-    let result = await this.scrapeUrlServerSide(url, "urlScrape=true");
+  async serverScrapeUrl(url: string, htmlElementsSelector: string) {
+    let options = `urlScrape=true`;
+    if (htmlElementsSelector) {
+      options += `||htmlElementsSelector=${htmlElementsSelector}`;
+    }
+    let result = await this.scrapeUrlServerSide(url, options);
 
     if (result.success) {
       return {
