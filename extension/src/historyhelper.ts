@@ -27,7 +27,7 @@ export default class HistoryHelper {
     viewSplitter: Split.Instance;
     constructor() {
         this.viewSplitter = Split([this.main_history_upper_panel, this.main_history_lower_panel], {
-            sizes: [30, 70],
+            sizes: [50, 50],
             direction: 'vertical',
             minSize: 100, // min size of both panes
             gutterSize: 16,
@@ -60,7 +60,7 @@ export default class HistoryHelper {
         let usageCreditTotal = 0;
         let entry = history[this.baseHistoryIndex];
         let entryHTML = `
-        <div class="block">
+        <div class="block w-full mt-4">
             <div class="rounded-md bg-blue-50 p-4 history_empty w-full h-auto">
                 <div class="flex">
                     <div class="flex-shrink-0">

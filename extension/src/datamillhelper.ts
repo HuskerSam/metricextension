@@ -58,7 +58,7 @@ export default class DataMillHelper {
 
         this.viewSplitter = Split([this.left_semantic_view_splitter, this.right_semantic_view_splitter],
             {
-                sizes: [70, 30],
+                sizes: [60, 40],
                 direction: 'horizontal',
                 minSize: 100, // min size of both panes
                 gutterSize: 16,

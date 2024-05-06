@@ -122,11 +122,9 @@ export default class PromptHelper {
         });
 
         this.promptTabs.addEventListener('click', (e: any) => {
-            const activeTab: any = this.promptTabs.querySelector('.nav-link.active');
-
-            if (activeTab.id === 'prompt-template-tab') {
+            if (this.prompt_template_tab_input.checked === true) {
                 this.prompthelper_tab_help_text.innerHTML = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
-            } else if (activeTab.id === 'generate-prompt-tab') {
+                } else if (this.wizard_template_tab_input.checked === true) {
                 this.prompthelper_tab_help_text.innerHTML = `Use Klyde to help you generate prompts for content analysis.`;
             }
         });
