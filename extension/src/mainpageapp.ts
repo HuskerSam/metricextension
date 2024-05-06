@@ -5,6 +5,11 @@ import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
 import DataMillHelper from './datamillhelper';
 import NewsFeedHelper from './newshelper';
+import DialogVectorInspect from "./newsfeed.jsx";
+import {
+    createRoot,
+} from "react-dom/client";
+import React from "react";
 declare const chrome: any;
 
 export default class MainPageApp {
@@ -15,6 +20,7 @@ export default class MainPageApp {
     settingsHelper: SettingsHelper | null = null;
     dataMillHelper: DataMillHelper | null = null;
     newsFeedHelper: NewsFeedHelper | null = null;
+    dialogVectorInspect: React.ReactElement | null = null;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
     main_history_tab_view = document.querySelector('#main_history_tab_view') as HTMLDivElement;
     main_prompt_manager_tab_view = document.querySelector('#main_prompt_manager_tab_view') as HTMLDivElement;
@@ -45,6 +51,11 @@ export default class MainPageApp {
         this.historyHelper = new HistoryHelper();
         this.dataMillHelper = new DataMillHelper();
         this.initEventHandlers();
+        
+        this.dialogVectorInspect = React.createElement(DialogVectorInspect, {
+            hooks: {},
+        });
+        createRoot(this.main_feed_tab_view).render(this.dialogVectorInspect);
 
         // list for changes to local storage and update the UI
         chrome.storage.local.onChanged.addListener(() => {
