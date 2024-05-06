@@ -27,3 +27,10 @@
     gap: var(--spacing-medium);
   }
   
+  .url_source_options {
+    display: none;
+  }
+  
+  .scrape_type_server_scrape .url_source_options  {
+    display: block;
+  }

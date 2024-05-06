@@ -61,5 +61,6 @@ export default class MainPageApp {
         this.bulkHelper?.paintBulkURLList(forceUpdate);
         this.dataMillHelper?.paintData();
         this.extCommon.updateSessionKeyStatus();
+        this.promptHelper?.paintPromptTab();
     }
 }

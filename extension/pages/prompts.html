@@ -51,13 +51,13 @@
           <input class="form-input-ts prompt_description" name="prompt_description">
         </div>
         <div class="mb-2">
-          <label for="template_type" class="form-input-label-ts">Type:</label>
+          <label for="template_type" class="form-input-label-ts">Prompt Type:</label>
           <select class="form-select-ts template_type" name="template_type" required>
             <option value="metric">Metric*</option>
             <option value="keywords">Keyword*</option>
             <option value="shortsummary">50 Word Summary*</option>
             <option value="json">JSON</option>
-            <option value="prompt">Text</option>
+            <option value="prompt">Custom</option>
           </select>
           <p class="form-note-ts">Determines template and formatting</p>
         </div>
@@ -65,18 +65,18 @@
       <div class="flex justify-center p-2">
         <ul class="nav gap-2 flex flex-1 pr-2 items-center justify-center" id="promptTabs" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link btn-ts-secondary active" id="prompt-template-tab" data-bs-toggle="tab"
-              data-bs-target="#prompt-template" type="button" role="tab" aria-controls="prompt-template"
-              aria-selected="true">
-              View Template
-            </button>
+            <label>
+              Prompt Template
+              <input class="form-input-checkbox-ts prompt_template_tab_input"
+                type="radio" role="tab" aria-controls="prompt-template" name="template_type" checked>
+            </label>
           </li>
           <li class="nav-item" role="presentation">
-            <button class="nav-link btn-ts-secondary" id="generate-prompt-tab" data-bs-toggle="tab"
-              data-bs-target="#generate-prompt" type="button" role="tab" aria-controls="generate-prompt"
-              aria-selected="false">
+            <label>
               Use Generator
-            </button>
+              <input class="form-input-checkbox-ts wizard_template_tab_input"
+                type="radio" role="tab" aria-controls="wizard-template" name="template_type">
+            </label>
           </li>
         </ul>
       </div>
@@ -87,9 +87,8 @@
       </div>
     </div>
     <div class="px-4 sm:px-2 flex flex-col">
-      <div class="tab-content" id="promptTabsContent">
-        <div class="tab-pane fade show active" id="prompt-template" role="tabpanel"
-          aria-labelledby="prompt-template-tab">
+      <div class="tab-content">
+        <div class="prompt_template_tab" tabindex="1">
           <div class="mb-1 h-full flex flex-col">
             <label for="prompt_description flex" class="form-input-label-ts">Prompt Template</label>
             <textarea class="form-textarea-ts prompt_template_text flex-1" name="prompt_template_text" rows="6"
@@ -98,7 +97,7 @@
               details.</p>
           </div>
         </div>
-        <div class="tab-pane fade" id="generate-prompt" role="tabpanel" aria-labelledby="generate-prompt-tab">
+        <div class="wizard_template_tab" tabindex="1">
           <div class="mb-1 h-full flex flex-col">
             <label for="prompt_description flex" class="form-input-label-ts">Prompt</label>
             <textarea id="wizard_prompt" name="wizard_prompt" rows="6"
@@ -115,13 +114,13 @@
           </div>
         </div>
       </div>
-      <div class="self-center py-2">
-        <button class="save_to_library_button btn-ts-success w-28 justify-center">
-          Save Edit
-        </button>
-        <button class="save_to_library_as_new_button btn-ts-success w-28 justify-center">
+      <div class="items-center py-2 flex flex-row justify-around align-middle">
+        <button class="prompt_helper_save_prompt_button btn-ts-success w-28 justify-center">
           Save as New
         </button>
+        <label class="form-input-label-ts text-xs">
+          <input type="checkbox" class="save_override_checkbox form-input-checkbox-ts"> Override Existing
+        </label>
       </div>
     </div>
   </div>

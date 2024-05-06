@@ -17,7 +17,7 @@ export default class PromptHelper {
     template_type = document.querySelector('.template_type') as HTMLInputElement;
     prompt_template_text = document.querySelector('.prompt_template_text') as HTMLInputElement;
     user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
-    save_to_library_button = document.querySelector('.save_to_library_button') as HTMLButtonElement;
+    save_override_checkbox = document.querySelector('.save_override_checkbox') as HTMLInputElement;
     prompt_setname_input = document.querySelector('.prompt_setname_input') as HTMLInputElement;
     prompthelper_tab_help_text = document.querySelector('.prompthelper_tab_help_text') as HTMLDivElement;
     promptTabs = document.querySelector('#promptTabs') as HTMLDivElement;
@@ -28,7 +28,11 @@ export default class PromptHelper {
     exportButton = document.querySelector('.prompt_list_export_rows') as HTMLButtonElement;
     prompt_manager_lower_pane = document.querySelector('.prompt_manager_lower_pane') as HTMLDivElement;
     prompt_manager_upper_pane = document.querySelector('.prompt_manager_upper_pane') as HTMLDivElement;
-    save_to_library_as_new_button = document.querySelector('.save_to_library_as_new_button') as HTMLButtonElement;
+    prompt_helper_save_prompt_button = document.querySelector('.prompt_helper_save_prompt_button') as HTMLButtonElement;
+    wizard_template_tab_input = document.querySelector('.wizard_template_tab_input') as HTMLInputElement;
+    prompt_template_tab_input = document.querySelector('.prompt_template_tab_input') as HTMLInputElement;
+    prompt_template_tab = document.querySelector('.prompt_template_tab') as HTMLDivElement;
+    wizard_template_tab = document.querySelector('.wizard_template_tab') as HTMLDivElement;
     promptsTable: TabulatorFull;
 
     constructor() {
@@ -82,13 +86,17 @@ export default class PromptHelper {
 
             ],
         });
+        this.wizard_template_tab_input.addEventListener('click',
+        async () => chrome.storage.local.set({ promptHelperPanelView: 'wizard' }));
+
+        this.prompt_template_tab_input.addEventListener('click',
+        async () => chrome.storage.local.set({ promptHelperPanelView: 'prompt' }));
 
         this.generate_metric_prompt.addEventListener('click', async () => {
             this.prompt_template_text.value = `generating prompt...`;
             let text = this.wizard_input_prompt.value;
             let newPrompt = '';
-            const templateTab = this.promptTabs.querySelector('#prompt-template-tab') as any;
-            templateTab.click();
+            this.wizard_template_tab_input.checked = true;
             if (this.template_type.value === 'metric') {
                 newPrompt = await this.getMetricPromptForDescription(text);
             } else if (this.template_type.value === 'keywords') {
@@ -99,13 +107,17 @@ export default class PromptHelper {
             this.prompt_template_text.value = newPrompt;
         });
 
-        this.save_to_library_button.addEventListener('click', async () => {
-            this.savePromptEditPopup();
+        this.save_override_checkbox.addEventListener('click', (e: any) => {
+            if (e.target.checked) {
+                this.prompt_helper_save_prompt_button.innerHTML = 'Save Edit';
+            } else {
+                this.prompt_row_index.value = "-1";
+                this.prompt_helper_save_prompt_button.innerHTML = 'Save New';
+            }
         });
 
-        this.save_to_library_as_new_button.addEventListener('click', async () => {
-            this.prompt_row_index.value = "-1";
-            this.savePromptEditPopup();
+        this.prompt_helper_save_prompt_button.addEventListener('click', async () => {
+            this.savePromptToLibrary();
         });
 
         this.promptTabs.addEventListener('click', (e: any) => {
@@ -149,7 +161,7 @@ export default class PromptHelper {
             reader.readAsText(file);
         });
         this.initPromptTable();
-        this.hydrateAllPromptRows();
+        this.paintPromptTab();
     }
     initPromptTable() {
         this.promptsTable.on("renderComplete", () => {
@@ -198,6 +210,23 @@ export default class PromptHelper {
         this.promptsTable.on("rowMoved", async (cell: any) => {
             this.savePromptTableData();
         });
+    }
+    async paintPromptTab() {
+        this.hydrateAllPromptRows();
+        let value = await this.extCommon.getStorageField("promptHelperPanelView") as string;
+        if (value === 'prompt') {
+            this.wizard_template_tab_input.classList.remove('active');
+            this.prompt_template_tab_input.classList.add('active');
+            this.prompt_template_tab_input.checked = true;
+            this.wizard_template_tab.style.display = 'none';
+            this.prompt_template_tab.style.display = '';
+        } else {
+            this.wizard_template_tab_input.classList.add('active');
+            this.prompt_template_tab_input.classList.remove('active');
+            this.wizard_template_tab_input.checked = true;
+            this.wizard_template_tab.style.display = '';
+            this.prompt_template_tab.style.display = 'none';
+        }
     }
 
     async getSummaryPromptForDescription(description: string): Promise<string> {
@@ -311,7 +340,7 @@ export default class PromptHelper {
         allPrompts = this.extCommon.processPromptRows(allPrompts);
         this.promptsTable.setData(allPrompts);
     }
-    async savePromptEditPopup() {
+    async savePromptToLibrary() {
         let promptId = this.prompt_id_input.value.trim();
         let promptDescription = this.prompt_description.value.trim();
         let promptSuggestion = this.wizard_input_prompt.value.trim();
