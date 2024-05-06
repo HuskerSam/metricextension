@@ -111,12 +111,13 @@ export default class PromptHelper {
             if (e.target.checked) {
                 this.prompt_helper_save_prompt_button.innerHTML = 'Save Edit';
             } else {
-                this.prompt_row_index.value = "-1";
                 this.prompt_helper_save_prompt_button.innerHTML = 'Save New';
             }
         });
 
         this.prompt_helper_save_prompt_button.addEventListener('click', async () => {
+             
+            
             this.savePromptToLibrary();
         });
 
@@ -357,7 +358,7 @@ export default class PromptHelper {
         let prompt = { id: promptId, description: promptDescription, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
         let promptTemplateList = await this.promptsTable.getData();
         let existingIndex = Number(this.prompt_row_index.value) - 1;
-        if (existingIndex >= 0) {
+        if (this.save_override_checkbox.checked) {
             promptTemplateList[existingIndex] = prompt;
         } else {
             promptTemplateList.push(prompt);
