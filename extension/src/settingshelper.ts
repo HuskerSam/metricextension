@@ -10,9 +10,13 @@ export default class SettingsHelper {
     session_anchor = document.querySelector('.session_anchor') as HTMLAnchorElement;
     clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
+    show_analyze_text_in_context_menu = document.querySelector('.show_analyze_text_in_context_menu') as HTMLInputElement;
+    show_query_text_in_context_menu = document.querySelector('.show_query_text_in_context_menu') as HTMLInputElement;
+    show_analyze_selection_in_context_menu = document.querySelector('.show_analyze_selection_in_context_menu') as HTMLInputElement;
+    show_query_selection_in_context_menu = document.querySelector('.show_query_selection_in_context_menu') as HTMLInputElement;
 
     constructor() {
-          this.api_token_input.addEventListener('input', async (e) => {
+        this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });
         });
@@ -35,6 +39,23 @@ export default class SettingsHelper {
                 await chrome.storage.local.set({ history: [] });
             }
         });
+        this.show_analyze_text_in_context_menu.addEventListener('click', async (e) => {
+            let hideAnalyzeInPageContextMenu = !this.show_analyze_text_in_context_menu.checked;
+            chrome.storage.local.set({ hideAnalyzeInPageContextMenu });
+        });
+        this.show_analyze_selection_in_context_menu.addEventListener('click', async (e) => {
+            let hideAnalyzeInSelectionContextMenu = !this.show_analyze_selection_in_context_menu.checked;
+            chrome.storage.local.set({ hideAnalyzeInSelectionContextMenu });
+        });
+        this.show_query_selection_in_context_menu.addEventListener('click', async (e) => {
+            let showQueryInSelectionContextMenu = this.show_query_selection_in_context_menu.checked;
+            chrome.storage.local.set({ showQueryInSelectionContextMenu });
+        });
+        this.show_query_text_in_context_menu.addEventListener('click', async (e) => {
+            let showQueryInPageContextMenu = this.show_query_text_in_context_menu.checked;
+            chrome.storage.local.set({ showQueryInPageContextMenu });
+        });
+
         this.paintData();
     }
     async renderSettingsTab() {
@@ -62,9 +83,21 @@ export default class SettingsHelper {
         this.api_token_input.value = apiToken;
     }
     async paintData() {
-        this.renderSettingsTab();  
+        this.renderSettingsTab();
         let historyRangeLimit = await chrome.storage.local.get('historyRangeLimit');
-        historyRangeLimit = historyRangeLimit.historyRangeLimit || 20;     
+        historyRangeLimit = historyRangeLimit.historyRangeLimit || 20;
         this.history_range_amount_select.value = historyRangeLimit;
+
+        let hideAnalyzeInPageContextMenu = await this.extCommon.getStorageField('hideAnalyzeInPageContextMenu');
+        this.show_analyze_text_in_context_menu.checked = !hideAnalyzeInPageContextMenu;
+
+        let showQueryInPageContextMenu = await this.extCommon.getStorageField('showQueryInPageContextMenu');
+        this.show_query_text_in_context_menu.checked = showQueryInPageContextMenu;
+
+        let hideAnalyzeInSelectionContextMenu = await this.extCommon.getStorageField('hideAnalyzeInSelectionContextMenu');
+        this.show_analyze_selection_in_context_menu.checked = !hideAnalyzeInSelectionContextMenu;
+
+        let showQueryInSelectionContextMenu = await this.extCommon.getStorageField('showQueryInSelectionContextMenu');
+        this.show_query_selection_in_context_menu.checked = showQueryInSelectionContextMenu;
     }
 }
