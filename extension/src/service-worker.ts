@@ -15,23 +15,13 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
 
     let text = '';
     let result: any = {};
-    if (info.menuItemId === 'analyzeSelection') {
+    let extCommon = new AnalyzerExtensionCommon(chrome);
+    if (info.menuItemId === 'hideAnalyzeInSelectionContextMenu') {
         text = info.selectionText;
-        console.log("info", info);
-        text = text.slice(0, 20000);
-        let extCommon = new AnalyzerExtensionCommon(chrome);
-        await chrome.storage.local.set({
-            sidePanelScrapeContent: text,
-            sidePanelSource: 'scrape',
-            sidePanelUrlSource: tab.url,
-            sidePanelScrapeType: "cache"
-        });
-        let isAlreadyRunning = await extCommon.setRunning(true);
-        if (isAlreadyRunning) return;
 
-        result = await extCommon.runAnalysisPrompts(text, tab.url);
+        result = await extCommon.processAnalysisContextMenuAction(text, tab.url);
     }
-    else if (info.menuItemId === 'analyzePage') {
+    else if (info.menuItemId === 'hideAnalyzeInPageContextMenu') {
         function getDom() {
             return document.body.innerText;
         }
@@ -40,21 +30,14 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
             func: getDom,
         });
         text = scrapes[0].result;
-        text = text.slice(0, 20000);
-        let extCommon = new AnalyzerExtensionCommon(chrome);
-        await chrome.storage.local.set({
-            sidePanelScrapeContent: text,
-            sidePanelSource: 'scrape',
-            sidePanelUrlSource: tab.url,
-            sidePanelScrapeType: "cache"
-        });
-        let isAlreadyRunning = await extCommon.setRunning(true);
-        if (isAlreadyRunning) return;
-        result = await extCommon.runAnalysisPrompts(text, tab.url);
+
+        result = await extCommon.processAnalysisContextMenuAction(text, tab.url);
+    } else if (info.menuItemId === 'showQueryInSelectionContextMenu') {
+        console.log('showQueryInSelectionContextMenu');
+    } else if (info.menuItemId === 'showQueryInPageContextMenu') {
+        console.log('showQueryInPageContextMenu');
     }
 
-    let extCommon = new AnalyzerExtensionCommon(chrome);
-    console.log("super result", result);
     let def = '';
     result.results.forEach((result: any) => {
         def += extCommon.getHTMLforPromptResult(result);

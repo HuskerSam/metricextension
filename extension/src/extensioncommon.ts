@@ -1030,4 +1030,17 @@ export class AnalyzerExtensionCommon {
       });
     }
   }
+  async processAnalysisContextMenuAction(text: string, url: string) {
+    text = text.slice(0, 20000);
+    let extCommon = new AnalyzerExtensionCommon(this.chrome);
+    await this.chrome.storage.local.set({
+        sidePanelScrapeContent: text,
+        sidePanelSource: 'scrape',
+        sidePanelUrlSource: url,
+        sidePanelScrapeType: "cache"
+    });
+    let isAlreadyRunning = await extCommon.setRunning(true);
+    if (isAlreadyRunning) return;
+    return await extCommon.runAnalysisPrompts(text, url);
+  }
 }
