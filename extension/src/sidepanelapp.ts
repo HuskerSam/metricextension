@@ -9,7 +9,7 @@ declare const chrome: any;
 
 export default class SidePanelApp {
   extCommon = new AnalyzerExtensionCommon(chrome);
-  analysisSetsSlimSelect: SlimSelect;
+  analysisSetsSlimSelect: any;
   analysis_set_select = document.querySelector('.analysis_set_select') as HTMLSelectElement;
   show_main_page_btn = document.querySelector('.show_main_page_btn') as HTMLButtonElement;
   lastPanelToggleDate = new Date().toISOString();

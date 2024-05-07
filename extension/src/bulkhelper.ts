@@ -13,7 +13,7 @@ export default class BulkHelper {
     bulkUrlListTabulator: TabulatorFull;
     bulkResultsTabulator: TabulatorFull;
     bulkUrlScrapeResultsTabulator: TabulatorFull;
-    bulkSelected: SlimSelect;
+    bulkSelected: any;
     itemsPerView = 5;
     bulkSelectedIndex = 0;
     currentPageIndex = 0;
