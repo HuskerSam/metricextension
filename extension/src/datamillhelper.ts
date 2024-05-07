@@ -569,8 +569,8 @@ export default class DataMillHelper {
         const selectedSemanticPromptTemplate = (await this.extCommon.getStorageField("selectedSemanticPromptTemplate")) || "Answer with Doc Summary";
         const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
 
-        this.llm_prompt_template_text_area.value = promptTemplate.mainPrompt;
-        this.llm_document_template_text_area.value = promptTemplate.documentPrompt;
+        this.llm_prompt_template_text_area.value = promptTemplate?.mainPrompt;
+        this.llm_document_template_text_area.value = promptTemplate?.documentPrompt;
         this.llm_prompt_template_select_preset.value = selectedSemanticPromptTemplate;
     }
 }
