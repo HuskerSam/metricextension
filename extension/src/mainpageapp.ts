@@ -4,7 +4,6 @@ import PromptHelper from './prompthelper';
 import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
 import DataMillHelper from './datamillhelper';
-import NewsFeedHelper from './newshelper';
 import DialogVectorInspect from "./newsfeed.jsx";
 import {
     createRoot,
@@ -19,7 +18,6 @@ export default class MainPageApp {
     historyHelper: HistoryHelper | null = null;
     settingsHelper: SettingsHelper | null = null;
     dataMillHelper: DataMillHelper | null = null;
-    newsFeedHelper: NewsFeedHelper | null = null;
     dialogVectorInspect: React.ReactElement | null = null;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
     main_history_tab_view = document.querySelector('#main_history_tab_view') as HTMLDivElement;
@@ -44,7 +42,6 @@ export default class MainPageApp {
         await this.loadHTMLTemplate("pages/settings.html", this.main_options_tab_view);
         await this.loadHTMLTemplate("pages/datamill.html", this.main_datamill_tab_view);
         await this.loadHTMLTemplate("pages/news.html", this.main_feed_tab_view);
-        this.newsFeedHelper = new NewsFeedHelper();
         this.settingsHelper = new SettingsHelper();
         this.bulkHelper = new BulkHelper();
         this.promptHelper = new PromptHelper();

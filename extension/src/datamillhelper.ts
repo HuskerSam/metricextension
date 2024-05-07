@@ -221,7 +221,7 @@ export default class DataMillHelper {
                 <div class="flex justify-center">
                     <button class="open_semantic_result_details text-xs font-semibold text-blue-400">See Detailed Results</button>
                 </div>
-                <div class="h-[500px] flex-row semantic_result_details flex hidden">
+                <div class="h-[500px] flex-row semantic_result_details flex">
                     <div class="whitespace-pre-wrap overflow-auto flex-1 text-sm">${match.fullText}</div>
                     <div class="overflow-auto flex-1 pl-2 text-sm">${metaString}</div>
                 </div>

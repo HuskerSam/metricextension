@@ -14,6 +14,7 @@
     "tabulator-tables": "^6.2.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
     "@tailwindcss/forms": "^0.5.7",
     "@types/mustache": "^4.2.5",
