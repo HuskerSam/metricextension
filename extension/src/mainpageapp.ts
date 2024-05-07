@@ -4,7 +4,7 @@ import PromptHelper from './prompthelper';
 import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
 import DataMillHelper from './datamillhelper';
-import DialogVectorInspect from "./newsfeed.jsx";
+import NewsFeedView from "./newsfeed.jsx";
 import {
     createRoot,
 } from "react-dom/client";
@@ -49,7 +49,7 @@ export default class MainPageApp {
         this.dataMillHelper = new DataMillHelper();
         this.initEventHandlers();
         
-        this.dialogVectorInspect = React.createElement(DialogVectorInspect, {
+        this.dialogVectorInspect = React.createElement(NewsFeedView, {
             hooks: {},
         });
         createRoot(this.main_feed_tab_view).render(this.dialogVectorInspect);
