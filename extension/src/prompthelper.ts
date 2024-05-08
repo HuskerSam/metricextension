@@ -1,10 +1,12 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
 import Split from 'split.js';
 declare const chrome: any;
 
 export default class PromptHelper {
-    extCommon = new AnalyzerExtensionCommon(chrome);
+    app: MainPageApp;
+    extCommon: AnalyzerExtensionCommon;
     viewSplitter: Split.Instance;
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
     prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
@@ -35,7 +37,9 @@ export default class PromptHelper {
     wizard_template_tab = document.querySelector('.wizard_template_tab') as HTMLDivElement;
     promptsTable: TabulatorFull;
 
-    constructor() {
+    constructor(app: MainPageApp) {
+        this.app = app;
+        this.extCommon = app.extCommon;
         this.viewSplitter = Split([this.prompt_manager_upper_pane, this.prompt_manager_lower_pane],
             {
                 sizes: [50, 50],

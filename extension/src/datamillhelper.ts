@@ -1,10 +1,12 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import MainPageApp from './mainpageapp';
 import Mustache from 'mustache';
 import Split from 'split.js';
 
 declare const chrome: any;
 export default class DataMillHelper {
-    extCommon = new AnalyzerExtensionCommon(chrome);
+    app: MainPageApp;
+    extCommon: AnalyzerExtensionCommon;
     promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
     llm_analyze_prompt_button = document.querySelector('.llm_analyze_prompt_button') as HTMLButtonElement;
     llm_analyze_prompt_textarea = document.querySelector('.llm_analyze_prompt_textarea') as HTMLTextAreaElement;
@@ -26,13 +28,19 @@ export default class DataMillHelper {
     viewSplitter: Split.Instance;
     runningQuery = false;
 
-    constructor() {
+    constructor(app: MainPageApp) {
+        this.app = app;
+        this.extCommon = app.extCommon;
         (async () => {
             await this.extCommon.initDatamillSessionList();
             await this.initSemanticSessionList();
-            await this.extCommon.semanticLoad();
-            this.paintData();
+
+            const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
+            this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
         })();
+        this.uniqueDocsCheck.addEventListener("input", async () => {
+            await chrome.storage.local.set({ uniqueSemanticDocs: this.uniqueDocsCheck.checked });
+        });
         this.run_semantic_search_query_button.addEventListener("click", async () => {
             this.run_semantic_search_query_button.disabled = true;
             this.llm_analyze_prompt_textarea.select();
@@ -129,28 +137,6 @@ export default class DataMillHelper {
     async saveSelectFilters() {
         await chrome.storage.local.set({ "selectedSemanticFilters": this.extCommon.selectedSemanticMetaFilters });
     }
-    async lookupDocumentChunks(message: string): Promise<any> {
-        await chrome.storage.local.set({
-            semanticResults: {
-                success: true,
-                matches: []
-            },
-            semanticIncludeMatchIndexes: [],
-        });
-        const semanticResults = await this.extCommon.querySemanticChunks(message);
-        console.log("query results", semanticResults);
-        if (semanticResults.success === false) {
-            console.log("FAILED TO FETCH", semanticResults);
-            this.llm_full_augmented_response.innerHTML = "Error fetching results. Please refer to console for details.";
-            return semanticResults;
-        }
-
-        let matches = this.filterUniqueDocs(semanticResults.matches);
-        await this.extCommon.fetchDocumentsLookup(matches.map((match: any) => match.id));
-
-        await chrome.storage.local.set({ semanticResults });
-        return semanticResults;
-    }
     async runSemanticQuery() {
         if (this.runningQuery === true) return;
         this.runningQuery = true;
@@ -160,7 +146,6 @@ export default class DataMillHelper {
             alert("please supply a message of at least 3 characters");
             return [];
         }
-        await this.lookupDocumentChunks(message);
         await this.processIncludedChunks();
 
         this.run_semantic_search_query_button.innerHTML = `
@@ -366,7 +351,7 @@ export default class DataMillHelper {
 
         if (querySemanticResults) {
             this.llm_full_augmented_response.innerHTML = "Processing Query...<br><br>";
-            await this.lookupDocumentChunks(message);
+            await this.extCommon.lookupDocumentChunks(message);
         }
 
         this.llm_full_augmented_response.innerHTML = await this.sendPromptToLLM(querySemanticResults);
@@ -405,23 +390,6 @@ export default class DataMillHelper {
 
         let result = await this.extCommon.processPromptUsingUnacogAPI(message);
         return result.resultMessage;
-    }
-    filterUniqueDocs(matches: any[]): any[] {
-        let uniqueDocsChecked = this.uniqueDocsCheck.checked;
-        if (uniqueDocsChecked) {
-            let docMap: any = {};
-            let uniqueMatches: any[] = [];
-            matches.forEach((match: any) => {
-                const parts = match.id.split("_");
-                const docID = parts[0];
-                if (!docMap[docID]) {
-                    docMap[docID] = true;
-                    uniqueMatches.push(match);
-                }
-            });
-            matches = uniqueMatches;
-        }
-        return matches;
     }
     getSmallToBig(matchId: string, includeK: number): string {
         const lookUpIndex = this.extCommon.lookUpKeys.indexOf(matchId);
@@ -472,13 +440,11 @@ export default class DataMillHelper {
         let semanticIncludeMatchIndexes: any[] = [];
         // include K chunks as doc
         if (embedIndex === 0) {
-            let filteredMatches = this.filterUniqueDocs(semanticResults.matches);
-            semanticIncludeMatchIndexes = filteredMatches.slice(0, includeK);
+            semanticIncludeMatchIndexes = semanticResults.matches.slice(0, includeK);
             await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             // include halfK doc w/ halfK chunks
         } else if (embedIndex === 1) {
-            let filteredMatches = this.filterUniqueDocs(semanticResults.matches);
-            semanticIncludeMatchIndexes = filteredMatches.slice(0, halfK);
+            semanticIncludeMatchIndexes = semanticResults.matches.slice(0, halfK);
             await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             // include 1 doc w includeK chunks
         } else if (embedIndex === 2) {

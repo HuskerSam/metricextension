@@ -993,7 +993,7 @@ export class AnalyzerExtensionCommon {
 
     if (!updateContextMenu) return;
     await this.chrome.contextMenus.removeAll();
-    
+
     if (!hideAnalyzeInSelectionContextMenu) {
       this.chrome.contextMenus.create({
         id: 'hideAnalyzeInSelectionContextMenu',
@@ -1001,7 +1001,7 @@ export class AnalyzerExtensionCommon {
         type: 'normal',
         contexts: ['selection']
       });
-    } 
+    }
 
     if (!hideAnalyzeInPageContextMenu) {
       this.chrome.contextMenus.create({
@@ -1019,7 +1019,7 @@ export class AnalyzerExtensionCommon {
         type: 'normal',
         contexts: ['selection']
       });
-    } 
+    }
 
     if (showQueryInPageContextMenu) {
       this.chrome.contextMenus.create({
@@ -1031,16 +1031,66 @@ export class AnalyzerExtensionCommon {
     }
   }
   async processAnalysisContextMenuAction(text: string, url: string) {
-    text = text.slice(0, 20000);
-    let extCommon = new AnalyzerExtensionCommon(this.chrome);
+    text = text.slice(0, 1000000);
     await this.chrome.storage.local.set({
-        sidePanelScrapeContent: text,
-        sidePanelSource: 'scrape',
-        sidePanelUrlSource: url,
-        sidePanelScrapeType: "cache"
+      sidePanelScrapeContent: text,
+      sidePanelSource: 'scrape',
+      sidePanelUrlSource: url,
+      sidePanelScrapeType: "cache"
     });
-    let isAlreadyRunning = await extCommon.setRunning(true);
+    let isAlreadyRunning = await this.setRunning(true);
     if (isAlreadyRunning) return;
-    return await extCommon.runAnalysisPrompts(text, url);
+    return await this.runAnalysisPrompts(text, url);
+  }
+  async processSemanticContextMenuAction(text: string, url: string) {
+    text = text.slice(0, 1000000);
+    await this.chrome.storage.local.set({
+      sidePanelScrapeContent: text,
+      sidePanelSource: 'scrape',
+      sidePanelUrlSource: url,
+      sidePanelScrapeType: "cache"
+    });
+    let isAlreadyRunning = await this.setRunning(true);
+    if (isAlreadyRunning) return;
+
+    let selectedSemanticSource = await this.getSelectedSemanticSource();
+    await this.selectSemanticSource(selectedSemanticSource, true);
+    // return await this.runSemanticQuery(text);
+  }
+  async lookupDocumentChunks(message: string): Promise<any> {
+    await this.chrome.storage.local.set({
+      semanticResults: {
+        success: true,
+        matches: []
+      },
+      semanticIncludeMatchIndexes: [],
+    });
+    const semanticResults = await this.querySemanticChunks(message);
+    console.log("query results", semanticResults);
+    if (semanticResults.success === false) {
+      console.log("FAILED TO FETCH", semanticResults);
+    } else {
+      let matches = await this.filterUniqueDocs(semanticResults.matches);
+      await this.fetchDocumentsLookup(matches.map((match: any) => match.id));
+    }
+
+    await this.chrome.storage.local.set({ semanticResults });
+  }
+  async filterUniqueDocs(matches: any[]) {
+    const uniqueDocsChecked = (await this.getStorageField("uniqueDocsChecked")) === true;
+    if (uniqueDocsChecked) {
+      let docMap: any = {};
+      let uniqueMatches: any[] = [];
+      matches.forEach((match: any) => {
+        const parts = match.id.split("_");
+        const docID = parts[0];
+        if (!docMap[docID]) {
+          docMap[docID] = true;
+          uniqueMatches.push(match);
+        }
+      });
+      matches = uniqueMatches;
+    }
+    return matches;
   }
 }

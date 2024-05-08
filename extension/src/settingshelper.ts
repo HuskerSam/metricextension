@@ -1,8 +1,10 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import MainPageApp from './mainpageapp';
 declare const chrome: any;
 
 export default class SettingsHelper {
-    extCommon = new AnalyzerExtensionCommon(chrome);
+    app: MainPageApp;
+    extCommon: AnalyzerExtensionCommon;
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
@@ -15,7 +17,9 @@ export default class SettingsHelper {
     show_analyze_selection_in_context_menu = document.querySelector('.show_analyze_selection_in_context_menu') as HTMLInputElement;
     show_query_selection_in_context_menu = document.querySelector('.show_query_selection_in_context_menu') as HTMLInputElement;
 
-    constructor() {
+    constructor(app: MainPageApp) {
+        this.app = app;
+        this.extCommon = app.extCommon;
         this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });

@@ -12,37 +12,28 @@ chrome.runtime.onInstalled.addListener(async (reason: any) => {
 
 chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
     chrome.sidePanel.open({ tabId: tab.id });
-
-    let text = '';
-    let result: any = {};
+    function getPageDom() {
+        return document.body.innerText;
+    }
     let extCommon = new AnalyzerExtensionCommon(chrome);
     if (info.menuItemId === 'hideAnalyzeInSelectionContextMenu') {
-        text = info.selectionText;
-
-        result = await extCommon.processAnalysisContextMenuAction(text, tab.url);
+        await extCommon.processAnalysisContextMenuAction(info.selectionText, tab.url);
     }
     else if (info.menuItemId === 'hideAnalyzeInPageContextMenu') {
-        function getDom() {
-            return document.body.innerText;
-        }
         let scrapes = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            func: getDom,
+            func: getPageDom,
         });
-        text = scrapes[0].result;
-
-        result = await extCommon.processAnalysisContextMenuAction(text, tab.url);
+        await extCommon.processAnalysisContextMenuAction(scrapes[0].result, tab.url);
     } else if (info.menuItemId === 'showQueryInSelectionContextMenu') {
-        console.log('showQueryInSelectionContextMenu');
+        await extCommon.processSemanticContextMenuAction(info.selectionText, tab.url);
     } else if (info.menuItemId === 'showQueryInPageContextMenu') {
-        console.log('showQueryInPageContextMenu');
+        let scrapes = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: getPageDom,
+        });
+        await extCommon.processSemanticContextMenuAction(scrapes[0].result, tab.url);
     }
-
-    let def = '';
-    result.results.forEach((result: any) => {
-        def += extCommon.getHTMLforPromptResult(result);
-    });
-
 });
 
 chrome.action.onClicked.addListener((tab: any) => {

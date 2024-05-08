@@ -42,11 +42,14 @@ export default class MainPageApp {
         await this.loadHTMLTemplate("pages/settings.html", this.main_options_tab_view);
         await this.loadHTMLTemplate("pages/datamill.html", this.main_datamill_tab_view);
         await this.loadHTMLTemplate("pages/news.html", this.main_feed_tab_view);
-        this.settingsHelper = new SettingsHelper();
-        this.bulkHelper = new BulkHelper();
-        this.promptHelper = new PromptHelper();
-        this.historyHelper = new HistoryHelper();
-        this.dataMillHelper = new DataMillHelper();
+
+        await this.extCommon.semanticLoad();
+        
+        this.settingsHelper = new SettingsHelper(this);
+        this.bulkHelper = new BulkHelper(this);
+        this.promptHelper = new PromptHelper(this);
+        this.historyHelper = new HistoryHelper(this);
+        this.dataMillHelper = new DataMillHelper(this);
         this.initEventHandlers();
         
         this.dialogVectorInspect = React.createElement(NewsFeedView, {

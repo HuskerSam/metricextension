@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
@@ -9,7 +10,8 @@ declare const chrome: any;
 declare const bootstrap: any;
 
 export default class BulkHelper {
-    extCommon = new AnalyzerExtensionCommon(chrome);
+    app: MainPageApp;
+    extCommon: AnalyzerExtensionCommon;
     bulkUrlListTabulator: TabulatorFull;
     bulkResultsTabulator: TabulatorFull;
     bulkUrlScrapeResultsTabulator: TabulatorFull;
@@ -48,7 +50,9 @@ export default class BulkHelper {
     previousSlimOptions = "";
     lastTableEdit = new Date();
 
-    constructor() {
+    constructor(app: MainPageApp) {
+        this.app = app;
+        this.extCommon = app.extCommon;
         this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
             //        layout: "fitColumns",
             columns: [

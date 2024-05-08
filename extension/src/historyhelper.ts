@@ -1,11 +1,12 @@
 import Split from "split.js";
 import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
-
+import MainPageApp from "./mainpageapp";
 
 declare const chrome: any;
 export default class HistoryHelper {
-    extCommon = new AnalyzerExtensionCommon(chrome);
+    app: MainPageApp;
+    extCommon: AnalyzerExtensionCommon;
     main_history_upper_panel = document.querySelector('.main_history_upper_panel') as HTMLDivElement;
     main_history_lower_panel = document.querySelector('.main_history_lower_panel') as HTMLDivElement;
     export_history = document.querySelector('.export_history') as HTMLButtonElement;
@@ -25,7 +26,9 @@ export default class HistoryHelper {
     chromeTabListener: any = null;
 
     viewSplitter: Split.Instance;
-    constructor() {
+    constructor(app: MainPageApp) {
+        this.app = app;
+        this.extCommon = app.extCommon;
         this.viewSplitter = Split([this.main_history_upper_panel, this.main_history_lower_panel], {
             sizes: [50, 50],
             direction: 'vertical',
