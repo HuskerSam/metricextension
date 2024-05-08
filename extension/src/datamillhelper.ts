@@ -31,13 +31,7 @@ export default class DataMillHelper {
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
-        (async () => {
-            await this.extCommon.initDatamillSessionList();
-            await this.initSemanticSessionList();
-
-            const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
-            this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
-        })();
+        this.load();
         this.uniqueDocsCheck.addEventListener("input", async () => {
             await chrome.storage.local.set({ uniqueSemanticDocs: this.uniqueDocsCheck.checked });
         });
@@ -85,6 +79,13 @@ export default class DataMillHelper {
                 this.analyzePrompt();
             }
         });
+    }
+    async load() {
+        await this.extCommon.initDatamillSessionList();
+        await this.initSemanticSessionList();
+
+        const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
+        this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
     }
     async paintData() {
         this.renderFilters();
