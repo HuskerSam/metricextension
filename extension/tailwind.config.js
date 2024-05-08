@@ -7,6 +7,7 @@ module.exports = {
     './sidepanel.html',
     './pages/*.html',
     './src/**/*.ts',
+    './src/**/*.jsx',
   ],
   theme: {
     accentColor: ({ theme }) => ({
