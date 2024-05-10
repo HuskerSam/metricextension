@@ -24,7 +24,6 @@ export default function NewsFeedContainer(props) {
     json.newsItems[0].fullJSONData = await fullJsonQuery.json();
 
     setNewsItem(json.newsItems);
-    console.log('columnMaps', columnMaps);
   };
 
   if (!loaded) {

@@ -430,8 +430,7 @@ export class AnalyzerExtensionCommon {
         };
       }
     }
-    let headerHtml = ``;
-    let resultsHTML = `<div class="history_results flex flex-wrap flex-1">`;
+ 
     let allResults = entry.results;
     let setBasedResults: any = {};
     allResults.forEach((result: any) => {
@@ -441,7 +440,7 @@ export class AnalyzerExtensionCommon {
       setBasedResults[result.prompt.setName].push(result);
     });
     const setNamesArray = Object.keys(setBasedResults);
-    
+
     return {
       setNamesArray,
       setBasedResults,

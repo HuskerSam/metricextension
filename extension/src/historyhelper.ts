@@ -16,7 +16,6 @@ export default class HistoryHelper {
     activeTab: any = null;
     chromeTabListener: any = null;
 
-    viewSplitter: Split.Instance;
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
@@ -28,34 +27,59 @@ export default class HistoryHelper {
         let history = await chrome.storage.local.get('history');
         history = history.history || [];
 
-        let usageCreditTotal = 0;
         let entry = history[this.baseHistoryIndex];
-        let entryHTML = `
-        <div class="block w-full mt-4">
-            <div class="rounded-md bg-blue-50 p-4 history_empty w-full h-auto">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3 flex-1 md:flex md:justify-between">
-                        <p class="text-sm text-blue-700">No history found.<br><br>
-                           Use sidebar to select a metric, input text and run an analysis to begin.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-        if (entry) {
-            let renderResult = this.extCommon.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
-        } 
-        if (this.baseHistoryIndex < history.length - 1) {
-            let renderResult = this.extCommon.renderHTMLForHistoryEntry(history[this.baseHistoryIndex + 1], this.baseHistoryIndex + 1);
-            entryHTML += renderResult.html;
+        if (entry && entry.results && entry.results.length > 0) {
+            entry.results.forEach((result: any, index: number) => {
+                result.id = index;
+            });
         }
 
-        this.historyDisplay.innerHTML = entryHTML;
+       
+        if (entry) {
+            entry.historyIndex = this.baseHistoryIndex;
+            this.app.historyResult?.props.hooks.setHistoryEntry(entry, this.baseHistoryIndex);
+        } else {
+            this.app.historyResult?.props.hooks.setHistoryEntry({
+                results: [{
+                    id: 'acb',
+                    prompt: {
+                        setName: 'abc'
+                    },
+                    results: [{
+                        id: 'abc',
+                    }]
+                }],
+                url: 'nada',
+                historyIndex: 0,
+                historyIndexDisplay: 0,
+            }, this.baseHistoryIndex);
+        }
+        if (this.baseHistoryIndex < history.length - 1) {
+            let entry = history[this.baseHistoryIndex + 1];
+            entry.historyIndex = this.baseHistoryIndex + 1;
+            if (entry && entry.results && entry.results.length > 0) {
+                entry.results.forEach((result: any, index: number) => {
+                    result.id = index;
+                });
+            }
+            this.app.historyResultPrevious?.props.hooks.setHistoryEntry(entry, this.baseHistoryIndex + 1);
+        } else {
+            this.app.historyResultPrevious?.props.hooks.setHistoryEntry({
+                results: [{
+                    id: 'acb',
+                    prompt: {
+                        setName: 'abc'
+                    },
+                    results: [{
+                        id: 'abc',
+                    }]
+                }],
+                url: 'nada',
+                historyIndex: 0,
+                historyIndexDisplay: 0,
+            }, this.baseHistoryIndex + 1);
+        }
+
         this.historyDisplay.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
             btn.addEventListener('click', async (e: any) => {
                 e.preventDefault();
