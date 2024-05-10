@@ -31,7 +31,6 @@ export default class BulkHelper {
     bulk_history_pagination = document.querySelector('.bulk_history_pagination') as HTMLDivElement;
     bulkHistoryEntryListItems = document.querySelectorAll('.bulk_history_pagination li a') as NodeListOf<HTMLLIElement>;
     clear_bulk_history = document.querySelector('.clear_bulk_history') as HTMLButtonElement;
-    manage_bulk_history_configuration = document.querySelector('.manage_bulk_history_configuration') as HTMLButtonElement;
     json_display_modal = document.querySelector('.json_display_modal') as HTMLDivElement;
     json_display_modal_content = document.querySelector('.json_display_modal_content') as HTMLDivElement;
     top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
@@ -54,24 +53,12 @@ export default class BulkHelper {
         this.app = app;
         this.extCommon = app.extCommon;
         this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
-            //        layout: "fitColumns",
-            columns: [
-                { title: "URL", field: "url", editor: "input", headerSort: false },
-                {
-                    title: "Scrape",
-                    field: "scrape",
-                    headerSort: false,
-                    editor: "list",
-                    editorParams: {
-                        values: {
-                            "server scrape": "Server Scrape",
-                            "browser scrape": "Browser Scrape",
-                            "override content": "Override Content",
-                        },
-                    },
-                    width: 120,
-                }
-            ],
+            layout: "fitColumns",
+            resizableColumnFit: true,
+            movableRows: true,
+            rowHeader: { headerSort: false, resizable: false, minWidth: 24, width: 24, rowHandle: true, formatter: "handle" },
+
+            columns: [],
         });
 
         this.bulkUrlListTabulator = new TabulatorFull(".bulk_url_list_tabulator", {
@@ -352,15 +339,12 @@ export default class BulkHelper {
                 this.paintAnalysisHistory();
             }
         });
-        this.manage_bulk_history_configuration.addEventListener('click', async () => {
-            document.getElementById('history-tab')?.click();
-        });
         hljs.registerLanguage('json', json);
         this.bulk_url_modal_source_options.addEventListener("input", async () => {
-           const optionsMap = AnalyzerExtensionCommon.processOptions(this.bulk_url_modal_source_options.value);
-           if (optionsMap.url && this.bulk_modal_input_url.value.trim() === "") {
+            const optionsMap = AnalyzerExtensionCommon.processOptions(this.bulk_url_modal_source_options.value);
+            if (optionsMap.url && this.bulk_modal_input_url.value.trim() === "") {
                 this.bulk_modal_input_url.value = optionsMap.url;
-           }
+            }
         });
     }
     async checkForEmptyRows() {
@@ -536,7 +520,7 @@ export default class BulkHelper {
         let tabulatorColumns: any[] = [];
         columns.forEach((column) => {
             const title = column.split("_")[0];
-            tabulatorColumns.push({ title, field: column, width: 100 });
+            tabulatorColumns.push({ title, field: column, resizable: true, });
         });
         this.bulkResultsTabulator.setColumns(tabulatorColumns);
         this.bulkResultsTabulator.setData(csvData);

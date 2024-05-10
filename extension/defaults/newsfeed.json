@@ -1,10 +1,10 @@
 {
   "newsItems": [
     {
-      "id": "20240507-1",
+      "id": "20240509-1",
       "newsType": "batchResults",
-      "csvDocPath": "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/KlydeNews%2F20240507-1%2Fpoliticsapnews05072024csv.csv?alt=media",
-      "jsonDocPath": "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/KlydeNews%2F20240507-1%2Fpoliticsapnews05072024.json?alt=media"
+      "csvDocPath": "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/KlydeNews%2F20240509-1%2Fpoliticsapnews20240509.csv?alt=media",
+      "jsonDocPath": "https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/KlydeNews%2F20240509-1%2Fpoliticsapnews20240509.json?alt=media"
     }
   ]
 }

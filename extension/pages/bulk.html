@@ -89,7 +89,7 @@
   <div class="flex-1 mt-2 bulk_url_list_tabulator prompt_list_editor rounded"></div>
 </div>
 <div class="bottom_bulk_view_splitter flex flex-col overflow-hidden sm:px-5 lg:px-7">
-  <div class="bulk_result_display_container flex-1 overflow-hidden flex-col">
+  <div class="bulk_result_display_container flex-1 overflow-hidden flex-col mt-2">
     <div class="tab-content flex-1 flex flex-col">
       <div id="bulk-csv-tab-view" class="tab-pane fade show active flex-1 overflow-hidden flex-col"
         aria-labelledby="bulk-csv-tab-btn" role="tabpanel" tabindex="0" aria-selected="true">
@@ -105,7 +105,7 @@
       </div>
     </div>
     <div class="flex-column justify-end items-center mr-3 my-2">
-      <div class="inline-block items-center">
+      <div class="flex flex-row justify-between items-center">
         <ul class="nav gap-1">
           <li class="nav-item">
             <button class="btn-ts-secondary active" id="bulk-csv-tab-btn" data-bs-toggle="tab"
@@ -145,18 +145,16 @@
               </svg>
             </button>
           </li>
+          <li class="inline-flex relative items-center ml-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-4 h-4 mt-1">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            <span class="bulk_selected_last_run_date px-2"></span>
+          </li>
         </ul>
-      </div>
-      <div class="inline-flex items-center bulk_history_pagination"></div>
-      <div class="inline-flex relative top-1.5 items-center">
-        <button type="button" class="btn_icon manage_bulk_history_configuration" data-bs-toggle="modal"
-          data-bs-target="#configModal" data-bs-toggle="tab" data-bs-target="#history">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>
-        </button>
-        <span class="bulk_selected_last_run_date px-2"></span>
+        <div class="inline-flex bulk_history_pagination"></div>
       </div>
     </div>
   </div>
@@ -204,7 +202,11 @@
   <option value="htmlElementsSelector=h1,h2,h3,h4"></option>
   <option value="htmlElementsSelector=.specificClassName"></option>
   <option value="urlScrape=true"></option>
-  <option value="url=https://apnews.com||clipCount=10||urlScrape=true||htmlElementsSelector=.Page-content .PagePromo-title a"></option>
+  <option
+    value="url=https://apnews.com||clipCount=10||urlScrape=true||htmlElementsSelector=.Page-content .PagePromo-title a">
+  </option>
   <option value="url=https://cnn.com||clipCount=5||urlScrape=true||htmlElementsSelector=.stack_condensed a"></option>
-  <option value="url=https://english.news.cn/world/index.htm||clipCount=5||urlScrape=true||htmlElementsSelector=.part01 a"></option>
+  <option
+    value="url=https://english.news.cn/world/index.htm||clipCount=5||urlScrape=true||htmlElementsSelector=.part01 a">
+  </option>
 </datalist>

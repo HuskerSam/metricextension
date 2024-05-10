@@ -38,8 +38,8 @@ export default function DialogVectorInspect(props) {
       {newsItems.map((doc) => (
         <div key={doc.id}>
           {doc.csvResultData.data.map((row, index) => (
-            <div className="bg-gray-100 p-4 rounded shadow" key={index}>
-              <a className="text-lg font-bold mb-2 text-gray-800 hover:text-blue-500" target="_blank" href={row.url}>
+            <div className="p-4 rounded" key={index}>
+              <a className="gap-x-4 border-b border-gray-900/5 text-lg font-bold mb-2 hover:text-blue-500" target="_blank" href={row.url}>
                 {row.title}
               </a>
               <p className="mb-2">{row.summary}</p>

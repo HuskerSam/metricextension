@@ -16,13 +16,6 @@
     padding: 0 var(--spacing-large);
 }
 
-.history_date {
-    font-size: var(--font-size-small);
-    color: var(--secondary-color);
-    padding-left: var(--spacing-large);
-}
-
-
 .history_display_results_running {
     display: none;
     flex-direction: column;
@@ -32,14 +25,6 @@
 
 .extension_running .history_display_results_running {
     display: flex;
-}
-
-.url_display {
-    font-size: var(--font-size-small);
-    text-overflow: ellipsis;
-    overflow: hidden;
-    float: right;
-    white-space: nowrap;
 }
 
 .history_text {
