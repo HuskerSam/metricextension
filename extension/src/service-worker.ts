@@ -11,23 +11,26 @@ chrome.runtime.onInstalled.addListener(async (reason: any) => {
 });
 
 chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
-    chrome.sidePanel.open({ tabId: tab.id });
     function getPageDom() {
         return document.body.innerText;
     }
     let extCommon = new AnalyzerExtensionCommon(chrome);
     if (info.menuItemId === 'hideAnalyzeInSelectionContextMenu') {
+        chrome.sidePanel.open({ tabId: tab.id });
         await extCommon.processAnalysisContextMenuAction(info.selectionText, tab.url);
     }
     else if (info.menuItemId === 'hideAnalyzeInPageContextMenu') {
+        chrome.sidePanel.open({ tabId: tab.id });
         let scrapes = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: getPageDom,
         });
         await extCommon.processAnalysisContextMenuAction(scrapes[0].result, tab.url);
     } else if (info.menuItemId === 'showQueryInSelectionContextMenu') {
+        extCommon.toggleExentionPage("main.html", true);
         await extCommon.processSemanticContextMenuAction(info.selectionText, tab.url);
     } else if (info.menuItemId === 'showQueryInPageContextMenu') {
+        extCommon.toggleExentionPage("main.html", true);
         let scrapes = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: getPageDom,

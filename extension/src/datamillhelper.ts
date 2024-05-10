@@ -9,7 +9,7 @@ export default class DataMillHelper {
     extCommon: AnalyzerExtensionCommon;
     promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
     llm_analyze_prompt_button = document.querySelector('.llm_analyze_prompt_button') as HTMLButtonElement;
-    llm_analyze_prompt_textarea = document.querySelector('.llm_analyze_prompt_textarea') as HTMLTextAreaElement;
+    semantic_query_textarea = document.querySelector('.semantic_query_textarea') as HTMLTextAreaElement;
     summary_details = document.querySelector('.summary_details') as HTMLDivElement;
     llm_full_augmented_response = document.querySelector('.llm_full_augmented_response') as HTMLDivElement;
     llm_prompt_template_select_preset = document.querySelector('.llm_prompt_template_select_preset') as HTMLSelectElement;
@@ -37,7 +37,7 @@ export default class DataMillHelper {
         });
         this.run_semantic_search_query_button.addEventListener("click", async () => {
             this.run_semantic_search_query_button.disabled = true;
-            this.llm_analyze_prompt_textarea.select();
+            this.semantic_query_textarea.select();
             this.run_semantic_search_query_button.innerHTML = "...";
             this.saveSelectFilters();
             document.body.classList.add("semantic_search_running");
@@ -72,12 +72,15 @@ export default class DataMillHelper {
             await chrome.storage.local.set({ selectedSemanticPromptTemplate });
             this.paintPromptTemplateView();
         });
-        this.llm_analyze_prompt_textarea.addEventListener("keydown", (e: any) => {
+        this.semantic_query_textarea.addEventListener("keydown", (e: any) => {
             if (e.key === "Enter" && e.shiftKey === false) {
                 e.preventDefault();
                 e.stopPropagation();
                 this.analyzePrompt();
             }
+        });
+        this.semantic_query_textarea.addEventListener("input", () => {
+            
         });
     }
     async load() {
@@ -142,7 +145,7 @@ export default class DataMillHelper {
         if (this.runningQuery === true) return;
         this.runningQuery = true;
 
-        const message = this.llm_analyze_prompt_textarea.value.trim();
+        const message = this.semantic_query_textarea.value.trim();
         if (!message || message.length < 3) {
             alert("please supply a message of at least 3 characters");
             return [];
@@ -326,7 +329,7 @@ export default class DataMillHelper {
             alert("already running");
             return;
         }
-        const message = this.llm_analyze_prompt_textarea.value.trim();
+        const message = this.semantic_query_textarea.value.trim();
         if (!message || message.length < 3) {
             alert("please supply a message of at least 3 characters");
             return [];
@@ -382,7 +385,7 @@ export default class DataMillHelper {
             });
     }
     async sendPromptToLLM(resolveNewIncludes = true): Promise<string> {
-        let message = this.llm_analyze_prompt_textarea.value.trim();
+        let message = this.semantic_query_textarea.value.trim();
         if (!message) {
             return "please supply a message";
         }

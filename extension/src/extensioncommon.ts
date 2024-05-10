@@ -622,7 +622,7 @@ export class AnalyzerExtensionCommon {
       day: "numeric",
     });
   }
-  async toggleExentionPage(url: string) {
+  async toggleExentionPage(url: string, openOnly = false) {
     const [extensionTab] = await this.chrome.tabs.query({
       url: `chrome-extension://${this.chrome.runtime.id}/main.html`,
       lastFocusedWindow: true,
@@ -630,7 +630,7 @@ export class AnalyzerExtensionCommon {
 
     if (extensionTab && extensionTab.active !== true) {
       await this.chrome.tabs.update(extensionTab.id, { active: true });
-    } else if (extensionTab) {
+    } else if (extensionTab && !openOnly) {
       await this.chrome.tabs.remove(extensionTab.id);
     } else {
       await this.chrome.tabs.create({
@@ -947,10 +947,6 @@ export class AnalyzerExtensionCommon {
   async getSelectedSemanticSource() {
     return (await this.getStorageField("selectedSemanticSource")) || "song full lyrics chunk";
   }
-  /**
- * @param { string } options string with options split by || and key=value entries
- * @return { any }
- */
   static processOptions(options: string): any {
     const opts = options.split("||");
     const optionsMap: any = {};
@@ -1056,6 +1052,9 @@ export class AnalyzerExtensionCommon {
     let selectedSemanticSource = await this.getSelectedSemanticSource();
     await this.selectSemanticSource(selectedSemanticSource, true);
     // return await this.runSemanticQuery(text);
+    await this.chrome.storage.local.set({
+      running: false,
+    });
   }
   async lookupDocumentChunks(message: string): Promise<any> {
     await this.chrome.storage.local.set({
