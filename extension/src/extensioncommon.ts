@@ -636,7 +636,7 @@ export class AnalyzerExtensionCommon {
     }
     return text.slice(0, maxLength) + '...';
   }
-  _formatAMPM(date: any) {
+  static _formatAMPM(date: any) {
     let hours = date.getHours();
     let minutes = date.getMinutes();
     const ampm = hours >= 12 ? "pm" : "am";
@@ -645,7 +645,7 @@ export class AnalyzerExtensionCommon {
     minutes = minutes < 10 ? "0" + minutes : minutes;
     return hours + ":" + minutes + " " + ampm;
   }
-  showGmailStyleDate(ISOdate: any, amFormat = false) {
+  static showGmailStyleDate(ISOdate: any, amFormat = false) {
     let date = new Date(ISOdate);
     if (Date.now() - date.getTime() < 24 * 60 * 60 * 1000) {
       if (amFormat) return this._formatAMPM(date);

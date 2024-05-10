@@ -1,34 +1,39 @@
 import React from 'react';
+import { AnalyzerExtensionCommon } from './extensioncommon';
 
 export default function HistoryResult(props) {
     const [historyEntry, setHistoryEntry] = React.useState({
-        results: [{
-            id: 'acb',
-            prompt: {
-                setName: 'abc'
-            },
-            results: [{
-                id: 'abc',
-            }]
-        }],
-        url: 'nada',
-        historyIndex: 0,
-        historyIndexDisplay: 0,
+        results: [],
     });
 
     props.hooks.setHistoryEntry = setHistoryEntry;
 
     let allResults = historyEntry.results;
+    let usageCreditTotal = 0;
     let setBasedResults = {};
     allResults.forEach((result) => {
         if (!setBasedResults[result.prompt.setName]) {
             setBasedResults[result.prompt.setName] = [];
         }
         setBasedResults[result.prompt.setName].push(result);
+        try {
+            usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+        } catch (err) {
+            console.log("Usage total credit summming error", err);
+        }
+
     });
+    historyEntry.usageCreditTotal = usageCreditTotal;
+
     let setNamesArray = Object.keys(setBasedResults);
     if (setNamesArray.length === 0) {
-        setNamesArray = [''];
+        setNamesArray = [];
+    }
+
+    const getMetricsResultValue = (resultMessage) => {
+        let json = JSON.parse(resultMessage);
+        let metric = json.contentRating;
+        return metric;
     }
 
     const getHistoryIndexDisplay = (historyIndex, setIndex, results) => {
@@ -51,12 +56,15 @@ export default function HistoryResult(props) {
                         className="w-4 h-4 mr-1">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <span className="text-gray-800 text-xs history_date"></span>
+                    <span className="text-gray-800 text-xs history_date">{AnalyzerExtensionCommon.showGmailStyleDate(historyEntry.runDate)}</span>
                 </div>
+                <span className="text-xs">Credits: {Math.round(historyEntry.usageCreditTotal)}</span>
             </div>
-            {setNamesArray.length > 0 && (
+            <div className="p-2 flex-1 form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px]">
+                {historyEntry.text}
+            </div>
             <div>
-                {setNamesArray.map((setName, setIndex) => (
+                {setNamesArray.length > 0 && setNamesArray.map((setName, setIndex) => (
                     <div className="history_entry_set_wrapper mx-1 my-1 flex flex-col">
                         <div className="flex flex-row">
                             <h6 className="pl-2 pr-1 flex-1 py-2 fs-5">{setName}</h6>
@@ -84,15 +92,41 @@ export default function HistoryResult(props) {
                                     </svg>
                                 </button>
                             </div>
-                            <div
-                                className="history_text mt-2 p-2 flex-1 form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap min-h-[100px]">
-                            </div>
                         </div>
-                        <hr className="history_separator" />
+                        {setBasedResults[setName].length > 0 && setBasedResults[setName].map((result, resultIndex) => (
+                            <div>
+                                {result.prompt.promptType === 'metric' && (
+                                    <div className="prompt_result metric_result mx-2 py-2">
+                                        <span className="prompt_id">{result.prompt.id}</span>
+                                        <span className="metric_score">{getMetricsResultValue(result.result.resultMessage)}<span className="outofscore">/10</span></span>
+                                        <div className="metric_bar">
+                                            <div className="metric_fill" style={{ width: getMetricsResultValue(result.result.resultMessage) * 10 + "%" }}></div>
+                                        </div>
+                                    </div>
+                                )}
+                                {result.prompt.promptType === 'json' && (
+                                    <div className="prompt_result json_result mx-2 py-2">
+                                        <div className="prompt_header">
+                                            <span className="prompt_id">{result.prompt.id}</span>
+                                        </div>
+                                        <div className="result_content">{resultDisplay}</div>
+                                    </div>
+                                )}
+                                {(result.prompt.promptType !== 'json' && result.prompt.promptType !== 'metric') && (
+                                    <div className="prompt_result text_result mx-2 py-2">
+                                        <div className="prompt_header">
+                                            <span className="prompt_id">{result.prompt.id}</span>
+                                        </div>
+                                        <div className="result_content">{result.result.resultMessage}</div>
+                                    </div>
+                                )}
+
+                            </div>
+                        ))}
                     </div>
                 ))}
             </div>
-            )}
+            <hr className="history_separator" />
         </div>
     );
 }

@@ -40,18 +40,7 @@ export default class HistoryHelper {
             this.app.historyResult?.props.hooks.setHistoryEntry(entry, this.baseHistoryIndex);
         } else {
             this.app.historyResult?.props.hooks.setHistoryEntry({
-                results: [{
-                    id: 'acb',
-                    prompt: {
-                        setName: 'abc'
-                    },
-                    results: [{
-                        id: 'abc',
-                    }]
-                }],
-                url: 'nada',
-                historyIndex: 0,
-                historyIndexDisplay: 0,
+                results: [],
             }, this.baseHistoryIndex);
         }
         if (this.baseHistoryIndex < history.length - 1) {
@@ -65,18 +54,7 @@ export default class HistoryHelper {
             this.app.historyResultPrevious?.props.hooks.setHistoryEntry(entry, this.baseHistoryIndex + 1);
         } else {
             this.app.historyResultPrevious?.props.hooks.setHistoryEntry({
-                results: [{
-                    id: 'acb',
-                    prompt: {
-                        setName: 'abc'
-                    },
-                    results: [{
-                        id: 'abc',
-                    }]
-                }],
-                url: 'nada',
-                historyIndex: 0,
-                historyIndexDisplay: 0,
+                results: [],
             }, this.baseHistoryIndex + 1);
         }
 
