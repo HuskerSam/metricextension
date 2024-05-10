@@ -223,7 +223,7 @@ export default class DataMillHelper {
         includes.forEach((include: any) => {
             chunkIncludedMap[include.id] = include;
         });
-        if (result.matches.length === 0) {
+        if (!result.matches || result.matches.length === 0) {
             document.body.classList.add("no_semantic_result");
             this.semantic_full_augmented_response.innerHTML = `<div class="semantic_results_none_found">No results found</div>`;
             this.runningQuery = false;
