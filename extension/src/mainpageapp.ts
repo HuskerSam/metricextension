@@ -5,6 +5,7 @@ import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
 import DataMillHelper from './datamillhelper';
 import NewsFeedView from "./newsfeed.jsx";
+import HistoryResult from './historyresult.jsx';
 import {
     createRoot,
 } from "react-dom/client";
@@ -18,7 +19,9 @@ export default class MainPageApp {
     historyHelper: HistoryHelper | null = null;
     settingsHelper: SettingsHelper | null = null;
     dataMillHelper: DataMillHelper | null = null;
-    dialogVectorInspect: React.ReactElement | null = null;
+    newsFeedContainer: React.ReactElement | null = null;
+    historyResult: React.ReactElement | null = null;
+    historyResultPrevious: React.ReactElement | null = null;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
     main_history_tab_view = document.querySelector('#main_history_tab_view') as HTMLDivElement;
     main_prompt_manager_tab_view = document.querySelector('#main_prompt_manager_tab_view') as HTMLDivElement;
@@ -52,10 +55,22 @@ export default class MainPageApp {
         this.dataMillHelper = new DataMillHelper(this);
         this.initEventHandlers();
         
-        this.dialogVectorInspect = React.createElement(NewsFeedView, {
+        this.newsFeedContainer = React.createElement(NewsFeedView, {
             hooks: {},
         });
-        createRoot(this.main_feed_tab_view).render(this.dialogVectorInspect);
+        createRoot(this.main_feed_tab_view).render(this.newsFeedContainer);
+
+        const history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
+        const history_result_previous_view = document.querySelector('.history_result_previous_view') as HTMLDivElement;
+        this.historyResult = React.createElement(HistoryResult, {
+            hooks: {},
+        });
+        createRoot(history_result_view).render(this.historyResult);
+
+        this.historyResultPrevious = React.createElement(HistoryResult, {
+            hooks: {},
+        });
+        createRoot(history_result_previous_view).render(this.historyResultPrevious);
 
         // list for changes to local storage and update the UI
         chrome.storage.local.onChanged.addListener(() => {

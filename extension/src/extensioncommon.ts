@@ -410,6 +410,44 @@ export class AnalyzerExtensionCommon {
 
     return historyEntry;
   }
+  prepDataForHistoryRender(entry: any, historyIndex: number) {
+    let usageCreditTotal = 0;
+    let resultHistory = entry.result;
+    if (!resultHistory) resultHistory = entry.results[0];
+    let noError = true;
+    let errorMessage = "";
+    if (entry.results.length > 0) {
+      entry.results.forEach((result: any) => {
+        if (result.result.error) {
+          noError = false;
+          errorMessage = result?.result?.promptResult?.assist?.error;
+        }
+      });
+      if (!noError) {
+        return {
+          html: `<div class="history_error_message flex-1 text-center">${errorMessage}</div>`,
+          usageCreditTotal,
+        };
+      }
+    }
+    let headerHtml = ``;
+    let resultsHTML = `<div class="history_results flex flex-wrap flex-1">`;
+    let allResults = entry.results;
+    let setBasedResults: any = {};
+    allResults.forEach((result: any) => {
+      if (!setBasedResults[result.prompt.setName]) {
+        setBasedResults[result.prompt.setName] = [];
+      }
+      setBasedResults[result.prompt.setName].push(result);
+    });
+    const setNamesArray = Object.keys(setBasedResults);
+    
+    return {
+      setNamesArray,
+      setBasedResults,
+      allResults,
+    };
+  }
   renderHTMLForHistoryEntry(entry: any, historyIndex: number): {
     html: string;
     usageCreditTotal: number;

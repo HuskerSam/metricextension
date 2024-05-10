@@ -16,6 +16,7 @@ export default class SettingsHelper {
     show_query_text_in_context_menu = document.querySelector('.show_query_text_in_context_menu') as HTMLInputElement;
     show_analyze_selection_in_context_menu = document.querySelector('.show_analyze_selection_in_context_menu') as HTMLInputElement;
     show_query_selection_in_context_menu = document.querySelector('.show_query_selection_in_context_menu') as HTMLInputElement;
+    export_history = document.querySelector('.export_history') as HTMLButtonElement;
 
     constructor(app: MainPageApp) {
         this.app = app;
@@ -42,6 +43,19 @@ export default class SettingsHelper {
             if (confirm('Are you sure you want to clear all history?')) {
                 await chrome.storage.local.set({ history: [] });
             }
+        });
+        this.export_history.addEventListener('click', async () => {
+            let history = await chrome.storage.local.get('history');
+            history = history.history || [];
+            let blob = new Blob([JSON.stringify(history)], { type: "application/json" });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            document.body.appendChild(a);
+            a.href = url;
+            a.download = 'history.json';
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
         });
         this.show_analyze_text_in_context_menu.addEventListener('input', async (e) => {
             let hideAnalyzeInPageContextMenu = !this.show_analyze_text_in_context_menu.checked;

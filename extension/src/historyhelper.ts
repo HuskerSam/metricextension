@@ -1,4 +1,3 @@
-import Split from "split.js";
 import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import MainPageApp from "./mainpageapp";
@@ -7,18 +6,10 @@ declare const chrome: any;
 export default class HistoryHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
-    main_history_upper_panel = document.querySelector('.main_history_upper_panel') as HTMLDivElement;
-    main_history_lower_panel = document.querySelector('.main_history_lower_panel') as HTMLDivElement;
-    export_history = document.querySelector('.export_history') as HTMLButtonElement;
-    history_text = document.querySelector('.history_text') as HTMLDivElement;
-    url_display = document.querySelector('.url_display') as HTMLAnchorElement;
-    entry_total_credit_usage = document.querySelector('.entry_total_credit_usage') as HTMLDivElement;
     history_pagination = document.querySelector('.history_pagination') as HTMLDivElement;
     history_copy_url_btn = document.querySelector('.history_copy_url_btn') as HTMLButtonElement;
     historyEntryListItems: any = null;
     historyDisplay = document.querySelector('.history_display') as HTMLDivElement;
-    history_date = document.querySelector('.history_date') as HTMLDivElement;
-    copy_entry_result_as_csv_text_btn = document.querySelector('.copy_entry_result_as_csv_text_btn') as HTMLButtonElement;
     itemsPerView = 5;
     baseHistoryIndex = 0;
     currentPageIndex = 0;
@@ -29,29 +20,6 @@ export default class HistoryHelper {
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
-        this.viewSplitter = Split([this.main_history_upper_panel, this.main_history_lower_panel], {
-            sizes: [50, 50],
-            direction: 'vertical',
-            minSize: 100, // min size of both panes
-            gutterSize: 16,
-        });
-        this.export_history.addEventListener('click', async () => {
-            let history = await chrome.storage.local.get('history');
-            history = history.history || [];
-            let blob = new Blob([JSON.stringify(history)], { type: "application/json" });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            document.body.appendChild(a);
-            a.href = url;
-            a.download = 'history.json';
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-        });
-        this.history_copy_url_btn.addEventListener('click', async () => {
-            const url = this.url_display.href;
-            navigator.clipboard.writeText(url);
-        });
     }
     async renderHistoryDisplay() {
         let historyRangeLimit = await chrome.storage.local.get('historyRangeLimit');
@@ -81,22 +49,7 @@ export default class HistoryHelper {
         `;
         if (entry) {
             let renderResult = this.extCommon.renderHTMLForHistoryEntry(entry, this.baseHistoryIndex);
-            const historyText = entry.text;
-            this.history_text.innerHTML = historyText;    
-            entryHTML = renderResult.html;
-            usageCreditTotal += renderResult.usageCreditTotal;
-            const url = entry.url;
-            this.url_display.innerHTML = url;
-            this.url_display.href = url;
-            this.entry_total_credit_usage.innerHTML = `Credits: ${Math.round(usageCreditTotal)}`;
-            this.history_date.innerHTML = this.extCommon.showGmailStyleDate(entry.runDate);
-        } else {
-            this.history_text.innerHTML = 'Analysis text for each entry will be displayed here...';
-            this.entry_total_credit_usage.innerHTML = '';
-            this.history_date.innerHTML = '';
-            this.url_display.innerHTML = '';
-            this.url_display.href = '';
-        }
+        } 
         if (this.baseHistoryIndex < history.length - 1) {
             let renderResult = this.extCommon.renderHTMLForHistoryEntry(history[this.baseHistoryIndex + 1], this.baseHistoryIndex + 1);
             entryHTML += renderResult.html;

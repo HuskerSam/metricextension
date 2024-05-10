@@ -1,9 +1,8 @@
 import React from 'react';
 import Papa from 'papaparse';
 
-export default function DialogVectorInspect(props) {
+export default function NewsFeedContainer(props) {
   const [newsItems, setNewsItem] = React.useState([]);
-  let columnNames = [];
   let loaded = false;
 
   const load = async () => {
@@ -16,7 +15,7 @@ export default function DialogVectorInspect(props) {
     json.newsItems[0].compactCSVData = await csvQuery.text();
     let columnMaps = [];
     json.newsItems[0].csvResultData = Papa.parse(json.newsItems[0].compactCSVData, { header: true });
-    columnNames = Object.keys(json.newsItems[0].csvResultData.data[0]);
+    let columnNames = Object.keys(json.newsItems[0].csvResultData.data[0]);
     columnNames.forEach((col, index) => {
         const [metricName, metricSetName] = col.split('_');
         columnMaps.push({ name: metricName, type: 'string', key: index, setName: metricSetName });
