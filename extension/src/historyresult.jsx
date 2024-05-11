@@ -45,20 +45,13 @@ export default function HistoryResult(props) {
     };
 
     return (
-        <div>
-            <div className="py-1 flex items-center">
+        <div className="mx-1">
+            <div className="py-1 flex flex-col items-start">
+                <div className="text-gray-800 history_date">{AnalyzerExtensionCommon.showGmailStyleDate(historyEntry.runDate)}</div>
                 <div className="flex flex-row">
-                    <a className="flex-1 text-ellipsis text-blue-500 active:text-purple-500 focus:text-purple-500 self-center"
+                    <a className="text-sm text-blue-500 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
                         target="_blank">{historyEntry.url}</a>
                 </div>
-                <div className="inline-flex relative ml-2 items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"
-                        className="w-4 h-4 mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <span className="text-gray-800 text-xs history_date">{AnalyzerExtensionCommon.showGmailStyleDate(historyEntry.runDate)}</span>
-                </div>
-                <span className="text-xs">Credits: {Math.round(historyEntry.usageCreditTotal)}</span>
             </div>
             <div className="p-2 flex-1 form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px]">
                 {historyEntry.text}
@@ -126,6 +119,7 @@ export default function HistoryResult(props) {
                     </div>
                 ))}
             </div>
+            <div className="text-xs text-end mr-2">Credits: {Math.round(historyEntry.usageCreditTotal)}</div>
             <hr className="history_separator" />
         </div>
     );
