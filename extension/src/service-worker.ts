@@ -27,10 +27,10 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
         });
         await extCommon.processAnalysisContextMenuAction(scrapes[0].result, tab.url);
     } else if (info.menuItemId === 'showQueryInSelectionContextMenu') {
-        extCommon.toggleExentionPage("main.html", true);
+        extCommon.toggleExentionPage("main.html#semantic", true);
         await extCommon.processSemanticContextMenuAction(info.selectionText, tab.url);
     } else if (info.menuItemId === 'showQueryInPageContextMenu') {
-        extCommon.toggleExentionPage("main.html", true);
+        extCommon.toggleExentionPage("main.html#semantic", true);
         let scrapes = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: getPageDom,

@@ -1084,6 +1084,9 @@ export class AnalyzerExtensionCommon {
     return await this.runAnalysisPrompts(text, url);
   }
   async processSemanticContextMenuAction(text: string, url: string) {
+    let isAlreadyRunning = await this.setSemanticRunning(true);
+    if (isAlreadyRunning) return;
+
     text = text.slice(0, 1000000);
     await this.chrome.storage.local.set({
       sidePanelScrapeContent: text,
@@ -1091,14 +1094,11 @@ export class AnalyzerExtensionCommon {
       sidePanelUrlSource: url,
       sidePanelScrapeType: "cache"
     });
-    let isAlreadyRunning = await this.setSemanticRunning(true);
-    if (isAlreadyRunning) return;
-
     let selectedSemanticSource = await this.getSelectedSemanticSource();
     await this.selectSemanticSource(selectedSemanticSource, true);
     // return await this.runSemanticQuery(text);
     await this.chrome.storage.local.set({
-      running: false,
+      semantic_running: false,
     });
   }
   async lookupDocumentChunks(message: string): Promise<any> {
