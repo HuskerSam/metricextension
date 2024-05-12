@@ -77,6 +77,10 @@ export default class MainPageApp {
             this.paintData();
         });
         this.paintData(true);
+
+        if (window.location.hash.trim() === "#semantic") {
+            document.getElementById("main_datamill_tab_btn")?.click();
+        }
     }
     initEventHandlers() {
         this.open_side_panel_from_main.addEventListener('click', async () => this.extCommon.toggleSidePanel());

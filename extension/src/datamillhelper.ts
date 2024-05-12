@@ -8,10 +8,10 @@ export default class DataMillHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
     promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
-    llm_analyze_prompt_button = document.querySelector('.llm_analyze_prompt_button') as HTMLButtonElement;
+    semantic_analyze_embedded_prompt_btn = document.querySelector('.semantic_analyze_embedded_prompt_btn') as HTMLButtonElement;
     semantic_query_textarea = document.querySelector('.semantic_query_textarea') as HTMLTextAreaElement;
     summary_details = document.querySelector('.summary_details') as HTMLDivElement;
-    llm_full_augmented_response = document.querySelector('.llm_full_augmented_response') as HTMLDivElement;
+    semantic_embedded_llm_response = document.querySelector('.semantic_embedded_llm_response') as HTMLDivElement;
     llm_prompt_template_select_preset = document.querySelector('.llm_prompt_template_select_preset') as HTMLSelectElement;
     llm_prompt_template_text_area = document.querySelector('.llm_prompt_template_text_area') as HTMLTextAreaElement;
     llm_document_template_text_area = document.querySelector('.llm_document_template_text_area') as HTMLTextAreaElement;
@@ -23,8 +23,8 @@ export default class DataMillHelper {
     run_semantic_search_query_button = document.querySelector(".run_semantic_search_query_button") as HTMLButtonElement;
     filter_container = document.body.querySelector(".filter_container") as HTMLDivElement;
     dmtab_add_meta_filter_button = document.body.querySelector(".dmtab_add_meta_filter_button") as HTMLButtonElement;
-    left_semantic_view_splitter = document.body.querySelector(".left_semantic_view_splitter") as HTMLDivElement;
-    right_semantic_view_splitter = document.body.querySelector(".right_semantic_view_splitter") as HTMLDivElement;
+    top_semantic_view_splitter = document.body.querySelector(".top_semantic_view_splitter") as HTMLDivElement;
+    bottom_semantic_view_splitter = document.body.querySelector(".bottom_semantic_view_splitter") as HTMLDivElement;
     viewSplitter: Split.Instance;
     runningQuery = false;
 
@@ -36,14 +36,8 @@ export default class DataMillHelper {
             await chrome.storage.local.set({ uniqueSemanticDocs: this.uniqueDocsCheck.checked });
         });
         this.run_semantic_search_query_button.addEventListener("click", async () => {
-            this.run_semantic_search_query_button.disabled = true;
             this.semantic_query_textarea.select();
-            this.run_semantic_search_query_button.innerHTML = "...";
-            this.saveSelectFilters();
-            document.body.classList.add("semantic_search_running");
             await this.runSemanticQuery();
-            this.run_semantic_search_query_button.disabled = false;
-            document.body.classList.remove("semantic_search_running");
         });
         this.dmtab_change_session_select.addEventListener("input", async () => {
             const selectedValue = this.dmtab_change_session_select.value;
@@ -58,29 +52,33 @@ export default class DataMillHelper {
             this.addMetaFilter();
         });
 
-        this.viewSplitter = Split([this.left_semantic_view_splitter, this.right_semantic_view_splitter],
+        this.viewSplitter = Split([this.top_semantic_view_splitter, this.bottom_semantic_view_splitter],
             {
-                sizes: [60, 40],
+                sizes: [50, 50],
                 direction: 'horizontal',
-                minSize: 100, // min size of both panes
                 gutterSize: 16,
             });
 
-        this.llm_analyze_prompt_button.addEventListener("click", () => this.analyzePrompt());
+        this.semantic_analyze_embedded_prompt_btn.addEventListener("click", async () => {
+            this.semantic_query_textarea.select();
+            await this.analyzePrompt()
+        });
         this.llm_prompt_template_select_preset.addEventListener("input", async () => {
             const selectedSemanticPromptTemplate = this.llm_prompt_template_select_preset.value;
             await chrome.storage.local.set({ selectedSemanticPromptTemplate });
             this.paintPromptTemplateView();
         });
-        this.semantic_query_textarea.addEventListener("keydown", (e: any) => {
+        this.semantic_query_textarea.addEventListener("keydown", async (e: any) => {
             if (e.key === "Enter" && e.shiftKey === false) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.analyzePrompt();
+                this.semantic_query_textarea.select();
+                await this.runSemanticQuery();
             }
         });
-        this.semantic_query_textarea.addEventListener("input", () => {
-            
+        this.semantic_query_textarea.addEventListener("input", async () => {
+            let semanticQueryText = this.semantic_query_textarea.value.trim();
+            await chrome.storage.local.set({ semanticQueryText });
         });
     }
     async load() {
@@ -100,6 +98,14 @@ export default class DataMillHelper {
         let selectedEmbeddingType = await this.extCommon.getStorageField("selectedEmbeddingType");
         if (selectedEmbeddingType) {
             this.llm_embedding_type_select.value = selectedEmbeddingType;
+        }
+        await this.extCommon.getFieldFromStorage(this.semantic_query_textarea, "semanticQueryText");
+
+        const semantic_running = await chrome.storage.local.get('semantic_running');
+        if (semantic_running && semantic_running.semantic_running) {
+            document.body.classList.add("semantic_running");
+        } else {
+            document.body.classList.remove("semantic_running");
         }
     }
     renderFilters() {
@@ -142,22 +148,16 @@ export default class DataMillHelper {
         await chrome.storage.local.set({ "selectedSemanticFilters": this.extCommon.selectedSemanticMetaFilters });
     }
     async runSemanticQuery() {
-        if (this.runningQuery === true) return;
-        this.runningQuery = true;
-
-        const message = this.semantic_query_textarea.value.trim();
+        const message = await this.extCommon.getStorageField("semanticQueryText");
         if (!message || message.length < 3) {
             alert("please supply a message of at least 3 characters");
-            return [];
+            return;
         }
-        await this.processIncludedChunks();
-
-        this.run_semantic_search_query_button.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg> &nbsp; Search`;
-
-        return;
+        let isAlreadyRunning = await this.extCommon.getStorageField("semanticQueryRunning");
+        if (isAlreadyRunning) {
+            alert("already running");
+            return;
+        }
     }
     semanticChunkResultCardHTML(match: any, includeInfo: any): string {
         let matchedClass = includeInfo ? "matched" : "not-matched";
@@ -325,15 +325,7 @@ export default class DataMillHelper {
         await this.extCommon.selectSemanticSource(selectedSemanticSource);
     }
     async analyzePrompt() {
-        if (this.extCommon.semanticQueryRunning) {
-            alert("already running");
-            return;
-        }
-        const message = this.semantic_query_textarea.value.trim();
-        if (!message || message.length < 3) {
-            alert("please supply a message of at least 3 characters");
-            return [];
-        }
+        const message = await this.extCommon.getStorageField("semanticQueryText");
         let querySemanticResults = false;
         const semanticResults = await this.extCommon.getStorageField("semanticResults");
         if (semanticResults && semanticResults.success) {
@@ -344,28 +336,15 @@ export default class DataMillHelper {
                 }
             }
         }
-        this.llm_analyze_prompt_button.setAttribute("disabled", "");
-        this.llm_analyze_prompt_button.innerHTML = `<span>
-        <lottie-player src="media/heartlottie.json" background="transparent" speed="1"
-        style="height:100px;width:100px;align-self:center;" loop autoplay></lottie-player></span>`;
-
-        document.body.classList.remove("initial");
-        document.body.classList.add("running");
-        document.body.classList.remove("complete");
 
         if (querySemanticResults) {
-            this.llm_full_augmented_response.innerHTML = "Processing Query...<br><br>";
+            this.semantic_embedded_llm_response.innerText = "Processing Query...";
             await this.extCommon.lookupDocumentChunks(message);
         }
 
-        this.llm_full_augmented_response.innerHTML = await this.sendPromptToLLM(querySemanticResults);
-
-        this.llm_analyze_prompt_button.removeAttribute("disabled");
-        this.llm_analyze_prompt_button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-      </svg> `;
-        document.body.classList.add("complete");
-        document.body.classList.remove("running");
+        await this.sendPromptToLLM(querySemanticResults);
+        const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
+        this.semantic_embedded_llm_response.innerText = llmResponse;
 
         return;
     }
@@ -384,16 +363,20 @@ export default class DataMillHelper {
                 return match;
             });
     }
-    async sendPromptToLLM(resolveNewIncludes = true): Promise<string> {
-        let message = this.semantic_query_textarea.value.trim();
-        if (!message) {
-            return "please supply a message";
+    async sendPromptToLLM(resolveNewIncludes = true) {
+        const isAlreadyRunning = await this.extCommon.setSemanticRunning(true);
+        if (isAlreadyRunning) {
+            return;
         }
-        message = await this.embedPrompt(message, resolveNewIncludes);
-        console.log("embedded message", message);
+        const message = await this.extCommon.getStorageField("semanticQueryText");
+        const embeddedMessage = await this.embedPrompt(message, resolveNewIncludes);
+        const result = await this.extCommon.processPromptUsingUnacogAPI(embeddedMessage);
 
-        let result = await this.extCommon.processPromptUsingUnacogAPI(message);
-        return result.resultMessage;
+        await chrome.storage.local.set({
+            semanticQueryRunning: false,
+            semanticLLMQueryResult: result,
+            semanticLLMQueryResultText: result.resultMessage,
+        });
     }
     getSmallToBig(matchId: string, includeK: number): string {
         const lookUpIndex = this.extCommon.lookUpKeys.indexOf(matchId);

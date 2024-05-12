@@ -27,7 +27,6 @@ export class AnalyzerExtensionCommon {
   semanticLoaded = false;
   chunkSizeMetaDataMap: any = {};
   semanticPromptTemplatesMap: any = {};
-  semanticQueryRunning = false;
   lastSeenContextMenuSettings: any = {};
 
   constructor(chrome: any) {
@@ -351,6 +350,17 @@ export class AnalyzerExtensionCommon {
 
     await this.chrome.storage.local.set({
       bulk_running: true,
+    });
+    return false;
+  }
+  async setSemanticRunning(prompt = false) {
+    let semantic_running = await this.chrome.storage.local.get('semantic_running');
+    if (semantic_running && semantic_running.semantic_running) {
+      return true;
+    }
+
+    await this.chrome.storage.local.set({
+      semantic_running: true,
     });
     return false;
   }
@@ -962,7 +972,6 @@ export class AnalyzerExtensionCommon {
     await this.semanticLoad();
   }
   async querySemanticChunks(message: string) {
-    this.semanticQueryRunning = true;
     let selectedSemanticSource = await this.getSelectedSemanticSource();
     const chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
     this.chunkSizeMeta = chunkSizeMeta;
@@ -978,7 +987,6 @@ export class AnalyzerExtensionCommon {
     }
     console.log("querying semantic chunks", chunkSizeMeta, message, topK, apiToken, sessionId);
     const result = await this.getMatchingVectors(message, topK, apiToken, sessionId);
-    this.semanticQueryRunning = false;
     return result;
   }
   async getSelectedSemanticSource() {
@@ -1083,7 +1091,7 @@ export class AnalyzerExtensionCommon {
       sidePanelUrlSource: url,
       sidePanelScrapeType: "cache"
     });
-    let isAlreadyRunning = await this.setRunning(true);
+    let isAlreadyRunning = await this.setSemanticRunning(true);
     if (isAlreadyRunning) return;
 
     let selectedSemanticSource = await this.getSelectedSemanticSource();

@@ -509,7 +509,7 @@ export default class BulkHelper {
 
     }
     async paintSelectedHistoryEntry(bulkHistoryItem: any) {
-        this.bulk_selected_last_run_date.innerHTML = this.extCommon.showGmailStyleDate(bulkHistoryItem.runId);
+        this.bulk_selected_last_run_date.innerHTML = AnalyzerExtensionCommon.showGmailStyleDate(bulkHistoryItem.runId);
         let csvFetchResult = await fetch(bulkHistoryItem.compactResultPath);
         let csvText = await csvFetchResult.text();
         let csvData = Papa.parse(csvText, { header: true }).data;
