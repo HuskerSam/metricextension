@@ -37,11 +37,13 @@ export default class HistoryHelper {
        
         if (entry) {
             entry.historyIndex = this.baseHistoryIndex;
-            this.app.historyResult?.props.hooks.setHistoryEntry(entry, this.baseHistoryIndex);
+            this.app.historyResult?.props.hooks.setHistoryEntry(entry);
+            this.app.historyResult?.props.hooks.setShow(true);
         } else {
             this.app.historyResult?.props.hooks.setHistoryEntry({
                 results: [],
             }, this.baseHistoryIndex);
+            this.app.historyResult?.props.hooks.setShow(false);
         }
         if (this.baseHistoryIndex < history.length - 1) {
             let entry = history[this.baseHistoryIndex + 1];
@@ -51,11 +53,13 @@ export default class HistoryHelper {
                     result.id = index;
                 });
             }
-            this.app.historyResultPrevious?.props.hooks.setHistoryEntry(entry, this.baseHistoryIndex + 1);
+            this.app.historyResultPrevious?.props.hooks.setHistoryEntry(entry);
+            this.app.historyResultPrevious?.props.hooks.setShow(true);
         } else {
             this.app.historyResultPrevious?.props.hooks.setHistoryEntry({
                 results: [],
             }, this.baseHistoryIndex + 1);
+            this.app.historyResultPrevious?.props.hooks.setShow(false);
         }
 
         this.historyDisplay.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {

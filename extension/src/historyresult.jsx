@@ -5,8 +5,10 @@ export default function HistoryResult(props) {
     const [historyEntry, setHistoryEntry] = React.useState({
         results: [],
     });
+    const [show, setShow] = React.useState(false);
 
     props.hooks.setHistoryEntry = setHistoryEntry;
+    props.hooks.setShow = setShow;
 
     let allResults = historyEntry.results;
     let usageCreditTotal = 0;
@@ -30,10 +32,26 @@ export default function HistoryResult(props) {
         setNamesArray = [];
     }
 
+    /*
+    let promptSetResults = setBasedResults[setName];
+    promptSetResults.forEach((result: any) => {
+      try {
+        usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+      } catch (err: any) {
+        console.log("Usage total credit summming error", err);
+      }
+    }); 
+    */
+
     const getMetricsResultValue = (resultMessage) => {
-        let json = JSON.parse(resultMessage);
-        let metric = json.contentRating;
-        return metric;
+        try { 
+            let json = JSON.parse(resultMessage);
+            let metric = json.contentRating;
+            return metric;
+        } catch (err) {
+            console.log("Error parsing metric result", err, resultMessage);
+            return -1;
+        }
     }
 
     const getHistoryIndexDisplay = (historyIndex, setIndex, results) => {
@@ -43,7 +61,13 @@ export default function HistoryResult(props) {
         }
         return historyIndexDisplay;
     };
-
+    if (!show) {
+        return (
+            <div className="mx-1">
+                no results
+            </div>
+        );
+    }
     return (
         <div className="mx-1">
             <div className="py-1 flex flex-col items-start">
@@ -53,7 +77,7 @@ export default function HistoryResult(props) {
                         target="_blank">{historyEntry.url}</a>
                 </div>
             </div>
-            <div className="p-2 flex-1 form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px]">
+            <div className="p-2 flex-1 history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px]">
                 {historyEntry.text}
             </div>
             <div>

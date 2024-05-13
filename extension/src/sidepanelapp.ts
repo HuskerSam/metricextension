@@ -3,6 +3,11 @@ import { MetricCommon } from './metriccommon';
 import Papa from 'papaparse';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
+import LastRunResult from './historyresult.jsx';
+import {
+    createRoot,
+} from "react-dom/client";
+import React from "react";
 import {
   encode,
 } from 'gpt-tokenizer';
@@ -11,6 +16,7 @@ declare const chrome: any;
 export default class SidePanelApp {
   extCommon = new AnalyzerExtensionCommon(chrome);
   metricCommon = new MetricCommon(chrome);
+  lastRunResult: React.ReactElement | null = null;
   analysisSetsSlimSelect: any;
   analysis_set_select = document.querySelector('.analysis_set_select') as HTMLSelectElement;
   show_main_page_btn = document.querySelector('.show_main_page_btn') as HTMLButtonElement;
@@ -32,12 +38,13 @@ export default class SidePanelApp {
   sidepanel_last_credits_used = document.querySelector('.sidepanel_last_credits_used') as HTMLElement;
   scrape_type_radios = document.querySelectorAll('input[name="scrape_type"]') as NodeListOf<HTMLInputElement>;
   copy_url_scrape = document.querySelector('.copy_url_scrape') as HTMLButtonElement;
+  history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
   lastSlimSelections = "";
   viewSplitter: Split.Instance;
-  analysis_display: any;
   previousSlimOptions = '';
 
   constructor() {
+    this.load()
     this.analysisSetsSlimSelect = new SlimSelect({
       select: '.analysis_set_select',
       settings: {
@@ -119,11 +126,14 @@ export default class SidePanelApp {
       navigator.clipboard.writeText(text);
     });
 
-    this.analysis_display = document.querySelector(".analysis_display");
-    chrome.storage.local.onChanged.addListener(() => {
-      this.paint();
-    });
     this.paint();
+  }
+   load() {
+    const history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
+    this.lastRunResult = React.createElement(LastRunResult, {
+        hooks: {},
+    });
+    createRoot(history_result_view).render(this.lastRunResult);
   }
   async paint() {
     let lastPanelToggleDate = await chrome.storage.local.get('lastPanelToggleDate');
@@ -248,37 +258,43 @@ export default class SidePanelApp {
     history = history.history || [];
     let entry = history[0];
 
-    let processedEntry = this.extCommon.renderHTMLForHistoryEntry(entry, -1);
-    let html = processedEntry.html;
-    this.sidepanel_last_credits_used.innerText = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
-    this.analysis_display.innerHTML = html;
-    this.analysis_display.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
-      btn.addEventListener('click', async () => {
-        let compactData = this.extCommon.processRawResultstoCompact(entry.results);
-        let csvData = Papa.unparse(compactData);
-        let blob = new Blob([csvData], { type: "text/csv" });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        a.href = url;
-        a.download = 'analysis_results.json';
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+    this.lastRunResult?.props.hooks.setHistoryEntry(entry);
+    this.lastRunResult?.props.hooks.setShow(true);
+
+  //  this.sidepanel_last_credits_used.innerText = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
+    this.history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
+      btn.addEventListener('click', async (e: any) => {
+          e.preventDefault();
+          const historyIndex = Number(btn.dataset.historyindex);
+          const entry = history[historyIndex];
+          let compactData = this.extCommon.processRawResultstoCompact(entry.results);
+          let csvData = Papa.unparse(compactData);
+          let blob = new Blob([csvData], { type: "text/csv" });
+          let url = URL.createObjectURL(blob);
+          let a = document.createElement('a');
+          document.body.appendChild(a);
+          a.href = url;
+          a.download = 'results.csv';
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
       });
-    });
-    this.analysis_display.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
-      btn.addEventListener('click', async () => {
-        let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        a.href = url;
-        a.download = 'results.json';
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+  });
+  this.history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
+      btn.addEventListener('click', async (e: any) => {
+          e.preventDefault();
+          const historyIndex = Number(btn.dataset.historyindex);
+          const entry = history[historyIndex];
+          let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
+          let url = URL.createObjectURL(blob);
+          let a = document.createElement('a');
+          document.body.appendChild(a);
+          a.href = url;
+          a.download = 'results.json';
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
       });
-    });
+  });
   }
 }
