@@ -1,5 +1,6 @@
 import { AnalyzerExtensionCommon } from "./extensioncommon";
 import { SemanticCommon } from "./semanticcommon";
+import { MetricCommon } from "./metriccommon";
 declare const chrome: any;
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
     if (reason.reason === 'install') {
@@ -65,6 +66,7 @@ chrome.runtime.onMessageExternal.addListener(
 );
 async function processAnalysisContextMenuAction(text: string, url: string) {
     let extCommon = new AnalyzerExtensionCommon(chrome);
+    let metricCommon = new MetricCommon(chrome);
     text = text.slice(0, 1000000);
     await chrome.storage.local.set({
       sidePanelScrapeContent: text,
@@ -74,7 +76,7 @@ async function processAnalysisContextMenuAction(text: string, url: string) {
     });
     let isAlreadyRunning = await extCommon.setRunning(true);
     if (isAlreadyRunning) return;
-    return await extCommon.runAnalysisPrompts(text, url);
+    return await metricCommon.runAnalysisPrompts(text, url);
   }
 
   async function processSemanticContextMenuAction(text: string, url: string) {

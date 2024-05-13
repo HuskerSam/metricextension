@@ -1,9 +1,6 @@
-import Mustache from 'mustache';
-
 export class AnalyzerExtensionCommon {
   promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
   cloudWriteUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/cloudwrite`;
-  cloudScrapeUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/scrapeurl`;
   chrome: any;
   query_source_tokens_length: any;
   previousSlimOptions = '';
@@ -198,17 +195,6 @@ export class AnalyzerExtensionCommon {
       };
     }
   }
-  async sendPromptForMetric(promptTemplate: string, query: string) {
-    try {
-      let result = Mustache.render(promptTemplate, { query });
-      return result;
-    } catch (error) {
-      console.log(promptTemplate, query, error);
-      return `{
-        "contentRating": -1
-      }`;
-    }
-  }
   processRawResultstoCompact(analysisResults: any[]) {
     let compactData: any[] = [];
     analysisResults.forEach((urlResult: any) => {
@@ -325,62 +311,6 @@ export class AnalyzerExtensionCommon {
     });
     return false;
   }
-  async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
-    if (text.length > 30000) text = text.slice(0, 30000);
-    const runDate = new Date().toISOString();
-
-    let prompts: any = [];
-    let analysisPrompts: any = await this.getAnalysisPrompts();
-    let selectedAnalysisSets: any = await this.chrome.storage.local.get(selectedSetName);
-    if (promptToUse) {
-      prompts = [promptToUse];
-    } else if (selectedAnalysisSets && selectedAnalysisSets[selectedSetName]) {
-      selectedAnalysisSets = selectedAnalysisSets[selectedSetName];
-      for (let set of selectedAnalysisSets) {
-        let localPrompts = analysisPrompts.filter((prompt: any) => prompt.setName === set);
-        localPrompts.forEach((prompt: any) => {
-          prompts.push(prompt);
-        });
-      }
-    }
-
-    const runPrompt = async (prompt: any, text: string) => {
-      let fullPrompt = await this.sendPromptForMetric(prompt.prompt, text);
-      let result = await this.processPromptUsingUnacogAPI(fullPrompt);
-      return {
-        prompt,
-        result,
-      };
-    };
-
-    let promises: any[] = [];
-    for (let prompt of prompts) {
-      promises.push(runPrompt(prompt, text));
-    }
-
-    let results = await Promise.all(promises);
-    let historyEntry = {
-      text,
-      results,
-      runDate,
-      url,
-      title,
-    };
-    if (addToHistory) {
-      let history = await this.chrome.storage.local.get('history');
-      let historyRangeLimit = await this.chrome.storage.local.get('historyRangeLimit');
-      historyRangeLimit = Number(historyRangeLimit.historyRangeLimit) || 10;
-      history = history.history || [];
-      history.unshift(historyEntry);
-      history = history.slice(0, historyRangeLimit);
-      await this.chrome.storage.local.set({
-        history,
-        running: false,
-      });
-    }
-
-    return historyEntry;
-  }
   prepDataForHistoryRender(entry: any, historyIndex: number) {
     let usageCreditTotal = 0;
     let resultHistory = entry.result;
@@ -401,7 +331,7 @@ export class AnalyzerExtensionCommon {
         };
       }
     }
- 
+
     let allResults = entry.results;
     let setBasedResults: any = {};
     allResults.forEach((result: any) => {
@@ -551,55 +481,6 @@ export class AnalyzerExtensionCommon {
         `;
     }
   }
-  async serverScrapeUrl(url: string, htmlElementsSelector: string) {
-    let options = `urlScrape=true`;
-    if (htmlElementsSelector) {
-      options += `||htmlElementsSelector=${htmlElementsSelector}`;
-    }
-    let result = await this.scrapeUrlServerSide(url, options);
-
-    if (result.success) {
-      return {
-        text: result.result.text,
-        title: result.result.title,
-      };
-    }
-    return {
-      text: "No text found in page",
-      title: "",
-    };
-
-  }
-  async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
-    let apiToken = await this.chrome.storage.local.get('apiToken');
-    apiToken = apiToken.apiToken || '';
-    let sessionId = await this.chrome.storage.local.get('sessionId');
-    sessionId = sessionId.sessionId || '';
-
-    const body = {
-      apiToken,
-      sessionId,
-      url,
-      options,
-    };
-    try {
-      const fetchResults = await fetch(this.cloudScrapeUrl, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-      return await fetchResults.json();
-    } catch (err: any) {
-      return {
-        success: false,
-        error: err,
-      };
-    }
-  }
   truncateText(text: any, maxLength: any) {
     if (!text) return '';
     if (text.length <= maxLength) {
@@ -684,71 +565,14 @@ export class AnalyzerExtensionCommon {
       if (domInput.value !== value) domInput.value = value;
     }, 500);
   }
-  async setFieldToStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
-    let value = domInput.value;
-    await this.chrome.storage.local.set({ [storageKey]: value });
-  }
-  async getTextContentSource() {
-    let value = await this.chrome.storage.local.get("sidePanelTextSource");
-    value = value["sidePanelTextSource"] || '';
-    return value;
-  }
-  async getURLContentSource() {
-    let value = await this.chrome.storage.local.get("sidePanelUrlSource");
-    value = value["sidePanelUrlSource"] || '';
-    return value;
-  }
   async getStorageField(field: string) {
     let value = await this.chrome.storage.local.get(field);
     value = value[field] || '';
     return value;
   }
-  async getSourceType() {
-    let value = await this.chrome.storage.local.get("sidePanelSource");
-    value = value["sidePanelSource"] || '';
-    if (value === 'scrape') {
-      return 'scrape';
-    } else {
-      return 'text';
-    }
-  }
-  async getSourceText(clearCache = false) {
-    let sourceType = await this.getSourceType();
-    let sidePanelScrapeType = await this.getStorageField("sidePanelScrapeType");
-
-    if (sourceType === 'scrape') {
-      if (clearCache && sidePanelScrapeType !== 'cache') {
-        const url = await this.getURLContentSource();
-        const options = await this.getStorageField("sidePanelUrlSourceOptions");
-        let bulkUrl = {
-          url,
-          scrape: sidePanelScrapeType,
-          options,
-        }
-        if (sidePanelScrapeType === "browser scrape") {
-          this.enabledBrowserScrapePermissions();
-        }
-        const activeTab = await this.chrome.tabs.getCurrent();
-        const result: any = await this.scrapeBulkUrl(bulkUrl, activeTab?.id);
-        let text = "";
-        if (result && result.text) text = result.text;
-        if (result && result.length > 0 && result[0].result) text = result[0].result;
-        let content = text;
-        if (result.success) {
-          content = result.result.text;
-          content = content.slice(0, 20000);
-        } else {
-          content
-        }
-
-        await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
-        return content;
-      }
-
-      return await this.getStorageField("sidePanelScrapeContent");
-    } else {
-      return await this.getTextContentSource();
-    }
+  async setFieldToStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
+    let value = domInput.value;
+    await this.chrome.storage.local.set({ [storageKey]: value });
   }
   async detectTabLoaded(tabId: number) {
     return new Promise((resolve, reject) => {
@@ -760,74 +584,6 @@ export class AnalyzerExtensionCommon {
       if (!row.promptType) row.promptType = 'metric';
     });
     return rows;
-  }
-  async scrapeTabPage(url: any, tabId: string) {
-    return new Promise(async (resolve, reject) => {
-
-      let tab = await this.chrome.tabs.create({
-        url
-      });
-
-      this.chrome.tabs.update(tabId, { active: true })
-
-      await this.detectTabLoaded(tab.id);
-      setTimeout(async () => {
-        try {
-          let scrapes = await this.chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: () => {
-              return document.body.innerText;
-            },
-          });
-          const updatedTab = await this.chrome.tabs.get(tab.id);
-          scrapes.title = updatedTab.title;
-          await this.chrome.tabs.remove(tab.id);
-          resolve(scrapes);
-        } catch (e) {
-          console.log("tab scrape error", e);
-          resolve("");
-        }
-      }, 3000);
-    });
-  }
-  async scrapeBulkUrl(bulkUrl: any, defaultTabId: string) {
-    let scrape = bulkUrl.scrape;
-    let url = bulkUrl.url || "";
-    let options = bulkUrl.options || "";
-    if (scrape === "server scrape") {
-      const result = await this.scrapeUrlServerSide(url, options);
-      if (result.success) {
-        return {
-          text: result.result.text,
-          title: result.result.title,
-        };
-      }
-      return {
-        text: "No text found in page",
-        title: "",
-      };
-    } else if (scrape === "browser scrape") {
-      let results = this.scrapeTabPage(url, defaultTabId);
-      console.log("active scrape results", results);
-      return results;
-    } else if (scrape === "override content") {
-      return {
-        text: bulkUrl.content,
-        url,
-        title: "",
-      };
-    } else {
-      return {
-        text: "No text found in page",
-        title: "",
-        url
-      };
-    }
-  }
-  async scrapeUrlServerSide(url: string, options: string) {
-    const result = await this.scrapeURLUsingAPI(url, options);
-    result.url = url;
-    return result;
   }
   async enabledBrowserScrapePermissions() {
     // Permissions must be requested from inside a user gesture, like a button's

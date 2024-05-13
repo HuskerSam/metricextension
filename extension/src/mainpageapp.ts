@@ -1,5 +1,6 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { SemanticCommon } from './semanticcommon';
+import { MetricCommon } from './metriccommon';
 import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
 import HistoryHelper from './historyhelper';
@@ -16,6 +17,7 @@ declare const chrome: any;
 export default class MainPageApp {
     extCommon = new AnalyzerExtensionCommon(chrome);
     semanticCommon = new SemanticCommon(chrome);
+    metricCommon = new MetricCommon(chrome);
     bulkHelper: BulkHelper | null = null;
     promptHelper: PromptHelper | null = null;
     historyHelper: HistoryHelper | null = null;

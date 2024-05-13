@@ -1,4 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import { MetricCommon } from './metriccommon';
 import Papa from 'papaparse';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
@@ -9,6 +10,7 @@ declare const chrome: any;
 
 export default class SidePanelApp {
   extCommon = new AnalyzerExtensionCommon(chrome);
+  metricCommon = new MetricCommon(chrome);
   analysisSetsSlimSelect: any;
   analysis_set_select = document.querySelector('.analysis_set_select') as HTMLSelectElement;
   show_main_page_btn = document.querySelector('.show_main_page_btn') as HTMLButtonElement;
@@ -84,15 +86,15 @@ export default class SidePanelApp {
       }
       this.sidepanel_last_credits_used.innerHTML = "";
       let label = await this.extCommon.getStorageField("analysisRunLabel");
-      let text = await this.extCommon.getSourceText(true); // force a scrape here
-      let type = await this.extCommon.getSourceType();
-      if (!label) label = await this.extCommon.getURLContentSource();
+      let text = await this.metricCommon.getSourceText(true); // force a scrape here
+      let type = await this.metricCommon.getSourceType();
+      if (!label) label = await this.metricCommon.getURLContentSource();
       if (!label) label = "Manual Run";
       if (type === 'scrape') {
         await chrome.storage.local.set({ sidePanelScrapeContent: text });
       }
 
-      await this.extCommon.runAnalysisPrompts(text, label);
+      await this.metricCommon.runAnalysisPrompts(text, label);
     });
     this.user_text_content_field.addEventListener('input',
       async () => this.extCommon.setFieldToStorage(this.user_text_content_field, "sidePanelTextSource"));
@@ -226,7 +228,7 @@ export default class SidePanelApp {
       this["tabs-input-textarea-panel"].style.display = "";
     }
 
-    let text = await this.extCommon.getSourceText();
+    let text = await this.metricCommon.getSourceText();
     this.source_text_length.innerHTML = text.length + ' characters';
 
     let tokenCount = "N/A";

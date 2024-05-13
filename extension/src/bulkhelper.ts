@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import { MetricCommon } from './metriccommon';
 import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
@@ -12,6 +13,7 @@ declare const bootstrap: any;
 export default class BulkHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
+    metricCommon: MetricCommon;
     bulkUrlListTabulator: TabulatorFull;
     bulkResultsTabulator: TabulatorFull;
     bulkUrlScrapeResultsTabulator: TabulatorFull;
@@ -52,6 +54,7 @@ export default class BulkHelper {
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
+        this.metricCommon = app.metricCommon;
         this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
             layout: "fitColumns",
             resizableColumnFit: true,
@@ -371,7 +374,7 @@ export default class BulkHelper {
             url: "Loading " + url + " ...",
         }]);
         let options = this.bulk_url_modal_source_options.value;
-        let scrapeResult = await this.extCommon.serverScrapeUrl(url, options);
+        let scrapeResult = await this.metricCommon.serverScrapeUrl(url, options);
         let urlList = scrapeResult.text.split("\n");
         let urlMap: any = {};
         let uniqueUrlList: string[] = [];
@@ -417,7 +420,7 @@ export default class BulkHelper {
         const activeTab = await chrome.tabs.getCurrent();
         rows.forEach((row: any) => {
             urls.push(row.url);
-            promises.push(this.extCommon.scrapeBulkUrl(row, activeTab.id));
+            promises.push(this.metricCommon.scrapeBulkUrl(row, activeTab.id));
         });
 
         let results = await Promise.all(promises);
@@ -438,7 +441,7 @@ export default class BulkHelper {
                 });
             } else {
                 text = text.slice(0, 20000);
-                analysisPromises.push(this.extCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
+                analysisPromises.push(this.metricCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
             }
 
         });
