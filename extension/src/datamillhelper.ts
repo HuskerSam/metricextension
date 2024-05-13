@@ -21,14 +21,13 @@ export default class DataMillHelper {
     uniqueDocsCheck = document.body.querySelector(".uniqueDocsCheck") as HTMLInputElement;
     verboseDebugging = false;
     dmtab_change_session_select = document.querySelector(".dmtab_change_session_select") as HTMLSelectElement;
-    semantic_full_augmented_response = document.querySelector(".semantic_full_augmented_response") as HTMLDivElement;
+    semantic_chunk_results_container = document.querySelector(".semantic_chunk_results_container") as HTMLDivElement;
     run_semantic_search_query_button = document.querySelector(".run_semantic_search_query_button") as HTMLButtonElement;
     filter_container = document.body.querySelector(".filter_container") as HTMLDivElement;
     dmtab_add_meta_filter_button = document.body.querySelector(".dmtab_add_meta_filter_button") as HTMLButtonElement;
     top_semantic_view_splitter = document.body.querySelector(".top_semantic_view_splitter") as HTMLDivElement;
     bottom_semantic_view_splitter = document.body.querySelector(".bottom_semantic_view_splitter") as HTMLDivElement;
     viewSplitter: Split.Instance;
-    runningQuery = false;
 
     constructor(app: MainPageApp) {
         this.app = app;
@@ -119,7 +118,7 @@ export default class DataMillHelper {
             filterDiv.innerHTML = this.selectedFilterTemplate(filter, filterIndex);
             this.filter_container.appendChild(filterDiv);
         });
-        this.filter_container.querySelectorAll(".delete-button").forEach((button) => {
+        this.filter_container.querySelectorAll(".delete-button").forEach((button: Element) => {
             (button as HTMLButtonElement).addEventListener("click", async () => {
                 let filterIndex = Number(button.getAttribute("data-filterindex"));
                 const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
@@ -232,8 +231,6 @@ export default class DataMillHelper {
         });
         if (!result.matches || result.matches.length === 0) {
             document.body.classList.add("no_semantic_result");
-            this.semantic_full_augmented_response.innerHTML = `<div class="semantic_results_none_found">No results found</div>`;
-            this.runningQuery = false;
             return;
         } else {
             document.body.classList.remove("no_semantic_result");
@@ -249,25 +246,24 @@ export default class DataMillHelper {
             let block = this.semanticChunkResultCardHTML(match, chunkIncludedMap[match.id]);
             html += block;
         });
-        this.semantic_full_augmented_response.innerHTML = html;
-        this.semantic_full_augmented_response.querySelectorAll(".semantic_result_include_checkbox").forEach((checkbox: any) => {
+        this.semantic_chunk_results_container.innerHTML = html;
+        this.semantic_chunk_results_container.querySelectorAll(".semantic_result_include_checkbox").forEach((checkbox: any) => {
             checkbox.addEventListener("change", async () => {
                 this.scrapeIncludeStatusOfChunks();
 
             });
         });
-        this.semantic_full_augmented_response.querySelectorAll(".open_semantic_result_details").forEach((button: any) => {
+        this.semantic_chunk_results_container.querySelectorAll(".open_semantic_result_details").forEach((button: any) => {
             button.addEventListener("click", () => {
                 button.parentElement.parentElement.querySelector(".semantic_result_details").classList.toggle("hidden");
             });
         });
-        this.runningQuery = false;
         return;
     }
     async scrapeIncludeStatusOfChunks() {
         let includes: any[] = [];
         const semanticResults = await this.extCommon.getStorageField("semanticResults");
-        this.semantic_full_augmented_response.querySelectorAll(".semantic_result_include_checkbox").forEach((checkbox: any) => {
+        this.semantic_chunk_results_container.querySelectorAll(".semantic_result_include_checkbox").forEach((checkbox: any) => {
             if (checkbox.checked) {
                 const matchId = checkbox.getAttribute("data-matchid");
                 const match = semanticResults.matches.find((m: any) => m.id === matchId);

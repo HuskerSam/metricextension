@@ -113,9 +113,9 @@ export default class PromptHelper {
 
         this.save_override_checkbox.addEventListener('click', (e: any) => {
             if (e.target.checked) {
-                this.prompt_helper_save_prompt_button.innerHTML = 'Save Edit';
+                this.prompt_helper_save_prompt_button.innerText = 'Save Edit';
             } else {
-                this.prompt_helper_save_prompt_button.innerHTML = 'Save New';
+                this.prompt_helper_save_prompt_button.innerText = 'Save New';
             }
         });
 
@@ -127,9 +127,9 @@ export default class PromptHelper {
 
         this.promptTabs.addEventListener('click', (e: any) => {
             if (this.prompt_template_tab_input.checked === true) {
-                this.prompthelper_tab_help_text.innerHTML = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
+                this.prompthelper_tab_help_text.innerText = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
                 } else if (this.wizard_template_tab_input.checked === true) {
-                this.prompthelper_tab_help_text.innerHTML = `Use Klyde to help you generate prompts for content analysis.`;
+                this.prompthelper_tab_help_text.innerText = `Use Klyde to help you generate prompts for content analysis.`;
             }
         });
 

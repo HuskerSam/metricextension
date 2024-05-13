@@ -84,7 +84,7 @@ export default class SidePanelApp {
         if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
           return;
       }
-      this.sidepanel_last_credits_used.innerHTML = "";
+      this.sidepanel_last_credits_used.innerText = "";
       let label = await this.extCommon.getStorageField("analysisRunLabel");
       let text = await this.metricCommon.getSourceText(true); // force a scrape here
       let type = await this.metricCommon.getSourceType();
@@ -229,7 +229,7 @@ export default class SidePanelApp {
     }
 
     let text = await this.metricCommon.getSourceText();
-    this.source_text_length.innerHTML = text.length + ' characters';
+    this.source_text_length.innerText = text.length + ' characters';
 
     let tokenCount = "N/A";
     try {
@@ -241,7 +241,7 @@ export default class SidePanelApp {
 
       tokenCount = encode(text).length.toString() + " tokens";
     }
-    this.source_tokens_length.innerHTML = tokenCount;
+    this.source_tokens_length.innerText = tokenCount;
   }
   async renderResultsPanel() {
     let history = await chrome.storage.local.get('history');
@@ -250,7 +250,7 @@ export default class SidePanelApp {
 
     let processedEntry = this.extCommon.renderHTMLForHistoryEntry(entry, -1);
     let html = processedEntry.html;
-    this.sidepanel_last_credits_used.innerHTML = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
+    this.sidepanel_last_credits_used.innerText = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
     this.analysis_display.innerHTML = html;
     this.analysis_display.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
       btn.addEventListener('click', async () => {

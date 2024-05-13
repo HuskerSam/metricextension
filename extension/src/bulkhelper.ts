@@ -191,7 +191,7 @@ export default class BulkHelper {
                 });
             });
             let urls = Object.keys(urlsMap);
-            this.url_results_selected.innerHTML = urls.length + " URLs selected";
+            this.url_results_selected.innerText = urls.length + " URLs selected";
         });
         this.append_urls_button.addEventListener('click', async () => {
             let selectedRanges: any[] = (this.bulkUrlScrapeResultsTabulator as any).getRangesData();
@@ -489,7 +489,7 @@ export default class BulkHelper {
         } else {
             document.body.classList.add("no_bulk_history_item_selected");
             document.body.classList.remove("bulk_history_item_selected");
-            this.bulk_selected_last_run_date.innerHTML = "No selected entry";
+            this.bulk_selected_last_run_date.innerText = "No selected entry";
         }
         let paginationHtml = this.extCommon
             .generatePagination(bulkHistory.length, this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
@@ -512,7 +512,7 @@ export default class BulkHelper {
 
     }
     async paintSelectedHistoryEntry(bulkHistoryItem: any) {
-        this.bulk_selected_last_run_date.innerHTML = AnalyzerExtensionCommon.showGmailStyleDate(bulkHistoryItem.runId);
+        this.bulk_selected_last_run_date.innerText = AnalyzerExtensionCommon.showGmailStyleDate(bulkHistoryItem.runId);
         let csvFetchResult = await fetch(bulkHistoryItem.compactResultPath);
         let csvText = await csvFetchResult.text();
         let csvData = Papa.parse(csvText, { header: true }).data;
@@ -528,11 +528,11 @@ export default class BulkHelper {
         this.bulkResultsTabulator.setColumns(tabulatorColumns);
         this.bulkResultsTabulator.setData(csvData);
 
-        this.json_display_modal_content.innerHTML = "Loading...";
+        this.json_display_modal_content.innerText = "Loading...";
         let jsonFetchResult = await fetch(bulkHistoryItem.analysisResultPath);
         let jsonText = await jsonFetchResult.text();
         jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
-        this.json_display_modal_content.innerHTML = jsonText;
+        this.json_display_modal_content.innerText = jsonText;
         hljs.highlightElement(this.json_display_modal_content);
     }
     async paintBulkURLList(forceUpdate = false) {

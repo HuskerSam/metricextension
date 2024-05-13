@@ -2,26 +2,25 @@
   <div class="top_semantic_view_splitter overflow-auto">
     <div class="semantic_header_bar relative lg:px-2">
       <div class="flex flex-col">
-        <div class="justify-between space-x-5 py-1">
-          <div class="pt-1.5">
-            <h2 class="text-2xl font-bold text-gray-900">Data Source</h2>
-            <select class="dmtab_change_session_select form-select-ts flex-1 self-center mr-1"></select>
-          </div>
-          <div class="flex flex-row self-end">
-            <label class="inline-block">
-              <input class="form-input-ts w-[18px] inline-block uniqueDocsCheck" type="checkbox">
-              &nbsp;include each document once
-            </label>
-          </div>
-          <button class="dmtab_add_meta_filter_button btn-ts-secondary m-1 h-[46px] text-xs self-end px-1.5 py-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg> &nbsp; Filter
-          </button>
-        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Data Source</h2>
         <div class="flex flex-row">
+          <select class="dmtab_change_session_select form-select-ts flex-1 self-center mr-1"></select>
+          <div>
+            <button class="dmtab_add_meta_filter_button btn-ts-secondary m-1 h-[46px] text-xs self-end px-1.5 py-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg> &nbsp; Filter
+            </button>
+          </div>
+        </div>
+        <div class="flex-1 flex rounded bg-slate-50">
+          <div class="flex-1 flex flex-row md:flex-col relative">
+            <div class="filter_container inline text-xs" style="scale:0.9"></div>
+          </div>
+        </div>
+        <div class="flex flex-row mt-2">
           <button class="run_semantic_search_query_button btn-ts-primary">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="w-5 h-5">
@@ -30,20 +29,21 @@
             </svg> &nbsp; Search
           </button>
         </div>
-        <div class="flex-1 flex rounded bg-slate-50 py-1 h-full">
-          <div class="flex-1 flex flex-row md:flex-col relative">
-            <div class="filter_container inline text-xs" style="scale:0.9"></div>
-          </div>
-        </div>
       </div>
     </div>
-    <div class="semantic_full_augmented_response"></div>
+    <div class="semantic_chunk_results_container"></div>
   </div>
   <div class="bottom_semantic_view_splitter">
     <div class="flex flex-1 items-start space-x-5 py-1">
       <div class="pt-1.5">
         <h2 class="text-2xl font-bold text-gray-900">Generate</h2>
         <p class="text-sm font-medium text-gray-500">Use retrieved content to augment context</p>
+      </div>
+      <div class="flex flex-row self-end">
+        <label class="inline-block">
+          <input class="form-input-ts w-[18px] inline-block uniqueDocsCheck" type="checkbox">
+          &nbsp;include each document once
+        </label>
       </div>
     </div>
     <div class=" overflow-hidden flex flex-col h-full relative">
