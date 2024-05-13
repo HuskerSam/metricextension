@@ -5,9 +5,19 @@ export class MetricCommon {
     cloudScrapeUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/scrapeurl`;
     chrome: any;
     extCommon: AnalyzerExtensionCommon;
+    activeTabsBeingScraped: any = [];
+
     constructor(chrome: any) {
         this.chrome = chrome;
         this.extCommon = new AnalyzerExtensionCommon(chrome);
+        // for detecting in browser scraping completion
+        chrome.tabs.onUpdated.addListener(
+            (tabId: number, changeInfo: any, tab: any) => {
+                if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
+                    this.activeTabsBeingScraped[tabId]();
+                }
+            }
+        );
     }
     async getTextContentSource() {
         let value = await this.chrome.storage.local.get("sidePanelTextSource");
@@ -66,6 +76,11 @@ export class MetricCommon {
             return await this.getTextContentSource();
         }
     }
+    async detectTabLoaded(tabId: number) {
+        return new Promise((resolve, reject) => {
+            this.activeTabsBeingScraped[tabId] = resolve;
+        });
+    }
     async scrapeTabPage(url: any, tabId: string) {
         return new Promise(async (resolve, reject) => {
 
@@ -75,7 +90,7 @@ export class MetricCommon {
 
             this.chrome.tabs.update(tabId, { active: true })
 
-            await this.extCommon.detectTabLoaded(tab.id);
+            await this.detectTabLoaded(tab.id);
             setTimeout(async () => {
                 try {
                     let scrapes = await this.chrome.scripting.executeScript({
@@ -233,7 +248,7 @@ export class MetricCommon {
             history = history.slice(0, historyRangeLimit);
             await this.chrome.storage.local.set({
                 history,
-                running: false,
+                metrics_running: false,
             });
         }
 
@@ -250,4 +265,15 @@ export class MetricCommon {
           }`;
         }
     }
+    async setMetricsRunning(prompt = false) {
+        let running = await this.chrome.storage.local.get('metrics_running');
+        if (running && running.running) {
+          return true;
+        }
+    
+        await this.chrome.storage.local.set({
+          metrics_running: true,
+        });
+        return false;
+      }
 }

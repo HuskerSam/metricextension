@@ -429,15 +429,15 @@ body {
   margin-top: var(--spacing-small);
 }
 
-.extension_running .analysis_running {
+.metrics_running .analysis_running {
   display: block;
 }
 
-.extension_not_running .analysis_running {
+.metrics_not_running .analysis_running {
   display: none;
 }
 
-.extension_running .analysis_complete {
+.metrics_running .analysis_complete {
   display: none;
 }
 

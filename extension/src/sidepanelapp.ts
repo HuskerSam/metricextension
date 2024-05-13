@@ -78,7 +78,7 @@ export default class SidePanelApp {
     });
 
     this.run_analysis_btn.addEventListener('click', async () => {
-      let isAlreadyRunning = await this.extCommon.setRunning(true);
+      let isAlreadyRunning = await this.metricCommon.setMetricsRunning(true);
       console.log("isAlreadyRunning", isAlreadyRunning);
       if (isAlreadyRunning) {
         if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
@@ -138,13 +138,13 @@ export default class SidePanelApp {
       return;
     }
 
-    let running = await chrome.storage.local.get('running');
-    if (running && running.running) {
-      document.body.classList.add("extension_running");
-      document.body.classList.remove("extension_not_running");
+    let metrics_running = await this.extCommon.getStorageField('metrics_running');
+    if (metrics_running) {
+      document.body.classList.add("metrics_running");
+      document.body.classList.remove("metrics_not_running");
     } else {
-      document.body.classList.remove("extension_running");
-      document.body.classList.add("extension_not_running");
+      document.body.classList.remove("metrics_running");
+      document.body.classList.add("metrics_not_running");
     }
     this.extCommon.updateSessionKeyStatus();
 

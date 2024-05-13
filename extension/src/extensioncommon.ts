@@ -2,22 +2,11 @@ export class AnalyzerExtensionCommon {
   promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
   cloudWriteUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/cloudwrite`;
   chrome: any;
-  query_source_tokens_length: any;
-  previousSlimOptions = '';
-  activeTabsBeingScraped: any = [];
   debouncedInputTimeouts: any = {};
   lastSeenContextMenuSettings: any = {};
 
   constructor(chrome: any) {
     this.chrome = chrome;
-    // for detecting in browser scraping completion
-    chrome.tabs.onUpdated.addListener(
-      (tabId: number, changeInfo: any, tab: any) => {
-        if (this.activeTabsBeingScraped[tabId] && changeInfo.status === "complete") {
-          this.activeTabsBeingScraped[tabId]();
-        }
-      }
-    );
   }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -288,17 +277,6 @@ export class AnalyzerExtensionCommon {
     });
 
     return Object.keys(analysisSets);
-  }
-  async setRunning(prompt = false) {
-    let running = await this.chrome.storage.local.get('running');
-    if (running && running.running) {
-      return true;
-    }
-
-    await this.chrome.storage.local.set({
-      running: true,
-    });
-    return false;
   }
   async setBulkRunning(prompt = false) {
     let bulk_running = await this.chrome.storage.local.get('bulk_running');
@@ -573,11 +551,6 @@ export class AnalyzerExtensionCommon {
   async setFieldToStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
     let value = domInput.value;
     await this.chrome.storage.local.set({ [storageKey]: value });
-  }
-  async detectTabLoaded(tabId: number) {
-    return new Promise((resolve, reject) => {
-      this.activeTabsBeingScraped[tabId] = resolve;
-    });
   }
   processPromptRows(rows: any[]): any[] {
     rows.forEach((row: any) => {
