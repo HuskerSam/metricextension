@@ -62,7 +62,7 @@ export class MetricCommon {
                 let content = text;
                 if (result.success) {
                     content = result.result.text;
-                    content = content.slice(0, 20000);
+                    content = content.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
                 } else {
                     content
                 }
@@ -199,7 +199,7 @@ export class MetricCommon {
         }
     }
     async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
-        if (text.length > 30000) text = text.slice(0, 30000);
+        if (text.length > 30000) text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
         const runDate = new Date().toISOString();
 
         let prompts: any = [];
@@ -256,7 +256,8 @@ export class MetricCommon {
     }
     async sendPromptForMetric(promptTemplate: string, query: string) {
         try {
-            let result = Mustache.render(promptTemplate, { query });
+            const q = query.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
+            let result = Mustache.render(promptTemplate, { query: q });
             return result;
         } catch (error) {
             console.log(promptTemplate, query, error);
@@ -268,12 +269,12 @@ export class MetricCommon {
     async setMetricsRunning(prompt = false) {
         let running = await this.chrome.storage.local.get('metrics_running');
         if (running && running.running) {
-          return true;
+            return true;
         }
-    
+
         await this.chrome.storage.local.set({
-          metrics_running: true,
+            metrics_running: true,
         });
         return false;
-      }
+    }
 }

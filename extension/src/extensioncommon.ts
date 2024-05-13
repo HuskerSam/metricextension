@@ -4,9 +4,15 @@ export class AnalyzerExtensionCommon {
   chrome: any;
   debouncedInputTimeouts: any = {};
   lastSeenContextMenuSettings: any = {};
+  defaultScrapedLengthCharacterLimit = 20000;
 
   constructor(chrome: any) {
     this.chrome = chrome;
+  }
+  async getEmbeddingCharacterLimit() {
+    let limit = await this.chrome.storage.local.get('scrapedLengthCharacterLimit');
+    limit = Number(limit) || this.defaultScrapedLengthCharacterLimit;
+    return limit;
   }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -326,13 +332,6 @@ export class AnalyzerExtensionCommon {
       allResults,
     };
   }
-  truncateText(text: any, maxLength: any) {
-    if (!text) return '';
-    if (text.length <= maxLength) {
-      return text;
-    }
-    return text.slice(0, maxLength) + '...';
-  }
   static _formatAMPM(date: any) {
     let hours = date.getHours();
     let minutes = date.getMinutes();
@@ -354,6 +353,45 @@ export class AnalyzerExtensionCommon {
     return date.toLocaleDateString("en-us", {
       month: "short",
       day: "numeric",
+    });
+  }
+   static timeSince(date: Date, showSeconds = false): string {
+    let seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    seconds = Math.max(seconds, 0);
+
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + ` yrs ago`;
+
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + ` months ago`;
+
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + ` days ago`;
+
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + ` hrs ago`;
+
+    if (showSeconds) return Math.floor(seconds) + " s";
+
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + ` mins ago`;
+
+    return "now";
+  }
+  static updateTimeSince(container: any) {
+    const elements = container.querySelectorAll(".time_since");
+    elements.forEach((ctl: any) => {
+      const timeStyle = ctl.dataset.timestyle;
+      const isoTime = ctl.dataset.timesince;
+      const showSeconds = ctl.dataset.showseconds;
+
+      let dateDisplay: string;
+      if (timeStyle === "gmail") {
+        dateDisplay = AnalyzerExtensionCommon.showGmailStyleDate(new Date(isoTime));
+      } else {
+        dateDisplay = AnalyzerExtensionCommon.timeSince(new Date(isoTime), (showSeconds === "1"));
+      }
+      ctl.innerText = dateDisplay;
     });
   }
   async toggleExentionPage(url: string, openOnly = false) {

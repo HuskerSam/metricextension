@@ -38,3 +38,7 @@
 .scrape_type_server_scrape .url_source_options  {
   display: block;
 }
+
+.side_panel .history_long_date {
+  display: none;
+}

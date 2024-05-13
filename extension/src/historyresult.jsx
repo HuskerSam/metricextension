@@ -44,7 +44,7 @@ export default function HistoryResult(props) {
     */
 
     const getMetricsResultValue = (resultMessage) => {
-        try { 
+        try {
             let json = JSON.parse(resultMessage);
             let metric = json.contentRating;
             return metric;
@@ -70,14 +70,17 @@ export default function HistoryResult(props) {
     }
     return (
         <div className="mx-1">
-            <div className="py-1 flex flex-col items-start">
-                <div className="text-gray-800 history_date">{AnalyzerExtensionCommon.showGmailStyleDate(historyEntry.runDate)}</div>
-                <div className="flex flex-row">
-                    <a className="text-sm text-blue-500 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
+            <div className="py-1 flex-col items-start">
+                <div className="flex flex-1 justify-between">
+                    <a className="text-sm text-blue-500 truncate active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
                         target="_blank">{historyEntry.url}</a>
+                    <span className="text-gray-800 history_short_date float-right text-sm time_since" data-timesince={historyEntry.runDate}></span>
+                </div>
+                <div className='flex'>
+                    <span className="text-gray-800 history_long_date time_since" data-timesince={historyEntry.runDate} data-timestyle="gmail"></span>
                 </div>
             </div>
-            <div className="p-2 flex-1 history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px]">
+            <div className="p-2 flex-1 text-sm history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px]">
                 {historyEntry.text}
             </div>
             <div>

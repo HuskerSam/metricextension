@@ -14,6 +14,7 @@ export default class SettingsHelper {
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
     show_analyze_text_in_context_menu = document.querySelector('.show_analyze_text_in_context_menu') as HTMLInputElement;
     show_query_text_in_context_menu = document.querySelector('.show_query_text_in_context_menu') as HTMLInputElement;
+    scraped_length_character_limit = document.querySelector('.scraped_length_character_limit') as HTMLInputElement;
     show_analyze_selection_in_context_menu = document.querySelector('.show_analyze_selection_in_context_menu') as HTMLInputElement;
     show_query_selection_in_context_menu = document.querySelector('.show_query_selection_in_context_menu') as HTMLInputElement;
     export_history = document.querySelector('.export_history') as HTMLButtonElement;
@@ -73,6 +74,10 @@ export default class SettingsHelper {
             let showQueryInPageContextMenu = this.show_query_text_in_context_menu.checked;
             chrome.storage.local.set({ showQueryInPageContextMenu });
         });
+        this.scraped_length_character_limit.addEventListener('input', async (e) => {
+            let scrapedLengthCharacterLimit = this.scraped_length_character_limit.value;
+            chrome.storage.local.set({ scrapedLengthCharacterLimit });
+        });
 
         this.paintData();
     }
@@ -111,6 +116,8 @@ export default class SettingsHelper {
 
         let showQueryInPageContextMenu = await this.extCommon.getStorageField('showQueryInPageContextMenu');
         this.show_query_text_in_context_menu.checked = showQueryInPageContextMenu;
+        
+        this.extCommon.getFieldFromStorage(this.scraped_length_character_limit, 'scrapedLengthCharacterLimit');
 
         let hideAnalyzeInSelectionContextMenu = await this.extCommon.getStorageField('hideAnalyzeInSelectionContextMenu');
         this.show_analyze_selection_in_context_menu.checked = !hideAnalyzeInSelectionContextMenu;

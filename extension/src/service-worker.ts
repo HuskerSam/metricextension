@@ -66,10 +66,11 @@ chrome.runtime.onMessageExternal.addListener(
 );
 async function processAnalysisContextMenuAction(text: string, url: string) {
     const metricCommon = new MetricCommon(chrome);    
+    const extCommon = new AnalyzerExtensionCommon(chrome);
     let isAlreadyRunning = await metricCommon.setMetricsRunning(true);
     if (isAlreadyRunning) return;
 
-    text = text.slice(0, 1000000);
+    text = text.slice(0, await extCommon.getEmbeddingCharacterLimit());
     await chrome.storage.local.set({
       sidePanelScrapeContent: text,
       sidePanelSource: 'scrape',
@@ -82,10 +83,11 @@ async function processAnalysisContextMenuAction(text: string, url: string) {
 
   async function processSemanticContextMenuAction(text: string, url: string) {
     const semanticCommon = new SemanticCommon(chrome);
+    const extCommon = new AnalyzerExtensionCommon(chrome);
     let isAlreadyRunning = await semanticCommon.setSemanticRunning(true);
     if (isAlreadyRunning) return;
 
-    text = text.slice(0, 1000000);
+    text = text.slice(0, await extCommon.getEmbeddingCharacterLimit());
     await chrome.storage.local.set({
       semanticQueryText: text,
       semanticUrlSource: url,

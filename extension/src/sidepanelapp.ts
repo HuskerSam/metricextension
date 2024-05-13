@@ -5,7 +5,7 @@ import SlimSelect from 'slim-select';
 import Split from 'split.js';
 import LastRunResult from './historyresult.jsx';
 import {
-    createRoot,
+  createRoot,
 } from "react-dom/client";
 import React from "react";
 import {
@@ -109,7 +109,7 @@ export default class SidePanelApp {
       async () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
     this.url_source_input.addEventListener('input',
       async () => this.extCommon.setFieldToStorage(this.url_source_input, "sidePanelUrlSource"));
-      this.url_source_options.addEventListener('input',
+    this.url_source_options.addEventListener('input',
       async () => this.extCommon.setFieldToStorage(this.url_source_options, "sidePanelUrlSourceOptions"));
     this["tabs-input-url-tab"].addEventListener('click',
       async () => chrome.storage.local.set({ sidePanelSource: 'scrape' }));
@@ -126,12 +126,18 @@ export default class SidePanelApp {
       navigator.clipboard.writeText(text);
     });
 
+    setInterval(() => AnalyzerExtensionCommon.updateTimeSince(document.body), 500);
+
+    // list for changes to local storage and update the UI
+    chrome.storage.local.onChanged.addListener(() => {
+      this.paint();
+    });
     this.paint();
   }
-   load() {
+  load() {
     const history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
     this.lastRunResult = React.createElement(LastRunResult, {
-        hooks: {},
+      hooks: {},
     });
     createRoot(history_result_view).render(this.lastRunResult);
   }
@@ -261,40 +267,40 @@ export default class SidePanelApp {
     this.lastRunResult?.props.hooks.setHistoryEntry(entry);
     this.lastRunResult?.props.hooks.setShow(true);
 
-  //  this.sidepanel_last_credits_used.innerText = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
+    //  this.sidepanel_last_credits_used.innerText = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
     this.history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
       btn.addEventListener('click', async (e: any) => {
-          e.preventDefault();
-          const historyIndex = Number(btn.dataset.historyindex);
-          const entry = history[historyIndex];
-          let compactData = this.extCommon.processRawResultstoCompact(entry.results);
-          let csvData = Papa.unparse(compactData);
-          let blob = new Blob([csvData], { type: "text/csv" });
-          let url = URL.createObjectURL(blob);
-          let a = document.createElement('a');
-          document.body.appendChild(a);
-          a.href = url;
-          a.download = 'results.csv';
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
+        e.preventDefault();
+        const historyIndex = Number(btn.dataset.historyindex);
+        const entry = history[historyIndex];
+        let compactData = this.extCommon.processRawResultstoCompact(entry.results);
+        let csvData = Papa.unparse(compactData);
+        let blob = new Blob([csvData], { type: "text/csv" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = url;
+        a.download = 'results.csv';
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
       });
-  });
-  this.history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
+    });
+    this.history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
       btn.addEventListener('click', async (e: any) => {
-          e.preventDefault();
-          const historyIndex = Number(btn.dataset.historyindex);
-          const entry = history[historyIndex];
-          let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
-          let url = URL.createObjectURL(blob);
-          let a = document.createElement('a');
-          document.body.appendChild(a);
-          a.href = url;
-          a.download = 'results.json';
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
+        e.preventDefault();
+        const historyIndex = Number(btn.dataset.historyindex);
+        const entry = history[historyIndex];
+        let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = url;
+        a.download = 'results.json';
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
       });
-  });
+    });
   }
 }

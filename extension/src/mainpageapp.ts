@@ -36,6 +36,7 @@ export default class MainPageApp {
 
     constructor() {
         this.load();
+        setInterval(() => AnalyzerExtensionCommon.updateTimeSince(document.body), 500);
     }
     async loadHTMLTemplate(path: string, dom: any) {
         let htmlRequest = await fetch(path);

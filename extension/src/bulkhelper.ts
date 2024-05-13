@@ -440,10 +440,12 @@ export default class BulkHelper {
                     };
                 });
             } else {
-                text = text.slice(0, 20000);
-                analysisPromises.push(this.metricCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title));
+                analysisPromises.push(
+                    async () => {
+                        text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
+                        this.metricCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title);
+                    });
             }
-
         });
         let analysisResults = await Promise.all(analysisPromises);
         const fullCloudUploadResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId + ".json", analysisResults);
