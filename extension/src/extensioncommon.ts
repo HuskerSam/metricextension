@@ -1089,28 +1089,26 @@ export class AnalyzerExtensionCommon {
 
     text = text.slice(0, 1000000);
     await this.chrome.storage.local.set({
-      sidePanelScrapeContent: text,
-      sidePanelSource: 'scrape',
-      sidePanelUrlSource: url,
-      sidePanelScrapeType: "cache"
+      semanticQueryText: text,
+      semanticUrlSource: url,
+      semanticScrapeType: "cache"
     });
     let selectedSemanticSource = await this.getSelectedSemanticSource();
     await this.selectSemanticSource(selectedSemanticSource, true);
-    // return await this.runSemanticQuery(text);
-    await this.chrome.storage.local.set({
-      semantic_running: false,
-    });
+    await this.lookupDocumentChunks();
   }
-  async lookupDocumentChunks(message: string): Promise<any> {
+  async lookupDocumentChunks(): Promise<any> {
+    const message = await this.getStorageField("semanticQueryText");
     await this.chrome.storage.local.set({
       semanticResults: {
         success: true,
         matches: []
       },
+      semantic_running: true,
       semanticIncludeMatchIndexes: [],
     });
+    if (!message) return;
     const semanticResults = await this.querySemanticChunks(message);
-    console.log("query results", semanticResults);
     if (semanticResults.success === false) {
       console.log("FAILED TO FETCH", semanticResults);
     } else {
@@ -1118,7 +1116,10 @@ export class AnalyzerExtensionCommon {
       await this.fetchDocumentsLookup(matches.map((match: any) => match.id));
     }
 
-    await this.chrome.storage.local.set({ semanticResults });
+    await this.chrome.storage.local.set({ 
+      semanticResults,
+      semantic_running: false,
+     });
   }
   async filterUniqueDocs(matches: any[]) {
     const uniqueDocsChecked = (await this.getStorageField("uniqueDocsChecked")) === true;

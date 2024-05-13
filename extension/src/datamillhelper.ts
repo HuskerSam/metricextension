@@ -158,6 +158,7 @@ export default class DataMillHelper {
             alert("already running");
             return;
         }
+        await this.extCommon.lookupDocumentChunks();
     }
     semanticChunkResultCardHTML(match: any, includeInfo: any): string {
         let matchedClass = includeInfo ? "matched" : "not-matched";
@@ -325,24 +326,7 @@ export default class DataMillHelper {
         await this.extCommon.selectSemanticSource(selectedSemanticSource);
     }
     async analyzePrompt() {
-        const message = await this.extCommon.getStorageField("semanticQueryText");
-        let querySemanticResults = false;
-        const semanticResults = await this.extCommon.getStorageField("semanticResults");
-        if (semanticResults && semanticResults.success) {
-            const includes = (await this.extCommon.getStorageField("semanticIncludeMatchIndexes")) || [];
-            if (includes.length > 0) {
-                if (confirm("You have selected some documents to include. Do you want to proceed without them?")) {
-                    querySemanticResults = true;
-                }
-            }
-        }
-
-        if (querySemanticResults) {
-            this.semantic_embedded_llm_response.innerText = "Processing Query...";
-            await this.extCommon.lookupDocumentChunks(message);
-        }
-
-        await this.sendPromptToLLM(querySemanticResults);
+        await this.sendPromptToLLM();
         const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
         this.semantic_embedded_llm_response.innerText = llmResponse;
 
@@ -363,13 +347,13 @@ export default class DataMillHelper {
                 return match;
             });
     }
-    async sendPromptToLLM(resolveNewIncludes = true) {
+    async sendPromptToLLM() {
         const isAlreadyRunning = await this.extCommon.setSemanticRunning(true);
         if (isAlreadyRunning) {
             return;
         }
         const message = await this.extCommon.getStorageField("semanticQueryText");
-        const embeddedMessage = await this.embedPrompt(message, resolveNewIncludes);
+        const embeddedMessage = await this.embedPrompt(message);
         const result = await this.extCommon.processPromptUsingUnacogAPI(embeddedMessage);
 
         await chrome.storage.local.set({
@@ -501,11 +485,8 @@ export default class DataMillHelper {
 
         return documentsEmbedText;
     }
-    async embedPrompt(prompt: string, resolveNewIncludes: boolean): Promise<string> {
-        if (resolveNewIncludes) {
-            await this.processIncludedChunks();
-        }
-
+    async embedPrompt(prompt: string): Promise<string> {
+        await this.processIncludedChunks();
         const semanticIncludeMatchIndexes = await this.extCommon.getStorageField("semanticIncludeMatchIndexes") || [];
         let documentsEmbedText = await this.buildChunkEmbedText(prompt, semanticIncludeMatchIndexes);
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
