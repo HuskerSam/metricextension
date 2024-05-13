@@ -38,24 +38,14 @@
     font-family: monospace;
 }
 
-.semantic_search_running .semantic_search_running_loader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.semantic_result_card.matched {
-
-}
-
-.semantic_results_none_found {
+.semantic_running .semantic_chunk_results_container {
     display: none;
 }
 
-.semantic_search_running.no_semantic_result .semantic_results_none_found {
+.semantic_running .run_semantic_search_query_button {
     display: none;
 }
 
-.no_semantic_result .semantic_results_none_found {
+.semantic_running .semantic_display_results_running {
     display: block;
-    margin-top: 20px;
 }

@@ -1,5 +1,5 @@
 <div class="flex-1 flex flew-col overflow-hidden lg:px-2">
-  <div class="top_semantic_view_splitter overflow-auto">
+  <div class="top_semantic_view_splitter overflow-hidden flex flex-col">
     <div class="semantic_header_bar relative lg:px-2">
       <div class="flex flex-col">
         <h2 class="text-2xl font-bold text-gray-900">Data Source</h2>
@@ -15,10 +15,8 @@
             </button>
           </div>
         </div>
-        <div class="flex-1 flex rounded bg-slate-50">
-          <div class="flex-1 flex flex-row md:flex-col relative">
-            <div class="filter_container inline text-xs" style="scale:0.9"></div>
-          </div>
+        <div class="rounded bg-slate-50 flex flex-row md:flex-col">
+          <div class="filter_container inline text-xs" style="scale:0.9"></div>
         </div>
         <div class="flex flex-row mt-2">
           <button class="run_semantic_search_query_button btn-ts-primary">
@@ -28,10 +26,18 @@
                 d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg> &nbsp; Search
           </button>
+          <div class="hidden flex-col semantic_display_results_running mt-[-8px] text-right">
+            <lottie-player src="media/lottie.json" background="transparent" speed="1"
+              class="w-12 h-12 self-center inline-block" loop autoplay></lottie-player>
+          </div>
         </div>
       </div>
     </div>
-    <div class="semantic_chunk_results_container"></div>
+    <div class="semantic_chunk_results_container flex-1 overflow-auto"></div>
+    <div class="hidden flex-col flex-1 semantic_display_results_running mt-[-8px] text-right">
+      <lottie-player src="media/lottie.json" background="transparent" speed="1"
+        class="w-12 h-12 self-center inline-block" loop autoplay></lottie-player>
+    </div>
   </div>
   <div class="bottom_semantic_view_splitter">
     <div class="flex flex-1 items-start space-x-5 py-1">
