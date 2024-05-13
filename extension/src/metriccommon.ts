@@ -256,7 +256,8 @@ export class MetricCommon {
     }
     async sendPromptForMetric(promptTemplate: string, query: string) {
         try {
-            const q = query.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
+            const charLimit = await this.extCommon.getEmbeddingCharacterLimit();
+            const q = query.slice(0, charLimit);
             let result = Mustache.render(promptTemplate, { query: q });
             return result;
         } catch (error) {

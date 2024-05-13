@@ -10,8 +10,9 @@ export class AnalyzerExtensionCommon {
     this.chrome = chrome;
   }
   async getEmbeddingCharacterLimit() {
-    let limit = await this.chrome.storage.local.get('scrapedLengthCharacterLimit');
-    limit = Number(limit) || this.defaultScrapedLengthCharacterLimit;
+    let limit = await this.getStorageField('scrapedLengthCharacterLimit');
+    limit = Number(limit);
+    if (!limit) limit = this.defaultScrapedLengthCharacterLimit;
     return limit;
   }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
