@@ -1,4 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import { SemanticCommon } from './semanticcommon';
 import MainPageApp from './mainpageapp';
 import Mustache from 'mustache';
 import Split from 'split.js';
@@ -7,6 +8,7 @@ declare const chrome: any;
 export default class DataMillHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
+    semanticCommon: SemanticCommon;
     promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
     semantic_analyze_embedded_prompt_btn = document.querySelector('.semantic_analyze_embedded_prompt_btn') as HTMLButtonElement;
     semantic_query_textarea = document.querySelector('.semantic_query_textarea') as HTMLTextAreaElement;
@@ -31,6 +33,7 @@ export default class DataMillHelper {
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
+        this.semanticCommon = app.semanticCommon;
         this.load();
         this.uniqueDocsCheck.addEventListener("input", async () => {
             await chrome.storage.local.set({ uniqueSemanticDocs: this.uniqueDocsCheck.checked });
@@ -41,7 +44,7 @@ export default class DataMillHelper {
         });
         this.dmtab_change_session_select.addEventListener("input", async () => {
             const selectedValue = this.dmtab_change_session_select.value;
-            await this.extCommon.selectSemanticSource(selectedValue, true);
+            await this.semanticCommon.selectSemanticSource(selectedValue, true);
         });
         this.llm_embedding_type_select.addEventListener("input", async () => {
             const selectedValue = this.llm_embedding_type_select.value;
@@ -82,7 +85,6 @@ export default class DataMillHelper {
         });
     }
     async load() {
-        await this.extCommon.initDatamillSessionList();
         await this.initSemanticSessionList();
 
         const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
@@ -108,44 +110,48 @@ export default class DataMillHelper {
             document.body.classList.remove("semantic_running");
         }
     }
-    renderFilters() {
+    async renderFilters() {
         this.filter_container.innerHTML = "";
-        this.extCommon.selectedSemanticMetaFilters.forEach((filter: any, filterIndex: number) => {
+        const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
+        selectedSemanticFilters.forEach((filter: any, filterIndex: number) => {
             let filterDiv = document.createElement("div");
             filterDiv.classList.add("filter_chips");
             filterDiv.innerHTML = this.selectedFilterTemplate(filter, filterIndex);
             this.filter_container.appendChild(filterDiv);
         });
         this.filter_container.querySelectorAll(".delete-button").forEach((button) => {
-            (button as HTMLButtonElement).addEventListener("click", () => {
+            (button as HTMLButtonElement).addEventListener("click", async () => {
                 let filterIndex = Number(button.getAttribute("data-filterindex"));
-                this.extCommon.selectedSemanticMetaFilters.splice(filterIndex, 1);
+                const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
+                selectedSemanticFilters.splice(filterIndex, 1);
                 this.renderFilters();
-                this.saveSelectFilters();
+                chrome.storage.local.set({ selectedSemanticFilters });
             });
         });
         this.filter_container.querySelectorAll(".filter-input-value").forEach((ele: Element) => {
-            ele.addEventListener("input", () => {
+            ele.addEventListener("input", async () => {
                 let filterIndex = Number(ele.getAttribute("data-filterindex"));
-                this.extCommon.selectedSemanticMetaFilters[filterIndex].value = (ele as HTMLInputElement).value;
+                const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
+                selectedSemanticFilters[filterIndex].value = (ele as HTMLInputElement).value;
+                chrome.storage.local.set({ selectedSemanticFilters });
             });
         });
         this.filter_container.querySelectorAll(".filter-input-value").forEach((ele: Element) => {
-            ele.addEventListener("input", () => {
+            ele.addEventListener("input", async () => {
                 let filterIndex = Number(ele.getAttribute("data-filterindex"));
-                this.extCommon.selectedSemanticMetaFilters[filterIndex].value = (ele as HTMLInputElement).value;
+                const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
+                selectedSemanticFilters[filterIndex].value = (ele as HTMLInputElement).value;
+                chrome.storage.local.set({ selectedSemanticFilters });
             });
         });
         this.filter_container.querySelectorAll(".filter-select select").forEach((select: Element) => {
-            select.addEventListener("input", () => {
+            select.addEventListener("input", async () => {
                 let filterIndex = Number(select.getAttribute("data-filterindex"));
-                this.extCommon.selectedSemanticMetaFilters[filterIndex].operator = (select as any).value;
-                this.saveSelectFilters();
+                const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
+                selectedSemanticFilters[filterIndex].operator = (select as any).value;
+                chrome.storage.local.set({ selectedSemanticFilters });
             });
         });
-    }
-    async saveSelectFilters() {
-        await chrome.storage.local.set({ "selectedSemanticFilters": this.extCommon.selectedSemanticMetaFilters });
     }
     async runSemanticQuery() {
         const message = await this.extCommon.getStorageField("semanticQueryText");
@@ -158,7 +164,7 @@ export default class DataMillHelper {
             alert("already running");
             return;
         }
-        await this.extCommon.lookupDocumentChunks();
+        await this.semanticCommon.lookupDocumentChunks();
     }
     semanticChunkResultCardHTML(match: any, includeInfo: any): string {
         let matchedClass = includeInfo ? "matched" : "not-matched";
@@ -232,12 +238,12 @@ export default class DataMillHelper {
         } else {
             document.body.classList.remove("no_semantic_result");
         }
-        await this.extCommon.fetchDocumentsLookup(result.matches.map((match: any) => match.id));
+        await this.semanticCommon.fetchDocumentsLookup(result.matches.map((match: any) => match.id));
         result.matches.forEach((match: any) => {
             let displayDocHTML = this.generateDisplayText(match.id, true);
             match.fullText = this.generateDisplayText(match.id);
             if (!displayDocHTML) {
-                console.log(match.id, this.extCommon.lookupData);
+                console.log(match.id, this.semanticCommon.lookupData);
             }
 
             let block = this.semanticChunkResultCardHTML(match, chunkIncludedMap[match.id]);
@@ -270,18 +276,19 @@ export default class DataMillHelper {
         });
         await chrome.storage.local.set({ semanticIncludeMatchIndexes: includes });
     }
-    addMetaFilter(metaField = "") {
+    async addMetaFilter(metaField = "") {
         if (!metaField) {
             let newValue = prompt("Enter a metric name");
             if (!newValue) return;
             metaField = newValue;
         }
-        this.extCommon.selectedSemanticMetaFilters.push({ metaField, value: "", operator: "$se" });
-        this.renderFilters();
-        this.saveSelectFilters();
+        
+        const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
+        selectedSemanticFilters.push({ metaField, value: "", operator: "$se" });
+        await chrome.storage.local.set({ selectedSemanticFilters });
     }
     generateDisplayText(matchId: string, highlight = false): string {
-        const displayDocHTML = this.extCommon.lookupData[matchId];
+        const displayDocHTML = this.semanticCommon.lookupData[matchId];
         return displayDocHTML;
     }
     selectedFilterTemplate(filter: any, filterIndex: number): string {
@@ -315,15 +322,15 @@ export default class DataMillHelper {
     async initSemanticSessionList() {
         this.dmtab_change_session_select.innerHTML = "";
         let optionHtml = ``;
-        let keys = Object.keys(this.extCommon.chunkSizeMetaDataMap);
+        let keys = Object.keys(this.semanticCommon.chunkSizeMetaDataMap);
         keys.forEach((key: string) => {
-            optionHtml += `<option>${this.extCommon.chunkSizeMetaDataMap[key].title}</option>`;
+            optionHtml += `<option>${this.semanticCommon.chunkSizeMetaDataMap[key].title}</option>`;
         });
         this.dmtab_change_session_select.innerHTML = optionHtml;
-        let selectedSemanticSource = await this.extCommon.getSelectedSemanticSource();
+        let selectedSemanticSource = await this.semanticCommon.getSelectedSemanticSource();
         this.dmtab_change_session_select.value = selectedSemanticSource;
 
-        await this.extCommon.selectSemanticSource(selectedSemanticSource);
+        await this.semanticCommon.selectSemanticSource(selectedSemanticSource);
     }
     async analyzePrompt() {
         await this.sendPromptToLLM();
@@ -348,7 +355,7 @@ export default class DataMillHelper {
             });
     }
     async sendPromptToLLM() {
-        const isAlreadyRunning = await this.extCommon.setSemanticRunning(true);
+        const isAlreadyRunning = await this.semanticCommon.setSemanticRunning(true);
         if (isAlreadyRunning) {
             return;
         }
@@ -363,20 +370,20 @@ export default class DataMillHelper {
         });
     }
     getSmallToBig(matchId: string, includeK: number): string {
-        const lookUpIndex = this.extCommon.lookUpKeys.indexOf(matchId);
+        const lookUpIndex = this.semanticCommon.lookUpKeys.indexOf(matchId);
         let firstIndex = lookUpIndex - Math.floor(includeK / 2);
         let lastIndex = lookUpIndex + Math.ceil(includeK / 2);
         if (firstIndex < 0) firstIndex = 0;
-        if (lastIndex > this.extCommon.lookUpKeys.length - 1) lastIndex = this.extCommon.lookUpKeys.length - 1;
+        if (lastIndex > this.semanticCommon.lookUpKeys.length - 1) lastIndex = this.semanticCommon.lookUpKeys.length - 1;
         const parts = matchId.split("_");
         const docID = parts[0];
         let text = "";
         for (let i = firstIndex; i <= lastIndex; i++) {
-            const chunkKey = this.extCommon.lookUpKeys[i];
+            const chunkKey = this.semanticCommon.lookUpKeys[i];
             if (!chunkKey) continue;
             if (chunkKey.indexOf(docID) === 0) {
-                if (this.extCommon.lookupData[chunkKey]) {
-                    text = this.annexChunkWithoutOverlap(text, this.extCommon.lookupData[chunkKey]);
+                if (this.semanticCommon.lookupData[chunkKey]) {
+                    text = this.annexChunkWithoutOverlap(text, this.semanticCommon.lookupData[chunkKey]);
                 }
             }
         }
@@ -406,21 +413,21 @@ export default class DataMillHelper {
         const semanticResults = await this.extCommon.getStorageField("semanticResults");
         const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
 
-        let includeK = this.extCommon.chunkSizeMeta.topK;
+        let includeK = this.semanticCommon.chunkSizeMeta.topK;
         let halfK = Math.ceil(includeK / 2);
         let semanticIncludeMatchIndexes: any[] = [];
         // include K chunks as doc
         if (embedIndex === 0) {
             semanticIncludeMatchIndexes = semanticResults.matches.slice(0, includeK);
-            await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
+            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             // include halfK doc w/ halfK chunks
         } else if (embedIndex === 1) {
             semanticIncludeMatchIndexes = semanticResults.matches.slice(0, halfK);
-            await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
+            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             // include 1 doc w includeK chunks
         } else if (embedIndex === 2) {
             const match = semanticResults.matches[0];
-            await this.extCommon.fetchDocumentsLookup([match.id]);
+            await this.semanticCommon.fetchDocumentsLookup([match.id]);
         }
         await chrome.storage.local.set({
             semanticIncludeMatchIndexes,
@@ -431,21 +438,21 @@ export default class DataMillHelper {
     async buildChunkEmbedText(message: string, semanticIncludeMatchIndexes: any[]): Promise<string> {
         const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
-        const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
+        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         let documentsEmbedText = "";
-        let includeK = this.extCommon.chunkSizeMeta.topK;
+        let includeK = this.semanticCommon.chunkSizeMeta.topK;
         let halfK = Math.ceil(includeK / 2);
         // include K chunks as doc
         if (embedIndex === 0) {
-            await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
+            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             semanticIncludeMatchIndexes.forEach((match: any, index: number) => {
                 const merge = Object.assign({}, match.metadata);
                 merge.id = match.id;
                 merge.matchIndex = index;
-                merge.text = this.extCommon.lookupData[match.id];
+                merge.text = this.semanticCommon.lookupData[match.id];
                 merge.prompt = message;
                 if (!merge.text) {
-                    console.log("missing merge", match.id, this.extCommon.lookupData)
+                    console.log("missing merge", match.id, this.semanticCommon.lookupData)
                     merge.text = "";
                 }
                 merge.text = merge.text.replaceAll("\n", " ");
@@ -453,7 +460,7 @@ export default class DataMillHelper {
             });
             // include halfK doc w/ halfK chunks
         } else if (embedIndex === 1) {
-            await this.extCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
+            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
             semanticIncludeMatchIndexes.forEach((match: any, index: number) => {
                 const merge = Object.assign({}, match.metadata);
                 merge.id = match.id;
@@ -461,7 +468,7 @@ export default class DataMillHelper {
                 merge.text = this.getSmallToBig(match.id, halfK);
                 merge.prompt = message;
                 if (!merge.text) {
-                    console.log("missing merge", match.id, this.extCommon.lookupData)
+                    console.log("missing merge", match.id, this.semanticCommon.lookupData)
                     merge.text = "";
                 }
                 merge.text = merge.text.replaceAll("\n", " ");
@@ -470,7 +477,7 @@ export default class DataMillHelper {
             // include 1 doc w includeK chunks
         } else if (embedIndex === 2) {
             const match = semanticIncludeMatchIndexes[0];
-            await this.extCommon.fetchDocumentsLookup([match.id]);
+            await this.semanticCommon.fetchDocumentsLookup([match.id]);
             const merge = Object.assign({}, match.metadata);
             merge.id = match.id;
             merge.matchIndex = 0;
@@ -490,7 +497,7 @@ export default class DataMillHelper {
         const semanticIncludeMatchIndexes = await this.extCommon.getStorageField("semanticIncludeMatchIndexes") || [];
         let documentsEmbedText = await this.buildChunkEmbedText(prompt, semanticIncludeMatchIndexes);
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
-        const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
+        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         const mainMerge = {
             documents: documentsEmbedText,
             prompt,
@@ -501,7 +508,7 @@ export default class DataMillHelper {
     }
     async paintPromptTemplateView() {
         const selectedSemanticPromptTemplate = (await this.extCommon.getStorageField("selectedSemanticPromptTemplate")) || "Answer with Doc Summary";
-        const promptTemplate = this.extCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
+        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
 
         this.llm_prompt_template_text_area.value = promptTemplate?.mainPrompt;
         this.llm_document_template_text_area.value = promptTemplate?.documentPrompt;

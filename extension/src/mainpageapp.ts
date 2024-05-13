@@ -1,4 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import { SemanticCommon } from './semanticcommon';
 import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
 import HistoryHelper from './historyhelper';
@@ -14,6 +15,7 @@ declare const chrome: any;
 
 export default class MainPageApp {
     extCommon = new AnalyzerExtensionCommon(chrome);
+    semanticCommon = new SemanticCommon(chrome);
     bulkHelper: BulkHelper | null = null;
     promptHelper: PromptHelper | null = null;
     historyHelper: HistoryHelper | null = null;
@@ -46,7 +48,7 @@ export default class MainPageApp {
         await this.loadHTMLTemplate("pages/datamill.html", this.main_datamill_tab_view);
         await this.loadHTMLTemplate("pages/news.html", this.main_feed_tab_view);
 
-        await this.extCommon.semanticLoad();
+        await this.semanticCommon.semanticLoad();
         
         this.settingsHelper = new SettingsHelper(this);
         this.bulkHelper = new BulkHelper(this);

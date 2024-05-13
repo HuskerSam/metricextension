@@ -1,4 +1,5 @@
 import { AnalyzerExtensionCommon } from "./extensioncommon";
+import { SemanticCommon } from "./semanticcommon";
 declare const chrome: any;
 chrome.runtime.onInstalled.addListener(async (reason: any) => {
     if (reason.reason === 'install') {
@@ -14,10 +15,9 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
     function getPageDom() {
         return document.body.innerText;
     }
-    let extCommon = new AnalyzerExtensionCommon(chrome);
     if (info.menuItemId === 'hideAnalyzeInSelectionContextMenu') {
         chrome.sidePanel.open({ tabId: tab.id });
-        await extCommon.processAnalysisContextMenuAction(info.selectionText, tab.url);
+        await processAnalysisContextMenuAction(info.selectionText, tab.url);
     }
     else if (info.menuItemId === 'hideAnalyzeInPageContextMenu') {
         chrome.sidePanel.open({ tabId: tab.id });
@@ -25,17 +25,17 @@ chrome.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
             target: { tabId: tab.id },
             func: getPageDom,
         });
-        await extCommon.processAnalysisContextMenuAction(scrapes[0].result, tab.url);
+        processAnalysisContextMenuAction(scrapes[0].result, tab.url);
     } else if (info.menuItemId === 'showQueryInSelectionContextMenu') {
-        extCommon.toggleExentionPage("main.html#semantic", true);
-        await extCommon.processSemanticContextMenuAction(info.selectionText, tab.url);
+        new AnalyzerExtensionCommon(chrome).toggleExentionPage("main.html#semantic");
+        processSemanticContextMenuAction(info.selectionText, tab.url);
     } else if (info.menuItemId === 'showQueryInPageContextMenu') {
-        extCommon.toggleExentionPage("main.html#semantic", true);
+        new AnalyzerExtensionCommon(chrome).toggleExentionPage("main.html#semantic");
         let scrapes = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: getPageDom,
         });
-        await extCommon.processSemanticContextMenuAction(scrapes[0].result, tab.url);
+        await processSemanticContextMenuAction(scrapes[0].result, tab.url);
     }
 });
 
@@ -63,4 +63,32 @@ chrome.runtime.onMessageExternal.addListener(
         }
     }
 );
+async function processAnalysisContextMenuAction(text: string, url: string) {
+    let extCommon = new AnalyzerExtensionCommon(chrome);
+    text = text.slice(0, 1000000);
+    await chrome.storage.local.set({
+      sidePanelScrapeContent: text,
+      sidePanelSource: 'scrape',
+      sidePanelUrlSource: url,
+      sidePanelScrapeType: "cache"
+    });
+    let isAlreadyRunning = await extCommon.setRunning(true);
+    if (isAlreadyRunning) return;
+    return await extCommon.runAnalysisPrompts(text, url);
+  }
 
+  async function processSemanticContextMenuAction(text: string, url: string) {
+    const semanticCommon = new SemanticCommon(chrome);
+    let isAlreadyRunning = await semanticCommon.setSemanticRunning(true);
+    if (isAlreadyRunning) return;
+
+    text = text.slice(0, 1000000);
+    await chrome.storage.local.set({
+      semanticQueryText: text,
+      semanticUrlSource: url,
+      semanticScrapeType: "cache"
+    });
+    let selectedSemanticSource = await semanticCommon.getSelectedSemanticSource();
+    await semanticCommon.selectSemanticSource(selectedSemanticSource, true);
+    await semanticCommon.lookupDocumentChunks();
+  }
