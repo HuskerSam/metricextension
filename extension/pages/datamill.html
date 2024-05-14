@@ -39,7 +39,8 @@
 </div>
 <div class="flex-1 flex flew-col overflow-hidden lg:px-2">
   <div class="top_semantic_view_splitter overflow-hidden flex flex-col">
-    <div class="semantic_header_bar lg:px-2">
+    <div class="semantic_chunk_results_container flex-1 overflow-auto"></div>
+    <div class="semantic_header_bar p-2">
       <div class="flex flex-col">
         <div class="rounded bg-slate-50 flex flex-row md:flex-col">
           <div class="filter_container inline text-xs" style="scale:0.9"></div>
@@ -66,34 +67,27 @@
         </div>
       </div>
     </div>
-    <div class="semantic_chunk_results_container flex-1 overflow-auto"></div>
-    <div class="hidden flex-col flex-1 semantic_display_results_running mt-[-8px] text-right">
-      <lottie-player src="media/lottie.json" background="transparent" speed="1"
-        class="w-12 h-12 self-center inline-block" loop autoplay></lottie-player>
-    </div>
   </div>
   <div class="bottom_semantic_view_splitter">
     <div class="flex flex-1 flex-col prompt_view_top_splitter">
-      <label class="mx-2">Prompt and Template</label>
+      <label class="mx-2">Prompt and Document Templates</label>
       <textarea class="llm_prompt_template_text_area monospace w-auto form-textarea-ts flex-1 m-2 p-1"></textarea>
       <textarea class="llm_document_template_text_area monospace form-textarea-ts flex-1 m-2 p-1 w-auto"></textarea>
     </div>
     <div class="overflow-hidden flex flex-col prompt_view_bottom_splitter">
-      <div>
-        <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary mx-1 float-end" type="button">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-          </svg> &nbsp; Run
-        </button>
-      </div>
-      <div class="flex flex-col overflow-hidden">
         <div class="semantic_embedded_llm_response whitespace-pre-wrap flex-1 overflow-auto"></div>
         <div class="flex-1 overflow-auto hidden">
           <span class="onboarding_text">Enter a prompt to begin.</span>
         </div>
-      </div>
+        <div class="p-2 text-right">
+          <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg> &nbsp; Run
+          </button>
+        </div>
     </div>
   </div>
 </div>
