@@ -1,6 +1,7 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { SemanticCommon } from './semanticcommon';
 import MainPageApp from './mainpageapp';
+import { TabulatorFull } from 'tabulator-tables';
 import Mustache from 'mustache';
 import Split from 'split.js';
 
@@ -31,6 +32,8 @@ export default class DataMillHelper {
     prompt_view_bottom_splitter = document.body.querySelector(".prompt_view_bottom_splitter") as HTMLDivElement;
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
+    chunksTabulator: TabulatorFull;
+    lastRenderedChunkCache = "";
 
     constructor(app: MainPageApp) {
         this.app = app;
@@ -88,6 +91,20 @@ export default class DataMillHelper {
         this.semantic_query_textarea.addEventListener("input", async () => {
             let semanticQueryText = this.semantic_query_textarea.value.trim();
             await chrome.storage.local.set({ semanticQueryText });
+        });
+
+        this.chunksTabulator = new TabulatorFull(".semantic_chunk_results_container", {
+            layout: "fitDataStretch",
+            movableRows: true,
+            resizableColumnGuide: true,
+            columns: [
+                { title: "Id", field: "id", headerSort: false },
+                {
+                    title: "Title",
+                    field: "title",
+                    headerSort: false,
+                },
+            ],
         });
     }
     async load() {
@@ -176,101 +193,52 @@ export default class DataMillHelper {
 
         await this.semanticCommon.lookupDocumentChunks();
     }
-    semanticChunkResultCardHTML(match: any, includeInfo: any): string {
-        let matchedClass = includeInfo ? "matched" : "not-matched";
-        let checkboxChecked = includeInfo ? "checked" : "";
-        let similarityScore = `<span class="similarity_score_badge mb-2">${(match.score * 100).toFixed()}%</span>`;
-        let metaString = `<div class="meta_field_row border-b border-b-slate-300 text-nowrap p-1">
-        <span class="meta_field_col_name font-semibold text-sm mr-2 w-28 overflow-hidden inline-block">$ Id</span>
-        <span class="meta_field_col_value text-sm">${match.id}</span>
-        </div>`;
-        let metaFields = Object.keys(match.metadata);
-        let url = match.metadata.url || "";
-        if (url) {
-            url = `
-                <a href="${url}" target="_blank" class="text-blue-500 inline-block">
-                  <div class="flex flex-row items-center">
-                    Source&nbsp;
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg> 
-                  </div>
-                </a>`;
-        }
-        metaFields.forEach(category => {
-            const isNumber = Number(match.metadata[category]) === match.metadata[category];
-            const numStr = isNumber ? "#" : "$";
-            let value = match.metadata[category];
-            if (isNumber) {
-                value = Number(match.metadata[category]) || 0;
-            }
-            metaString += `<div class="meta_field_row border-b border-b-slate-400 text-nowrap p-1 text-sm">
-                    <span class="meta_field_col_name font-bold text-sm mr-2 w-32 overflow-hidden inline-block">${numStr} ${category}</span>
-                    <span class="meta_field_col_value">${value}</span>
-                    </div>`;
-        });
-        const title = match.metadata.title || "";
-        return `
-            <div class="semantic_result_card border-b mb-2 p-2 ${matchedClass}">
-                <div class="flex flex-row pb-2 text-sm">
-                    <div class="flex-1">
-                    <span class="font-semibold pr-2">${title}</span>
-                        ${url}
-                    </div>
-                    <div>
-                    ${similarityScore}
-                    <label class="font-medium text-gray-900 p-2">
-                     <input ${checkboxChecked} data-matchid="${match.id}" type="checkbox" class="semantic_result_include_checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
-                    </label>
-                    </div>
-                </div>
-                <div class="flex justify-center">
-                    <button class="open_semantic_result_details text-xs font-semibold text-blue-400">See Detailed Results</button>
-                </div>
-                <div class="h-[500px] flex-row semantic_result_details flex">
-                    <div class="whitespace-pre-wrap overflow-auto flex-1 text-sm">${match.fullText}</div>
-                    <div class="overflow-auto flex-1 pl-2 text-sm">${metaString}</div>
-                </div>
-            </div>`;
-    }
     async renderSearchChunks() {
         const semanticResults = await this.extCommon.getStorageField("semanticResults");
-        let html = "";
         const includes = (await this.extCommon.getStorageField("semanticIncludeMatchIndexes")) || [];
+
+        const cacheString = JSON.stringify(semanticResults) + JSON.stringify(includes);
+        if (this.lastRenderedChunkCache === cacheString) {
+            return;
+        }
+        this.lastRenderedChunkCache = cacheString;
+
         const chunkIncludedMap: any = {};
         includes.forEach((include: any) => {
             chunkIncludedMap[include.id] = include;
         });
         if (!semanticResults.matches || semanticResults.matches.length === 0) {
-            document.body.classList.add("no_semantic_result");
+            this.chunksTabulator.setData([]);
             return;
-        } else {
-            document.body.classList.remove("no_semantic_result");
         }
+
         await this.semanticCommon.fetchDocumentsLookup(semanticResults.matches.map((match: any) => match.id));
+        const chunkList: any[] = [];
+        const columnMap: any = {};
         semanticResults.matches.forEach((match: any) => {
-            let displayDocHTML = this.generateDisplayText(match.id, true);
-            match.fullText = this.generateDisplayText(match.id);
-            if (!displayDocHTML) {
+            match.fullText = this.semanticCommon.lookupData[match.id];
+            if (!match.fullText) {
                 console.log(match.id, this.semanticCommon.lookupData);
             }
-
-            let block = this.semanticChunkResultCardHTML(match, chunkIncludedMap[match.id]);
-            html += block;
-        });
-        this.semantic_chunk_results_container.innerHTML = html;
-        this.semantic_chunk_results_container.querySelectorAll(".semantic_result_include_checkbox").forEach((checkbox: any) => {
-            checkbox.addEventListener("change", async () => {
-                this.scrapeIncludeStatusOfChunks();
-
+            const chunkDetails: any = {};
+            Object.assign(chunkDetails, match.metadata);
+            chunkDetails.id = match.id;
+            chunkDetails.text = match.fullText;
+            chunkDetails.include = chunkIncludedMap[match.id] ? true : false;
+            const keys = Object.keys(chunkDetails);
+            keys.forEach((key: string) => {
+                if (!columnMap[key]) {
+                    columnMap[key] = true;
+                }
             });
+            chunkList.push(chunkDetails);
         });
-        this.semantic_chunk_results_container.querySelectorAll(".open_semantic_result_details").forEach((button: any) => {
-            button.addEventListener("click", () => {
-                button.parentElement.parentElement.querySelector(".semantic_result_details").classList.toggle("hidden");
-            });
+        const columns = Object.keys(columnMap).map((key: string) => {
+            return { title: key, field: key, headerSort: false };
         });
-        return;
+
+        this.chunksTabulator.setColumns(columns);
+        this.chunksTabulator.setData(chunkList);
     }
     async scrapeIncludeStatusOfChunks() {
         let includes: any[] = [];
@@ -294,10 +262,6 @@ export default class DataMillHelper {
         const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
         selectedSemanticFilters.push({ metaField, value: "", operator: "$se" });
         await chrome.storage.local.set({ selectedSemanticFilters });
-    }
-    generateDisplayText(matchId: string, highlight = false): string {
-        const displayDocHTML = this.semanticCommon.lookupData[matchId];
-        return displayDocHTML;
     }
     selectedFilterTemplate(filter: any, filterIndex: number): string {
         const title = filter.metaField;
