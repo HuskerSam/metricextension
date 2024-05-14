@@ -39,6 +39,14 @@
   display: block;
 }
 
+.side_panel .history_entry_text {
+  display: none;
+}
+
 .side_panel .history_long_date {
+  display: none;
+}
+
+.side_panel .history_source_url {
   display: none;
 }

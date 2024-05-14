@@ -70,47 +70,23 @@ export default function HistoryResult(props) {
     }
     return (
         <div className="mx-1">
-            <div className="py-1 flex-col items-start">
+            <div className="pt-1 flex-col items-start mx-1">
                 <div className="flex flex-1 justify-between">
-                    <a className="text-sm text-blue-500 truncate active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
+                    <a className="history_source_url text-sm text-blue-500 truncate flex-1 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
                         target="_blank">{historyEntry.url}</a>
-                    <span className="text-gray-800 history_short_date float-right text-sm time_since" data-timesince={historyEntry.runDate}></span>
-                </div>
-                <div className='flex'>
-                    <span className="text-gray-800 history_long_date time_since" data-timesince={historyEntry.runDate} data-timestyle="gmail"></span>
+                    <span className="text-xs text-gray-800 history_long_date time_since" data-timesince={historyEntry.runDate} data-timestyle="gmail"></span>
                 </div>
             </div>
-            <div className="p-2 flex-1 text-sm history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px]">
+            <div className="p-2 flex-1 text-sm history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px] mb-2">
                 {historyEntry.text}
             </div>
-            <div>
+            <div className='mb-1'>
                 {setNamesArray.length > 0 && setNamesArray.map((setName, setIndex) => (
-                    <div className="history_entry_set_wrapper mx-1 my-1 flex flex-col">
-                        <div className="flex flex-row">
-                            <h6 className="pl-2 pr-1 flex-1 py-2 fs-5">{setName}</h6>
-                            <div className="whitespace-nowrap">
-                                <button className="download_compact_results_btn btn_icon text-sm inline-flex m-1 p-2" data-historyindex={historyEntry.historyIndex}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                                    </svg>
-                                    CSV</button>
-                                <button className="download_full_results_btn btn_icon text-sm inline-flex m-1 mr-0 p-2" data-historyindex={historyEntry.historyIndex}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                                    </svg>
-                                    Full</button>
-                                <span className="history_index pr-2 font-bold inline-block w-[30px] relative top-[-4px] text-right text-slate-500">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
-                            </div>
-                        </div>
-                        <div className="relative">
-                            <div className="text-end">
-                                <button type="button" className="btn_icon relative history_copy_url_btn top-10 right-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                                        stroke="currentColor" className="w-4 h-4">
-                                        <path strokeLinecap="round" nejoin="round"
-                                            d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
-                                    </svg>
-                                </button>
+                    <div className="flex flex-col history_entry_set_wrapper mb-2">
+                        <div className='flex flex-col bg-gray-200 text-gray-800 mb-1'>
+                            <div className="flex justify-between border-b border-gray-200">
+                                <h3 className="pl-2 pr-1 flex-1 py-2 fs-5">{setName}</h3>
+                                <span className="history_index pr-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
                             </div>
                         </div>
                         {setBasedResults[setName].length > 0 && setBasedResults[setName].map((result, resultIndex) => (
@@ -140,14 +116,36 @@ export default function HistoryResult(props) {
                                         <div className="result_content">{result.result.resultMessage}</div>
                                     </div>
                                 )}
-
                             </div>
                         ))}
+                        <div className="flex flex-row justify-end gap-2 my-1 py-1">
+                            <button type="button" className="btn-ts-secondary history_copy_url_btn text-xs px-2 py-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
+                                    stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" nejoin="round"
+                                        d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
+                                </svg> copy
+                            </button>
+                            <button className="download_compact_results_btn btn-ts-secondary text-xs px-2 py-1" data-historyindex={historyEntry.historyIndex}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
+                                </svg> csv
+                            </button>
+                            <button className="download_full_results_btn btn-ts-secondary text-xs px-2 py-1" data-historyindex={historyEntry.historyIndex}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
+                                </svg> json
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
-            <div className="text-xs text-end mr-2">Credits: {Math.round(historyEntry.usageCreditTotal)}</div>
-            <hr className="history_separator" />
+            <div className="flex-col items-start mt-1 mx-1">
+                <div className='flex flex-1 justify-between'>
+                    <span className="text-xxs text-end mr-2">Credits: {Math.round(historyEntry.usageCreditTotal)}</span>
+                    <span className="text-gray-800 history_short_date text-xxs time_since text-nowrap inline-block min-w-18" data-timesince={historyEntry.runDate}></span>
+                </div>
+            </div>
         </div>
     );
 }
