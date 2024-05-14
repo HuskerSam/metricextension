@@ -27,7 +27,10 @@ export default class DataMillHelper {
     dmtab_add_meta_filter_button = document.body.querySelector(".dmtab_add_meta_filter_button") as HTMLButtonElement;
     top_semantic_view_splitter = document.body.querySelector(".top_semantic_view_splitter") as HTMLDivElement;
     bottom_semantic_view_splitter = document.body.querySelector(".bottom_semantic_view_splitter") as HTMLDivElement;
+    prompt_view_top_splitter = document.body.querySelector(".prompt_view_top_splitter") as HTMLDivElement;
+    prompt_view_bottom_splitter = document.body.querySelector(".prompt_view_bottom_splitter") as HTMLDivElement;
     viewSplitter: Split.Instance;
+    promptSubSplitter: Split.Instance;
 
     constructor(app: MainPageApp) {
         this.app = app;
@@ -54,12 +57,17 @@ export default class DataMillHelper {
             this.addMetaFilter();
         });
 
-        this.viewSplitter = Split([this.top_semantic_view_splitter, this.bottom_semantic_view_splitter],
-            {
-                sizes: [50, 50],
-                direction: 'horizontal',
-                gutterSize: 16,
-            });
+        this.viewSplitter = Split([this.top_semantic_view_splitter, this.bottom_semantic_view_splitter], {
+            sizes: [50, 50],
+            direction: 'horizontal',
+            gutterSize: 16,
+        });
+
+        this.promptSubSplitter = Split([this.prompt_view_top_splitter, this.prompt_view_bottom_splitter], {
+            sizes: [50, 50],
+            direction: 'vertical',
+            gutterSize: 16,
+        });
 
         this.semantic_analyze_embedded_prompt_btn.addEventListener("click", async () => {
             this.semantic_query_textarea.select();

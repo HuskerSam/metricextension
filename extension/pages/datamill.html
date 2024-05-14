@@ -4,8 +4,8 @@
     <select class="dmtab_change_session_select form-select-ts flex-1 self-center mr-1"></select>
 
     <div class="dropdown inline-block mr-3 pl-2">
-      <button class="btn-ts-secondary dropdown-toggle" type="button" id="promptTemplateOptionsMenu" data-bs-toggle="dropdown"
-        aria-expanded="false">
+      <button class="btn-ts-secondary dropdown-toggle" type="button" id="promptTemplateOptionsMenu"
+        data-bs-toggle="dropdown" aria-expanded="false">
         Embedding Options
       </button>
       <ul class="dropdown-menu w-[400px]" aria-labelledby="promptTemplateOptionsMenu">
@@ -73,45 +73,25 @@
     </div>
   </div>
   <div class="bottom_semantic_view_splitter">
-    <div class="flex flex-1 flex-col">
-      <label class="mx-2">Prompt Template</label>
+    <div class="flex flex-1 flex-col prompt_view_top_splitter">
+      <label class="mx-2">Prompt and Template</label>
       <textarea class="llm_prompt_template_text_area monospace w-auto form-textarea-ts flex-1 m-2 p-1"></textarea>
-      <label class="mx-2">Document Template</label>
-      <textarea class="llm_document_template_text_area monospace form-textarea-ts flex-1 m-2 p-1 width-auto"></textarea>
+      <textarea class="llm_document_template_text_area monospace form-textarea-ts flex-1 m-2 p-1 w-auto"></textarea>
     </div>
-    <div class="overflow-hidden flex flex-col relative">
-      <div class="heightflex container-xxl"
-        style="background-image: var(--bs-gradient);text-align: left;font-size:1.25em;">
-        <div class="flex flex-row">
-
-          <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary mx-1" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-            </svg> &nbsp; Run Prompt
-          </button>
-        </div>
-        <div class="heightflex" style="overflow:auto;">
-          <div class="semantic_embedded_llm_response"></div>
-          <div class="d-flex flex-column heightflex justify-center overflow-auto">
-            <div></div>
-            <div class="initial_user_message" style="flex: 1;">
-              <div class="d-flex flex-column justify-content-between" style="height: 100%;">
-                <div class="summary_details"></div>
-                <div><span class="onboarding_text">Enter a prompt to begin.</span>
-                  <br><br>
-                  <br><br>
-                  <a href="template" role="button" data-bs-toggle="modal" data-bs-target="#templateModal">Configure</a>
-                  prompts and templates
-                </div>
-                <div class="mt-auto clear-fix text-muted" style="font-size: .6em;">
-                  <span class="float-start">💻🤑🔎</span>
-                  <span class="float-end">😊</span>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div class="overflow-hidden flex flex-col prompt_view_bottom_splitter">
+      <div>
+        <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary mx-1 float-end" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+          </svg> &nbsp; Run
+        </button>
+      </div>
+      <div class="flex flex-col overflow-hidden">
+        <div class="semantic_embedded_llm_response whitespace-pre-wrap flex-1 overflow-auto"></div>
+        <div class="flex-1 overflow-auto hidden">
+          <span class="onboarding_text">Enter a prompt to begin.</span>
         </div>
       </div>
     </div>
