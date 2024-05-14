@@ -1,30 +1,63 @@
+<div class="semantic_header_bar mb-2">
+  <div class="flex flex-row">
+    <label class="p-2">Data Source</label>
+    <select class="dmtab_change_session_select form-select-ts flex-1 self-center mr-1"></select>
+
+    <div class="dropdown inline-block mr-3 pl-2">
+      <button class="btn-ts-secondary dropdown-toggle" type="button" id="promptTemplateOptionsMenu" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        Embedding Options
+      </button>
+      <ul class="dropdown-menu w-[400px]" aria-labelledby="promptTemplateOptionsMenu">
+        <li>
+          <select class="m-3 form-select-ts w-[auto] llm_embedding_type_select">
+            <option class="embed_distinct_chunks_option" value="0">Embed 5 Document Chunks</option>
+            <option class="embed_sequential_chunks_option" value="1">Embed 2 Document Chunks</option>
+            <option class="embed_sequential_chunks2_option" value="2">Embed 1 Chunk with Additional Context</option>
+          </select>
+        </li>
+        <li>
+          <label class="inline-block p-2">
+            <input class="form-input-ts w-[18px] inline-block uniqueDocsCheck" type="checkbox">
+            <span class="pl-2 text-sm">unique docs</span>
+          </label>
+        </li>
+        <li>
+          <select class="m-3 form-select-ts llm_prompt_template_select_preset w-[auto]">
+            <option selected>Select a default prompt</option>
+            <option>Answer with Doc Summary</option>
+            <option>OpenAI Cookbook Primitive</option>
+            <option>Answer with Doc Keywords</option>
+          </select>
+        </li>
+        <li>
+          <button class="reset_template_options_button btn btn-secondary m-2">Reset</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
 <div class="flex-1 flex flew-col overflow-hidden lg:px-2">
   <div class="top_semantic_view_splitter overflow-hidden flex flex-col">
-    <div class="semantic_header_bar relative lg:px-2">
+    <div class="semantic_header_bar lg:px-2">
       <div class="flex flex-col">
-        <h2 class="text-2xl font-bold text-gray-900">Data Source</h2>
-        <div class="flex flex-row">
-          <select class="dmtab_change_session_select form-select-ts flex-1 self-center mr-1"></select>
-          <div>
-            <button class="dmtab_add_meta_filter_button btn-ts-secondary m-1 h-[46px] text-xs self-end px-1.5 py-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg> &nbsp; Filter
-            </button>
-          </div>
-        </div>
         <div class="rounded bg-slate-50 flex flex-row md:flex-col">
           <div class="filter_container inline text-xs" style="scale:0.9"></div>
         </div>
-        <div class="flex flex-row mt-2">
+        <div>
           <button class="run_semantic_search_query_button btn-ts-primary">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg> &nbsp; Search
+          </button>
+          <button class="dmtab_add_meta_filter_button btn-ts-secondary float-end">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg> &nbsp; Filter
           </button>
           <div class="hidden flex-col semantic_display_results_running mt-[-8px] text-right">
             <lottie-player src="media/lottie.json" background="transparent" speed="1"
@@ -40,31 +73,17 @@
     </div>
   </div>
   <div class="bottom_semantic_view_splitter">
-    <div class="flex flex-1 items-start space-x-5 py-1">
-      <div class="pt-1.5">
-        <h2 class="text-2xl font-bold text-gray-900">Generate</h2>
-        <p class="text-sm font-medium text-gray-500">Use retrieved content to augment context</p>
-      </div>
-      <div class="flex flex-row self-end">
-        <label class="inline-block">
-          <input class="form-input-ts w-[18px] inline-block uniqueDocsCheck" type="checkbox">
-          &nbsp;include each document once
-        </label>
-      </div>
+    <div class="flex flex-1 flex-col">
+      <label class="mx-2">Prompt Template</label>
+      <textarea class="llm_prompt_template_text_area monospace w-auto form-textarea-ts flex-1 m-2 p-1"></textarea>
+      <label class="mx-2">Document Template</label>
+      <textarea class="llm_document_template_text_area monospace form-textarea-ts flex-1 m-2 p-1 width-auto"></textarea>
     </div>
-    <div class=" overflow-hidden flex flex-col h-full relative">
+    <div class="overflow-hidden flex flex-col relative">
       <div class="heightflex container-xxl"
         style="background-image: var(--bs-gradient);text-align: left;font-size:1.25em;">
         <div class="flex flex-row">
-          <button class="btn-ts-secondary inline-block" id="augmented_template_button" href="template" role="button"
-            data-bs-toggle="modal" data-bs-target="#templateModal">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-          </button>
+
           <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary mx-1" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="w-5 h-5">
@@ -98,61 +117,9 @@
     </div>
   </div>
 </div>
-<div class="semantic_footer_bar flex flex-row">
-  <div
-    class="overflow-hidden border border-gray-300 shadow-md focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 w-100"
-    style="border-top: solid 1px rgba(0, 0, 0, 0.1);">
-    <label for="description" class="sr-only">Description</label>
-    <textarea rows="2" name="description" id="description"
-      class="block w-full semantic_query_textarea p-2.5 border-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 min-h-[150px]"
-      placeholder="Enter a query for search or prompt..." type="text"></textarea>
-  </div>
-</div>
-
-
-
-
-
-<!-- Template Modal -->
-<div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="row py-3" style="justify-content:space-evenly">
-          <div class="d-flex flex-column gap-3 col-12 col-lg-6">
-            <div style="padding:4px;">
-              <select class="form-select-ts llm_embedding_type_select">
-                <option class="embed_distinct_chunks_option" value="0">Embed 5 Document Chunks</option>
-                <option class="embed_sequential_chunks_option" value="1">Embed 2 Document Chunks</option>
-                <option class="embed_sequential_chunks2_option" value="2">Embed 1 Chunk with Additional Context</option>
-              </select>
-            </div>
-            <label class="pt-3 pt-lg-0">Customize the Prompt!</label>
-            <div style="padding:4px">
-              <select class="form-select-ts llm_prompt_template_select_preset">
-                <option selected>Select a prompt</option>
-                <option>Answer with Doc Summary</option>
-                <option>OpenAI Cookbook Primitive</option>
-                <option>Answer with Doc Keywords</option>
-              </select>
-            </div>
-            <div style="padding:4px;">
-              <textarea class="llm_prompt_template_text_area monospace form-textarea-ts min-h-[300px]"></textarea>
-            </div>
-            <span class="small ms-2" style="position: relative;margin-top:-16px;margin-bottom:-16px;">
-              id, doc_id,
-              primary_category, published, title, url, matchIndex, prompt, text</span>
-            <div style="padding:4px;">
-              <textarea class="llm_document_template_text_area monospace form-textarea-ts"></textarea>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="reset_template_options_button btn btn-secondary">Default</button>
-        &nbsp;
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
+<div class="semantic_footer_bar border border-gray-300 shadow-md focus-within:border-indigo-500
+ focus-within:ring-1 focus-within:ring-indigo-500 flex flex-row">
+  <textarea rows="2" name="description" id="description"
+    class="block semantic_query_textarea flex-1 p-2 m-2 border-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 min-h-[150px]"
+    placeholder="Enter a query for search or prompt..." type="text"></textarea>
 </div>

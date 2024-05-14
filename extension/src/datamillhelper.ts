@@ -158,11 +158,9 @@ export default class DataMillHelper {
             alert("please supply a message of at least 3 characters");
             return;
         }
-        let isAlreadyRunning = await this.extCommon.getStorageField("semanticQueryRunning");
-        if (isAlreadyRunning) {
-            alert("already running");
-            return;
-        }
+        let isAlreadyRunning = await this.semanticCommon.setSemanticRunning();
+        if (isAlreadyRunning && !confirm("A job is running, start a new one?")) return;
+
         await this.semanticCommon.lookupDocumentChunks();
     }
     semanticChunkResultCardHTML(match: any, includeInfo: any): string {
@@ -278,7 +276,7 @@ export default class DataMillHelper {
             if (!newValue) return;
             metaField = newValue;
         }
-        
+
         const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
         selectedSemanticFilters.push({ metaField, value: "", operator: "$se" });
         await chrome.storage.local.set({ selectedSemanticFilters });
@@ -351,16 +349,15 @@ export default class DataMillHelper {
             });
     }
     async sendPromptToLLM() {
-        const isAlreadyRunning = await this.semanticCommon.setSemanticRunning(true);
-        if (isAlreadyRunning) {
-            return;
-        }
+        let isAlreadyRunning = await this.semanticCommon.setSemanticRunning();
+        if (isAlreadyRunning && !confirm("A job is running, start a new one?")) return;
+
         const message = await this.extCommon.getStorageField("semanticQueryText");
         const embeddedMessage = await this.embedPrompt(message);
         const result = await this.extCommon.processPromptUsingUnacogAPI(embeddedMessage);
 
         await chrome.storage.local.set({
-            semanticQueryRunning: false,
+            semantic_running: false,
             semanticLLMQueryResult: result,
             semanticLLMQueryResultText: result.resultMessage,
         });
