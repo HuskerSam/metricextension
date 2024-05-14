@@ -71,12 +71,11 @@ export default class DataMillHelper {
 
         this.semantic_analyze_embedded_prompt_btn.addEventListener("click", async () => {
             this.semantic_query_textarea.select();
-            await this.analyzePrompt()
+            await this.sendPromptToLLM()
         });
         this.llm_prompt_template_select_preset.addEventListener("input", async () => {
             const selectedSemanticPromptTemplate = this.llm_prompt_template_select_preset.value;
             await chrome.storage.local.set({ selectedSemanticPromptTemplate });
-            this.paintPromptTemplateView();
         });
         this.semantic_query_textarea.addEventListener("keydown", async (e: any) => {
             if (e.key === "Enter" && e.shiftKey === false) {
@@ -99,10 +98,16 @@ export default class DataMillHelper {
     }
     async paintData() {
         this.renderFilters();
-        let result = await this.extCommon.getStorageField("semanticResults");
-        await this.renderSearchChunks(result);
+        this.renderSearchChunks();
 
-        this.paintPromptTemplateView();
+        const selectedSemanticPromptTemplate = (await this.extCommon.getStorageField("selectedSemanticPromptTemplate")) || "Answer with Doc Summary";
+        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
+
+        this.llm_prompt_template_text_area.value = promptTemplate?.mainPrompt;
+        this.llm_document_template_text_area.value = promptTemplate?.documentPrompt;
+        this.llm_prompt_template_select_preset.value = selectedSemanticPromptTemplate;
+        const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
+        this.semantic_embedded_llm_response.innerText = llmResponse;
 
         let selectedEmbeddingType = await this.extCommon.getStorageField("selectedEmbeddingType");
         if (selectedEmbeddingType) {
@@ -228,21 +233,22 @@ export default class DataMillHelper {
                 </div>
             </div>`;
     }
-    async renderSearchChunks(result: any) {
+    async renderSearchChunks() {
+        const semanticResults = await this.extCommon.getStorageField("semanticResults");
         let html = "";
         const includes = (await this.extCommon.getStorageField("semanticIncludeMatchIndexes")) || [];
         const chunkIncludedMap: any = {};
         includes.forEach((include: any) => {
             chunkIncludedMap[include.id] = include;
         });
-        if (!result.matches || result.matches.length === 0) {
+        if (!semanticResults.matches || semanticResults.matches.length === 0) {
             document.body.classList.add("no_semantic_result");
             return;
         } else {
             document.body.classList.remove("no_semantic_result");
         }
-        await this.semanticCommon.fetchDocumentsLookup(result.matches.map((match: any) => match.id));
-        result.matches.forEach((match: any) => {
+        await this.semanticCommon.fetchDocumentsLookup(semanticResults.matches.map((match: any) => match.id));
+        semanticResults.matches.forEach((match: any) => {
             let displayDocHTML = this.generateDisplayText(match.id, true);
             match.fullText = this.generateDisplayText(match.id);
             if (!displayDocHTML) {
@@ -334,13 +340,6 @@ export default class DataMillHelper {
 
         await this.semanticCommon.selectSemanticSource(selectedSemanticSource);
     }
-    async analyzePrompt() {
-        await this.sendPromptToLLM();
-        const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
-        this.semantic_embedded_llm_response.innerText = llmResponse;
-
-        return;
-    }
     escapeHTML(str: string): string {
         if (!str) str = "";
         return str.replace(/[&<>'"]/g,
@@ -359,6 +358,9 @@ export default class DataMillHelper {
     async sendPromptToLLM() {
         let isAlreadyRunning = await this.semanticCommon.setSemanticRunning();
         if (isAlreadyRunning && !confirm("A job is running, start a new one?")) return;
+        await chrome.storage.local.set({
+            semanticLLMQueryResultText: "running...",
+        });
 
         const message = await this.extCommon.getStorageField("semanticQueryText");
         const embeddedMessage = await this.embedPrompt(message);
@@ -506,13 +508,5 @@ export default class DataMillHelper {
         const promptT = promptTemplate.mainPrompt;
         const mainPrompt = Mustache.render(promptT, mainMerge);
         return mainPrompt;
-    }
-    async paintPromptTemplateView() {
-        const selectedSemanticPromptTemplate = (await this.extCommon.getStorageField("selectedSemanticPromptTemplate")) || "Answer with Doc Summary";
-        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
-
-        this.llm_prompt_template_text_area.value = promptTemplate?.mainPrompt;
-        this.llm_document_template_text_area.value = promptTemplate?.documentPrompt;
-        this.llm_prompt_template_select_preset.value = selectedSemanticPromptTemplate;
     }
 }
