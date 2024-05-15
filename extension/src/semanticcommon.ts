@@ -13,7 +13,6 @@ export class SemanticCommon {
         apiToken: "",
         sessionId: "",
         lookupPath: "",
-        topK: 10,
         numberOfParts: 0,
         useDefaultSession: false,
     };
@@ -140,7 +139,8 @@ export class SemanticCommon {
         let selectedSemanticSource = await this.getSelectedSemanticSource();
         const chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
         this.chunkSizeMeta = chunkSizeMeta;
-        let topK = (await this.extCommon.getStorageField("topK")) || 15;
+        let topK = await this.extCommon.getStorageField("topK");
+        if (!topK || topK < 1) topK = 15;
         let apiToken = chunkSizeMeta.apiToken;
         let sessionId = chunkSizeMeta.sessionId;
         if (chunkSizeMeta.useDefaultSession) {
@@ -181,12 +181,16 @@ export class SemanticCommon {
         await this.fetchDocumentsLookup(semanticResults.matches.map((match: any) => match.id));
 
         const chunkIncludedMap: any = {};
-        const topK = Number(await this.extCommon.getStorageField("topK")) || 5; 
-        semanticResults.matches.slice(0, topK).forEach((match: any) => {
+        let includeK = Number(await this.extCommon.getStorageField("semanticIncludeK"));
+        if (!includeK || includeK < 1) includeK = 5; 
+        const columnMap: any = {};
+        semanticResults.matches.slice(0, includeK).forEach((match: any) => {
             chunkIncludedMap[match.id] = true;
+            Object.keys(match.metadata).forEach((key: string) => {
+                columnMap[key] = true;
+            });
         });
 
-        const columnMap: any = {};
         const columnMapKeys = Object.keys(columnMap);
         const columnsUsed: any = {};
         const semanticChunkColumns: any[] = [{
