@@ -158,6 +158,34 @@ export class MetricCommon {
         };
 
     }
+    async sidePanelManualScrape() {
+        const sidePanelScrapeType = await this.extCommon.getStorageField("sidePanelScrapeType");
+
+        const url = await this.getURLContentSource();
+        const options = await this.extCommon.getStorageField("sidePanelUrlSourceOptions");
+        let bulkUrl = {
+            url,
+            scrape: sidePanelScrapeType,
+            options,
+        }
+        if (sidePanelScrapeType === "browser scrape") {
+            this.extCommon.enabledBrowserScrapePermissions();
+        }
+        const activeTab = await this.chrome.tabs.getCurrent();
+        const result: any = await this.scrapeBulkUrl(bulkUrl, activeTab?.id);
+        let text = "";
+        if (result && result.text) text = result.text;
+        if (result && result.length > 0 && result[0].result) text = result[0].result;
+        let content = text;
+        if (result.success) {
+            content = result.result.text;
+            content = content.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
+        } else {
+            content
+        }
+
+        await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
+    }
     async scrapeURLUsingAPI(url: string, options: string): Promise<any> {
         let apiToken = await this.chrome.storage.local.get('apiToken');
         apiToken = apiToken.apiToken || '';

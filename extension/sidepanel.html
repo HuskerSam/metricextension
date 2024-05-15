@@ -42,7 +42,6 @@
         </button>
         <div class="dropdown-menu  w-[400px] h-[360px]">
           <div class="block my-1 mx-2">
-            <div>
               <label
               class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
               <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1" aria-controls="tabs-input-url-panel"
@@ -54,7 +53,6 @@
               <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked role="tab" type="radio">
               &nbsp;Manual Input
             </label>
-            </div>
           </div>
           <div class="block my-1">
             <div class="my-3 mx-2">
@@ -62,19 +60,17 @@
               <input type="text" name="scrape-website" class="url_source_input form-input-ts"
                 placeholder="Enter url (required)...">
             </div>
-            <div class="my-3 m-2">
-              <p class="form-input-label-ts">Select scrape method. Authorize permissions to use browser.</p>
-              <label
-                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                <input type="radio" name="scrape_type" value="server scrape"
-                  class="server_scrape_type mb-1">&nbsp;Server
-              </label>
-              <br>
-              <label
-                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                <input type="radio" name="scrape_type" value="browser scrape"
-                  class="browser_scrape_type mb-1">&nbsp;Browser
-              </label>
+            <div class="flex flex-row items-center my-3 mx-2">
+              <div class="flex flex-col mr-4">
+                <p class="form-input-label-ts mb-2">Select scrape method. Authorize permissions to use browser.</p>
+                <label class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
+                  <input type="radio" name="scrape_type" value="server scrape" class="server_scrape_type mr-1">Server
+                </label>
+                <label class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
+                  <input type="radio" name="scrape_type" value="browser scrape" class="browser_scrape_type mr-1">Browser
+                </label>
+              </div>
+              <button class="sidepanel_scrape_webpage_btn btn-ts-secondary self-end">Scrape</button>
             </div>
             <div class="my-3 mx-2">
               <p class="form-input-label-ts">Specify html elements, class name or ID to narrow web scrape</p>
