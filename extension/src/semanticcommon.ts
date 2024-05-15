@@ -140,7 +140,7 @@ export class SemanticCommon {
         let selectedSemanticSource = await this.getSelectedSemanticSource();
         const chunkSizeMeta = this.chunkSizeMetaDataMap[selectedSemanticSource];
         this.chunkSizeMeta = chunkSizeMeta;
-        let topK = chunkSizeMeta.topK;
+        let topK = (await this.extCommon.getStorageField("topK")) || 15;
         let apiToken = chunkSizeMeta.apiToken;
         let sessionId = chunkSizeMeta.sessionId;
         if (chunkSizeMeta.useDefaultSession) {
@@ -150,7 +150,6 @@ export class SemanticCommon {
             apiToken = await this.chrome.storage.local.get('apiToken');
             apiToken = apiToken?.apiToken || "";
         }
-        console.log("querying semantic chunks", chunkSizeMeta, message, topK, apiToken, sessionId);
         const result = await this.getMatchingVectors(message, topK, apiToken, sessionId);
         return result;
     }
@@ -181,7 +180,12 @@ export class SemanticCommon {
         }
         await this.fetchDocumentsLookup(semanticResults.matches.map((match: any) => match.id));
 
-        const chunkIncludedMap = await this.processIncludedChunks(semanticResults);
+        const chunkIncludedMap: any = {};
+        const topK = Number(await this.extCommon.getStorageField("topK")) || 5; 
+        semanticResults.matches.slice(0, topK).forEach((match: any) => {
+            chunkIncludedMap[match.id] = true;
+        });
+
         const columnMap: any = {};
         const columnMapKeys = Object.keys(columnMap);
         const columnsUsed: any = {};
@@ -247,18 +251,6 @@ export class SemanticCommon {
             semanticChunkColumns,
             semantic_running: false,
         });
-    }
-    /** does not save to storage
-     * 
-     * @return {Promise<any{}>}
-     */
-    async processIncludedChunks(semanticResults: any): Promise<any> {
-       const semanticIncludededMatchIds: any = {};
-            semanticResults.matches.slice(0, 5).forEach((match: any) => {
-                semanticIncludededMatchIds[match.id] = true;
-            });
-      
-        return semanticIncludededMatchIds;
     }
     async filterUniqueDocs(matches: any[]) {
         const uniqueDocsChecked = (await this.extCommon.getStorageField("uniqueDocsChecked")) === true;

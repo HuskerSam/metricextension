@@ -18,9 +18,10 @@ export default class DataMillHelper {
     llm_prompt_template_select_preset = document.querySelector('.llm_prompt_template_select_preset') as HTMLSelectElement;
     llm_prompt_template_text_area = document.querySelector('.llm_prompt_template_text_area') as HTMLTextAreaElement;
     llm_document_template_text_area = document.querySelector('.llm_document_template_text_area') as HTMLTextAreaElement;
-    llm_embedding_type_select = document.querySelector('.llm_embedding_type_select') as HTMLSelectElement;
     uniqueDocsCheck = document.body.querySelector(".uniqueDocsCheck") as HTMLInputElement;
-    verboseDebugging = false;
+    semantic_top_k_input = document.body.querySelector(".semantic_top_k_input") as HTMLInputElement;
+    semantic_include_k_input = document.body.querySelector(".semantic_include_k_input") as HTMLInputElement;
+    semantic_context_k_input = document.body.querySelector(".semantic_context_k_input") as HTMLInputElement;
     dmtab_change_session_select = document.querySelector(".dmtab_change_session_select") as HTMLSelectElement;
     semantic_chunk_results_container = document.querySelector(".semantic_chunk_results_container") as HTMLDivElement;
     run_semantic_search_query_button = document.querySelector(".run_semantic_search_query_button") as HTMLButtonElement;
@@ -34,6 +35,7 @@ export default class DataMillHelper {
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
+    verboseDebugging = false;
     lastRenderedChunkCache = "";
 
     constructor(app: MainPageApp) {
@@ -86,8 +88,20 @@ export default class DataMillHelper {
             }
         });
         this.semantic_query_textarea.addEventListener("input", async () => {
-            let semanticQueryText = this.semantic_query_textarea.value.trim();
+            const semanticQueryText = this.semantic_query_textarea.value.trim();
             await chrome.storage.local.set({ semanticQueryText });
+        });
+        this.semantic_top_k_input.addEventListener("input", async () => {
+            const semanticTopK = Number(this.semantic_top_k_input.value.trim()) || 1;
+            await chrome.storage.local.set({ semanticTopK });
+        });
+        this.semantic_include_k_input.addEventListener("input", async () => {
+            const semanticIncludeK = Number(this.semantic_include_k_input.value.trim()) || 1;
+            await chrome.storage.local.set({ semanticIncludeK });
+        });
+        this.semantic_context_k_input.addEventListener("input", async () => {
+            const semanticContextK = Number(this.semantic_context_k_input.value.trim()) || 1;
+            await chrome.storage.local.set({ semanticContextK });
         });
 
         this.chunksTabulator = new TabulatorFull(".semantic_chunk_results_container", {
@@ -131,6 +145,9 @@ export default class DataMillHelper {
         this.semantic_embedded_llm_response.innerText = llmResponse;
 
         await this.extCommon.getFieldFromStorage(this.semantic_query_textarea, "semanticQueryText");
+        await this.extCommon.getFieldFromStorage(this.semantic_top_k_input, "semanticTopK");
+        await this.extCommon.getFieldFromStorage(this.semantic_include_k_input, "semanticIncludeK");
+        await this.extCommon.getFieldFromStorage(this.semantic_context_k_input, "semanticContextK");
 
         const semantic_running = await chrome.storage.local.get('semantic_running');
         if (semantic_running && semantic_running.semantic_running) {
@@ -322,10 +339,10 @@ export default class DataMillHelper {
             semanticLLMQueryResultText: result.resultMessage,
         });
     }
-    getSmallToBig(matchId: string, includeK: number): string {
+    getSmallToBig(matchId: string, contextK: number): string {
         const lookUpIndex = this.semanticCommon.lookUpKeys.indexOf(matchId);
-        let firstIndex = lookUpIndex - Math.floor(includeK / 2);
-        let lastIndex = lookUpIndex + Math.ceil(includeK / 2);
+        let firstIndex = lookUpIndex - Math.floor(contextK / 2);
+        let lastIndex = lookUpIndex + Math.ceil(contextK / 2);
         if (firstIndex < 0) firstIndex = 0;
         if (lastIndex > this.semanticCommon.lookUpKeys.length - 1) lastIndex = this.semanticCommon.lookUpKeys.length - 1;
         const parts = matchId.split("_");
@@ -363,56 +380,21 @@ export default class DataMillHelper {
         return text + chunkText + " ";
     }
     async buildChunkEmbedText(message: string, semanticIncludeMatchIndexes: any[]): Promise<string> {
-        const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
         const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         let documentsEmbedText = "";
-        let includeK = this.semanticCommon.chunkSizeMeta.topK;
-        let halfK = Math.ceil(includeK / 2);
-        // include K chunks as doc
-        if (embedIndex === 0) {
-            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
-            semanticIncludeMatchIndexes.forEach((match: any, index: number) => {
-                const merge = Object.assign({}, match.metadata);
-                merge.id = match.id;
-                merge.matchIndex = index;
-                merge.text = this.semanticCommon.lookupData[match.id];
-                merge.prompt = message;
-                if (!merge.text) {
-                    console.log("missing merge", match.id, this.semanticCommon.lookupData)
-                    merge.text = "";
-                }
-                merge.text = merge.text.replaceAll("\n", " ");
-                documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
-            });
-            // include halfK doc w/ halfK chunks
-        } else if (embedIndex === 1) {
-            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
-            semanticIncludeMatchIndexes.forEach((match: any, index: number) => {
-                const merge = Object.assign({}, match.metadata);
-                merge.id = match.id;
-                merge.matchIndex = index;
-                merge.text = this.getSmallToBig(match.id, halfK);
-                merge.prompt = message;
-                if (!merge.text) {
-                    console.log("missing merge", match.id, this.semanticCommon.lookupData)
-                    merge.text = "";
-                }
-                merge.text = merge.text.replaceAll("\n", " ");
-                documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
-            });
-            // include 1 doc w includeK chunks
-        } else if (embedIndex === 2) {
-            const match = semanticIncludeMatchIndexes[0];
-            await this.semanticCommon.fetchDocumentsLookup([match.id]);
-            const merge = Object.assign({}, match.metadata);
-            merge.id = match.id;
-            merge.matchIndex = 0;
-            merge.prompt = message;
-            merge.text = this.getSmallToBig(match.id, includeK);
-            merge.text = merge.text.replaceAll("\n", " ");
-            documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
-        }
+        const contextK = Number(await this.extCommon.getStorageField("semanticContextK")) || 1;
+
+        const match = semanticIncludeMatchIndexes[0];
+        await this.semanticCommon.fetchDocumentsLookup([match.id]);
+        const merge = Object.assign({}, match.metadata);
+        merge.id = match.id;
+        merge.matchIndex = 0;
+        merge.prompt = message;
+        merge.text = this.getSmallToBig(match.id, contextK);
+        merge.text = merge.text.replaceAll("\n", " ");
+        documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
+
         await chrome.storage.local.set({
             documentsEmbedText,
         });
