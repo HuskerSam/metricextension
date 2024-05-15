@@ -3,7 +3,7 @@
 }
 
 .nav-link {
-    font-size: var(--font-size-large);
+    font-size: 16px;
     color: var(--text-color);
     padding: var(--spacing-medium);
     transition: background-color 0.3s ease;
@@ -47,14 +47,6 @@
 #main_bulk_tab_view .tabulator .tabulator-header .tabulator-header-contents .tabulator-headers {
     filter: contrast(0.94);
     height: 40px;
-}
-
-.footer_actions_bar {
-    pointer-events: none;
-}
-
-.footer_actions_bar * {
-    pointer-events: auto;
 }
 
 #main_bulk_tab_view .prompt_list_editor .tabulator-row .tabulator-cell.tabulator-row-handle {

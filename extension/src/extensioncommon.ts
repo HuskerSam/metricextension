@@ -441,11 +441,15 @@ export class AnalyzerExtensionCommon {
       document.body.classList.add("no_session_key_set");
     }
   }
-  async getFieldFromStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
+  async getFieldFromStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string, defaultStorageKey = "") {
     clearTimeout(this.debouncedInputTimeouts[storageKey]);
     this.debouncedInputTimeouts[storageKey] = setTimeout(async () => {
       let value = await this.chrome.storage.local.get(storageKey);
       value = value[storageKey] || '';
+      if (!value && defaultStorageKey) {
+        value = await this.chrome.storage.local.get(defaultStorageKey);
+        value = value[defaultStorageKey] || '';
+      }
       if (domInput.value !== value) domInput.value = value;
     }, 500);
   }

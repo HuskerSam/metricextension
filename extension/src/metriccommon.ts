@@ -38,43 +38,33 @@ export class MetricCommon {
             return 'text';
         }
     }
-    async getSourceText(clearCache = false) {
-        let sourceType = await this.getSourceType();
-        let sidePanelScrapeType = await this.extCommon.getStorageField("sidePanelScrapeType");
-
-        if (sourceType === 'scrape') {
-            if (clearCache && sidePanelScrapeType !== 'cache') {
-                const url = await this.getURLContentSource();
-                const options = await this.extCommon.getStorageField("sidePanelUrlSourceOptions");
-                let bulkUrl = {
-                    url,
-                    scrape: sidePanelScrapeType,
-                    options,
-                }
-                if (sidePanelScrapeType === "browser scrape") {
-                    this.extCommon.enabledBrowserScrapePermissions();
-                }
-                const activeTab = await this.chrome.tabs.getCurrent();
-                const result: any = await this.scrapeBulkUrl(bulkUrl, activeTab?.id);
-                let text = "";
-                if (result && result.text) text = result.text;
-                if (result && result.length > 0 && result[0].result) text = result[0].result;
-                let content = text;
-                if (result.success) {
-                    content = result.result.text;
-                    content = content.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
-                } else {
-                    content
-                }
-
-                await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
-                return content;
+    async sidePanelScrapeUrl() {
+            const url = await this.getURLContentSource();
+            let sidePanelScrapeType = await this.extCommon.getStorageField("sidePanelScrapeType");
+            const options = await this.extCommon.getStorageField("sidePanelUrlSourceOptions");
+            let bulkUrl = {
+                url,
+                scrape: sidePanelScrapeType,
+                options,
+            }
+            if (sidePanelScrapeType === "browser scrape") {
+                this.extCommon.enabledBrowserScrapePermissions();
+            }
+            const activeTab = await this.chrome.tabs.getCurrent();
+            const result: any = await this.scrapeBulkUrl(bulkUrl, activeTab?.id);
+            let text = "";
+            if (result && result.text) text = result.text;
+            if (result && result.length > 0 && result[0].result) text = result[0].result;
+            let content = text;
+            if (result.success) {
+                content = result.result.text;
+                content = content.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
+            } else {
+                content
             }
 
-            return await this.extCommon.getStorageField("sidePanelScrapeContent");
-        } else {
-            return await this.getTextContentSource();
-        }
+            await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
+        
     }
     async detectTabLoaded(tabId: number) {
         return new Promise((resolve, reject) => {

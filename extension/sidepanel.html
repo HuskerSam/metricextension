@@ -12,45 +12,81 @@
 
 <body class="side_panel">
   <div class="flex flex-col h-full">
-    <div class="no_session_key_sidepanel no_session_key hidden relative  bg-yellow-400 border border-yellow-400 rounded p-2 m-2">
-        <div className="border-l-4 border-yellow-400 bg-yellow-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <p className="text-sm text-yellow-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                </svg> No session key. Please visit
-                <a href="https://unacog.com" className="font-medium text-yellow-700 underline hover:text-yellow-600">
-                  unacog.com
-                </a>
-                to get
-                started.
-              </p>
+    <div
+      class="no_session_key_sidepanel no_session_key hidden relative  bg-yellow-400 border border-yellow-400 rounded p-2 m-2">
+      <div className="border-l-4 border-yellow-400 bg-yellow-50 p-4">
+        <div className="flex">
+          <div className="ml-3">
+            <p className="text-sm text-yellow-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-6 h-6 inline-block">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg> No session key. Please visit
+              <a href="https://unacog.com" className="font-medium text-yellow-700 underline hover:text-yellow-600">
+                unacog.com
+              </a>
+              to get
+              started.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header_action_bar flex justify-between mx-3">
+      <div class="dropdown inline-block pr-2">
+        <button class="btn-ts-secondary dropdown-toggle" type="button" id="sidepanelOptionsMenu"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          Scrape
+        </button>
+        <div class="dropdown-menu  w-[400px] h-[360px]">
+          <div class="block my-1 mx-2">
+            <div>
+              <label
+              class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
+              <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1" aria-controls="tabs-input-url-panel"
+                role="tab" type="radio">
+              &nbsp;Web Source
+            </label>
+            <label
+              class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium active">
+              <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked role="tab" type="radio">
+              &nbsp;Manual Input
+            </label>
+            </div>
+          </div>
+          <div class="block my-1">
+            <div class="my-3 mx-2">
+              <p class="form-input-label-ts">Enter url to scrape.</p>
+              <input type="text" name="scrape-website" class="url_source_input form-input-ts"
+                placeholder="Enter url (required)...">
+            </div>
+            <div class="my-3 m-2">
+              <p class="form-input-label-ts">Select scrape method. Authorize permissions to use browser.</p>
+              <label
+                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
+                <input type="radio" name="scrape_type" value="server scrape"
+                  class="server_scrape_type mb-1">&nbsp;Server
+              </label>
+              <br>
+              <label
+                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
+                <input type="radio" name="scrape_type" value="browser scrape"
+                  class="browser_scrape_type mb-1">&nbsp;Browser
+              </label>
+            </div>
+            <div class="my-3 mx-2">
+              <p class="form-input-label-ts">Specify html elements, class name or ID to narrow web scrape</p>
+              <input type="text" name="scrape-website-options" class="url_source_options form-input-ts"
+                placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
             </div>
           </div>
         </div>
-    </div>
-    <input type="text" class="analysis_run_label block py-1.5 mt-2 pl-2 mx-2 text-gray-900
-    placeholder:text-gray-400 sm:text-sm sm:leading-6 border-none rounded-md
-    ml-1 mr-1" placeholder="Enter label (optional)">
-    <div class="header_action_bar text-left">
-      <ul class="nav ml-2 inline-flex" role="tablist">
-        <li class="nav-item" role="presentation">
-          <label
-            class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
-            <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1" aria-controls="tabs-input-url-panel"
-              role="tab" type="radio">
-            &nbsp;Web Source
-          </label>
-        </li>
-        <li class="nav-item" role="presentation">
-          <label
-            class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium active">
-            <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked role="tab" type="radio">
-            &nbsp;Text Source
-          </label>
-        </li>
-      </ul>
+      </div>
+      <div class="flex-1">
+        <input type="text" class="analysis_run_label form-input-ts" placeholder="Enter a custom label (optional)">
+      </div>
     </div>
     <div class="flex-1 split_wrapper overflow-hidden">
       <div class="top_history_view_splitter flex flex-col overflow-hidden">
@@ -62,43 +98,18 @@
               placeholder="Enter text for analysis..."></textarea>
           </div>
           <div id="tabs-input-url-panel" class="flex flex-col -m-0.5 rounded-lg p-0.5 flex-1" tabindex="1">
-            <input type="text" name="scrape-website" class="url_source_input block py-1.5 pl-2 text-gray-900
-              placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
-              mb-2 ml-1 mr-1" placeholder="Enter url (required)...">
-            <input type="text" name="scrape-website-options" class="url_source_options py-1.5 pl-2 text-gray-900
-              placeholder:text-gray-400 sm:text-sm sm:leading-6 border border-gray-300 rounded
-              mb-2 ml-1 mr-1" placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
             <div class="flex-1 flex flex-row">
               <div class="flex-1 flex flex-col relative">
                 <button type="button"
-                  class="p-2 btn_icon border-none cursor-pointer absolute right-[28px] top-[2px] z-10 copy_url_scrape">
+                  class="p-2 btn_icon border-none cursor-pointer absolute right-[20px] bottom-[8px] z-10 copy_url_scrape">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round"
                       d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
                   </svg>
                 </button>
-                <textarea class="url_scrape_results block pt-0 flex-1 border-none mr-1 resize-none" disabled
+                <textarea class="url_scrape_results block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none" disabled
                   placeholder=""></textarea>
-              </div>
-              <div class="text-left">
-                <label
-                  class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                  <input type="radio" name="scrape_type" value="server scrape"
-                    class="server_scrape_type mb-1">&nbsp;Server
-                </label>
-                <br>
-                <label
-                  class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                  <input type="radio" name="scrape_type" value="browser scrape"
-                    class="browser_scrape_type mb-1">&nbsp;Browser
-                </label>
-                <br>
-                <label
-                  class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium">
-                  <input type="radio" name="scrape_type" value="cache" checked
-                    class="cache_scrape_type mb-1">&nbsp;Cache
-                </label>
               </div>
             </div>
           </div>
@@ -108,7 +119,7 @@
           <div class="flex-1"></div>
           <div class="source_tokens_length">&nbsp;</div>
         </div>
-        <div class="flex flex-row mt-2">
+        <div class="flex flex-row my-1">
           <select class="analysis_set_select w-full self-center min-h-[42px] ml-2" multiple>
           </select>
           <div class="px-2 text-right flex">
@@ -128,20 +139,58 @@
             <lottie-player src="media/lottie.json" background="transparent" speed="1"
               style="height:100px;width:100px;align-self:center;" loop autoplay></lottie-player>
           </div>
-          <div class="history_result_view overflow-y-auto"></div>
           <h5 class="analysis_running mb-2 pt-0 px-2">Analysis Running...</h5>
+          <div class="history_result_view overflow-y-auto"></div>
         </div>
       </div>
     </div>
-    <div class="footer_actions_bar mx-1">
-      <button class="btn_icon inline-flex show_main_page_btn">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-          class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 8.25V18a2.25 2.25 0 0 0 2.25 2.25h13.5A2.25 2.25 0 0 0 21 18V8.25m-18 0V6a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 6v2.25m-18 0h18M5.25 6h.008v.008H5.25V6ZM7.5 6h.008v.008H7.5V6Zm2.25 0h.008v.008H9.75V6Z" />
-        </svg> &nbsp; Home
-      </button>
-      <div class="float-end sidepanel_last_credits_used pt-2 pr-2  text-xs text-slate-500"></div>
+
+    <div class="relative my-1">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex items-center justify-around">
+        <span class="bg-white pr-3 text-base font-semibold leading-6 text-gray-900">Quick Nav</span>
+        <span class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+          <button type="button"
+            class="show_main_page_btn relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Main</span>
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+            </svg>
+          </button>
+          <button type="button"
+            class="relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Attachment</span>
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+          <button type="button"
+            class="relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Annotate</span>
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902 1.168.188 2.352.327 3.55.414.28.02.521.18.642.413l1.713 3.293a.75.75 0 001.33 0l1.713-3.293a.783.783 0 01.642-.413 41.102 41.102 0 003.55-.414c1.437-.231 2.43-1.49 2.43-2.902V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0010 2zM6.75 6a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 2.5a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+          <button type="button"
+            class="relative inline-flex items-center rounded-r-md bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Delete</span>
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+        </span>
+      </div>
     </div>
+
   </div>
   <datalist id="server_scrape_options_list">
     <option value="htmlElementsSelector=innerText"></option>

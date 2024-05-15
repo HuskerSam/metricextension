@@ -69,10 +69,10 @@ export default function HistoryResult(props) {
         );
     }
     return (
-        <div className="mx-1">
-            <div className="pt-1 flex-col items-start mx-1">
+        <div className="py-1">
+            <div className="flex-col items-start mx-1">
                 <div className="flex flex-1 justify-between">
-                    <a className="history_source_url text-sm text-blue-500 truncate flex-1 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
+                    <a className="mt-1 history_source_url text-sm text-blue-500 truncate flex-1 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
                         target="_blank">{historyEntry.url}</a>
                     <span className="text-xs text-gray-800 history_long_date time_since" data-timesince={historyEntry.runDate} data-timestyle="gmail"></span>
                 </div>
@@ -80,10 +80,10 @@ export default function HistoryResult(props) {
             <div className="p-2 flex-1 text-sm history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px] mb-2">
                 {historyEntry.text}
             </div>
-            <div className='mb-1'>
+            <div className='mb-2'>
                 {setNamesArray.length > 0 && setNamesArray.map((setName, setIndex) => (
-                    <div className="flex flex-col history_entry_set_wrapper mb-2">
-                        <div className='flex flex-col bg-gray-200 text-gray-800 mb-1'>
+                    <div className="flex flex-col history_entry_set_wrapper mb-1">
+                        <div className='flex flex-col bg-gray-100 text-gray-800 mb-1'>
                             <div className="flex justify-between border-b border-gray-200">
                                 <h3 className="pl-2 pr-1 flex-1 py-2 fs-5">{setName}</h3>
                                 <span className="history_index pr-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
@@ -140,7 +140,7 @@ export default function HistoryResult(props) {
                     </div>
                 ))}
             </div>
-            <div className="flex-col items-start mt-1 mx-1">
+            <div className="flex-col items-start pt-1 mx-1">
                 <div className='flex flex-1 justify-between'>
                     <span className="text-xxs text-end mr-2">Credits: {Math.round(historyEntry.usageCreditTotal)}</span>
                     <span className="text-gray-800 history_short_date text-xxs time_since text-nowrap inline-block min-w-18" data-timesince={historyEntry.runDate}></span>

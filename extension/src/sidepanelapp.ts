@@ -35,7 +35,6 @@ export default class SidePanelApp {
   url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
   url_source_options = document.querySelector('.url_source_options') as HTMLInputElement;
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
-  sidepanel_last_credits_used = document.querySelector('.sidepanel_last_credits_used') as HTMLElement;
   scrape_type_radios = document.querySelectorAll('input[name="scrape_type"]') as NodeListOf<HTMLInputElement>;
   copy_url_scrape = document.querySelector('.copy_url_scrape') as HTMLButtonElement;
   history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
@@ -91,9 +90,8 @@ export default class SidePanelApp {
         if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
           return;
       }
-      this.sidepanel_last_credits_used.innerText = "";
       let label = await this.extCommon.getStorageField("analysisRunLabel");
-      let text = await this.metricCommon.getSourceText(true); // force a scrape here
+      let text = await this.metricCommon.getTextContentSource();
       let type = await this.metricCommon.getSourceType();
       if (!label) label = await this.metricCommon.getURLContentSource();
       if (!label) label = "Manual Run";
@@ -109,6 +107,7 @@ export default class SidePanelApp {
       async () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
     this.url_source_input.addEventListener('input',
       async () => this.extCommon.setFieldToStorage(this.url_source_input, "sidePanelUrlSource"));
+
     this.url_source_options.addEventListener('input',
       async () => this.extCommon.setFieldToStorage(this.url_source_options, "sidePanelUrlSourceOptions"));
     this["tabs-input-url-tab"].addEventListener('click',
@@ -223,7 +222,7 @@ export default class SidePanelApp {
     }
   }
   async renderSourceDetails() {
-    this.extCommon.getFieldFromStorage(this.analysis_run_label, "analysisRunLabel");
+    this.extCommon.getFieldFromStorage(this.analysis_run_label, "analysisRunLabel", "sidePanelUrlSource");
     this.extCommon.getFieldFromStorage(this.url_source_input, "sidePanelUrlSource");
     this.extCommon.getFieldFromStorage(this.url_source_options, "sidePanelUrlSourceOptions");
     this.extCommon.getFieldFromStorage(this.url_scrape_results, "sidePanelScrapeContent");
@@ -244,7 +243,7 @@ export default class SidePanelApp {
       this["tabs-input-textarea-panel"].style.display = "";
     }
 
-    let text = await this.metricCommon.getSourceText();
+    let text = await this.metricCommon.getTextContentSource();
     this.source_text_length.innerText = text.length + ' characters';
 
     let tokenCount = "N/A";
@@ -267,7 +266,6 @@ export default class SidePanelApp {
     this.lastRunResult?.props.hooks.setHistoryEntry(entry);
     this.lastRunResult?.props.hooks.setShow(true);
 
-    //  this.sidepanel_last_credits_used.innerText = `Credits: ${Math.round(processedEntry.usageCreditTotal)}`;
     this.history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
       btn.addEventListener('click', async (e: any) => {
         e.preventDefault();

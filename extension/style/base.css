@@ -560,15 +560,6 @@ body {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
 }
 
-.main_page .footer_actions_bar {
-  display: inline-block;
-  text-align: right;
-  margin-right: 4px;
-  margin-top: -2.2em;
-  position: relative;
-  z-index: 100;
-}
-
 .open_side_panel_from_main {
   border: none;
 }
