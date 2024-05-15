@@ -130,7 +130,6 @@ export class SemanticCommon {
                     success: true,
                     matches: []
                 },
-                semanticIncludeMatchIndexes: [],
             });
         }
         await this.semanticLoad();
@@ -164,7 +163,6 @@ export class SemanticCommon {
                 matches: []
             },
             semantic_running: true,
-            semanticIncludeMatchIndexes: [],
         });
         if (!message) return;
         const semanticResults = await this.querySemanticChunks(message);
@@ -174,7 +172,6 @@ export class SemanticCommon {
                 semanticResults,
                 semanticChunkRows: [],
                 semantic_running: false,
-                semanticIncludeMatchIndexes: [],
             });
             return;
         }

@@ -329,8 +329,7 @@ export default class DataMillHelper {
             semanticLLMQueryResultText: "running...",
         });
 
-        const message = await this.extCommon.getStorageField("semanticQueryText");
-        const embeddedMessage = await this.embedPrompt(message);
+        const embeddedMessage = await this.getEmbeddedPromptText();
         const result = await this.extCommon.processPromptUsingUnacogAPI(embeddedMessage);
 
         await chrome.storage.local.set({
@@ -379,21 +378,25 @@ export default class DataMillHelper {
             console.log("no overlap");
         return text + chunkText + " ";
     }
-    async buildChunkEmbedText(message: string, semanticIncludeMatchIndexes: any[]): Promise<string> {
+    async buildChunkEmbedText(message: string, semanticChunkRows: any[]): Promise<string> {
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
         const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         let documentsEmbedText = "";
         const contextK = Number(await this.extCommon.getStorageField("semanticContextK")) || 1;
 
-        const match = semanticIncludeMatchIndexes[0];
-        await this.semanticCommon.fetchDocumentsLookup([match.id]);
-        const merge = Object.assign({}, match.metadata);
-        merge.id = match.id;
-        merge.matchIndex = 0;
-        merge.prompt = message;
-        merge.text = this.getSmallToBig(match.id, contextK);
-        merge.text = merge.text.replaceAll("\n", " ");
-        documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
+        const includedRows = semanticChunkRows.filter((row: any) => row.include);
+        await this.semanticCommon.fetchDocumentsLookup(includedRows.map((row: any) => row.id));
+        includedRows.forEach((row: any, index: number) => {
+            const merge = Object.assign({}, row);
+            merge.text = this.getSmallToBig(row.id, contextK);
+            merge.prompt = message;
+            if (!merge.text) {
+                console.log("missing merge", row.id, this.semanticCommon.lookupData)
+                merge.text = "";
+            }
+            merge.text = merge.text.replaceAll("\n", " ");
+            documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
+        });
 
         await chrome.storage.local.set({
             documentsEmbedText,
@@ -401,14 +404,18 @@ export default class DataMillHelper {
 
         return documentsEmbedText;
     }
-    async embedPrompt(prompt: string): Promise<string> {
-        const semanticIncludeMatchIndexes = await this.extCommon.getStorageField("semanticIncludeMatchIndexes") || [];
-        let documentsEmbedText = await this.buildChunkEmbedText(prompt, semanticIncludeMatchIndexes);
+    async getEmbeddedPromptText(): Promise<string> {
+        const message = await this.extCommon.getStorageField("semanticQueryText") || "";
+        if (!message) {
+            console.log("getEmbeddedPromptText: no message found in storage");
+        }
+        const semanticChunkRows = await this.extCommon.getStorageField("semanticChunkRows") || [];
+        let documentsEmbedText = await this.buildChunkEmbedText(message, semanticChunkRows);
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
         const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         const mainMerge = {
             documents: documentsEmbedText,
-            prompt,
+            prompt: message,
         };
         const promptT = promptTemplate.mainPrompt;
         const mainPrompt = Mustache.render(promptT, mainMerge);
