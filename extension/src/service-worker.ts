@@ -62,6 +62,13 @@ chrome.runtime.onMessageExternal.addListener(
         if (request.specialAction === 'openMainPage') {
             new AnalyzerExtensionCommon(chrome).toggleExentionPage("main.html");
         }
+        if (request.specialAction === 'serverScrapeUrl') {
+            const options = request.options;
+            const url = request.url;
+            const m = new MetricCommon(chrome);
+            const response = await m.serverScrapeUrl(url, options);
+            sendResponse({ success: "url scraped", response });
+        }
     }
 );
 async function processAnalysisContextMenuAction(text: string, url: string) {
