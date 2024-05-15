@@ -42,7 +42,7 @@ export default class SidePanelApp {
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
   scrape_type_radios = document.querySelectorAll('input[name="scrape_type"]') as NodeListOf<HTMLInputElement>;
   copy_url_scrape = document.querySelector('.copy_url_scrape') as HTMLButtonElement;
-  history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
+  sidepanel_history_result_view = document.querySelector('.sidepanel_history_result_view') as HTMLDivElement;
   sidepanel_scrape_webpage_btn = document.querySelector('.sidepanel_scrape_webpage_btn') as HTMLButtonElement;
   sidepanel_dropdown_menu = document.querySelector('.sidepanel_dropdown_menu') as HTMLDivElement;
   lastSlimSelections = "";
@@ -165,11 +165,11 @@ export default class SidePanelApp {
     this.paint();
   }
   load() {
-    const history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
+    const sidepanel_history_result_view = document.querySelector('.sidepanel_history_result_view') as HTMLDivElement;
     this.lastRunResult = React.createElement(LastRunResult, {
       hooks: {},
     });
-    createRoot(history_result_view).render(this.lastRunResult);
+    createRoot(sidepanel_history_result_view).render(this.lastRunResult);
   }
   async paint() {
     let lastPanelToggleDate = await chrome.storage.local.get('lastPanelToggleDate');
@@ -297,7 +297,7 @@ export default class SidePanelApp {
     this.lastRunResult?.props.hooks.setHistoryEntry(entry);
     this.lastRunResult?.props.hooks.setShow(true);
 
-    this.history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
+    this.sidepanel_history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
       btn.addEventListener('click', async (e: any) => {
         e.preventDefault();
         const historyIndex = Number(btn.dataset.historyindex);
@@ -315,7 +315,7 @@ export default class SidePanelApp {
         URL.revokeObjectURL(url);
       });
     });
-    this.history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
+    this.sidepanel_history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
       btn.addEventListener('click', async (e: any) => {
         e.preventDefault();
         const historyIndex = Number(btn.dataset.historyindex);

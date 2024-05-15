@@ -69,7 +69,7 @@ export default function HistoryResult(props) {
         );
     }
     return (
-        <div className="py-1">
+        <div>
             <div className="flex-col items-start mx-1">
                 <div className="flex flex-1 justify-between">
                     <a className="mt-1 history_source_url text-sm text-blue-500 truncate flex-1 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
@@ -77,22 +77,22 @@ export default function HistoryResult(props) {
                     <span className="text-xs text-gray-800 history_long_date time_since" data-timesince={historyEntry.runDate} data-timestyle="gmail"></span>
                 </div>
             </div>
-            <div className="p-2 flex-1 text-sm history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px] mb-2">
+            <div className="p-2 flex-1 text-sm history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px] mb-2 px-1">
                 {historyEntry.text}
             </div>
-            <div className='mb-2'>
+            <div>
                 {setNamesArray.length > 0 && setNamesArray.map((setName, setIndex) => (
-                    <div className="flex flex-col history_entry_set_wrapper mb-1">
-                        <div className='flex flex-col bg-gray-100 text-gray-800 mb-1'>
-                            <div className="flex justify-between border-b border-gray-200">
-                                <h3 className="pl-2 pr-1 flex-1 py-2 fs-5">{setName}</h3>
+                    <div className="flex flex-col shadow-inner mb-3 rounded-b-md">
+                        <div className='flex flex-col bg-gray-100 text-gray-800 mb-1 history_entry_shadow_wrapper'>
+                            <div className="flex justify-between">
+                                <h3 className="p-2 flex-1 fs-5 rounded-md">{setName}</h3>
                                 <span className="history_index pr-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
                             </div>
                         </div>
                         {setBasedResults[setName].length > 0 && setBasedResults[setName].map((result, resultIndex) => (
                             <div>
                                 {result.prompt.promptType === 'metric' && (
-                                    <div className="prompt_result metric_result mx-2 py-2">
+                                    <div className="prompt_result metric_result px-2 py-2">
                                         <span className="prompt_id">{result.prompt.id}</span>
                                         <span className="metric_score">{getMetricsResultValue(result.result.resultMessage)}<span className="outofscore">/10</span></span>
                                         <div className="metric_bar">
@@ -118,7 +118,7 @@ export default function HistoryResult(props) {
                                 )}
                             </div>
                         ))}
-                        <div className="flex flex-row justify-end gap-2 my-1 py-1">
+                        <div className="flex flex-row justify-end gap-2 p-2 bg-gray-50 shadow-sm">
                             <button type="button" className="btn-ts-secondary history_copy_url_btn text-xs px-2 py-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
                                     stroke="currentColor" className="w-4 h-4">
@@ -140,7 +140,7 @@ export default function HistoryResult(props) {
                     </div>
                 ))}
             </div>
-            <div className="flex-col items-start pt-1 mx-1">
+            <div className="flex-col items-start mx-1 pb-1 mt-[-8px]">
                 <div className='flex flex-1 justify-between'>
                     <span className="text-xxs text-end mr-2">Credits: {Math.round(historyEntry.usageCreditTotal)}</span>
                     <span className="text-gray-800 history_short_date text-xxs time_since text-nowrap inline-block min-w-18" data-timesince={historyEntry.runDate}></span>
