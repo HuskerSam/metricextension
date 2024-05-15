@@ -58,9 +58,6 @@ export default class BulkHelper {
         this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
             layout: "fitColumns",
             resizableColumnFit: true,
-            movableRows: true,
-            rowHeader: { headerSort: false, resizable: false, minWidth: 24, width: 24, rowHandle: true, formatter: "handle" },
-
             columns: [],
         });
 
@@ -398,7 +395,14 @@ export default class BulkHelper {
         this.bulkUrlListTabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
     }
-    async runBulkAnalysis(rows: any[]) {
+    async runBulkAnalysis(rows: any[]) { 
+        const isAlreadyRunning = await this.extCommon.setBulkRunning();
+        if (isAlreadyRunning) {
+            if (confirm("Bulk analysis is already running. Do you want to continue?") === false) {
+                return;
+            }
+        }
+
         let browserScrape = false;
         rows.forEach((row: any) => {
             if (row.scrape === "browser scrape") {
@@ -412,8 +416,6 @@ export default class BulkHelper {
             await this.extCommon.enabledBrowserScrapePermissions();
         }
 
-        let isAlreadyRunning = await this.extCommon.setBulkRunning(true);
-        if (isAlreadyRunning) return;
         const runId = new Date().toISOString();
         let urls: string[] = [];
         let promises: any[] = [];
@@ -430,7 +432,7 @@ export default class BulkHelper {
             if (result && result.text) text = result.text;
             if (result && result.length > 0 && result[0].result) text = result[0].result;
             if (!text) {
-                analysisPromises.push(async () => {
+                analysisPromises.push((async () => {
                     return {
                         text: "No text found in page",
                         url: urls[index],
@@ -438,13 +440,13 @@ export default class BulkHelper {
                         runDate: new Date().toISOString(),
                         title: "",
                     };
-                });
+                })());
             } else {
                 analysisPromises.push(
-                    async () => {
+                    (async () => {
                         text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
-                        this.metricCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title);
-                    });
+                        return this.metricCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title);
+                    })());
             }
         });
         let analysisResults = await Promise.all(analysisPromises);

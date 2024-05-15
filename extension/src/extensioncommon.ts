@@ -285,7 +285,7 @@ export class AnalyzerExtensionCommon {
 
     return Object.keys(analysisSets);
   }
-  async setBulkRunning(prompt = false) {
+  async setBulkRunning() {
     let bulk_running = await this.chrome.storage.local.get('bulk_running');
     if (bulk_running && bulk_running.bulk_running) {
       return true;
