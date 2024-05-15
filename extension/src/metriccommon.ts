@@ -117,7 +117,7 @@ export class MetricCommon {
                 title: "",
             };
         } else if (scrape === "browser scrape") {
-            let results = this.scrapeTabPage(url, defaultTabId);
+            let results = await this.scrapeTabPage(url, defaultTabId);
             console.log("active scrape results", results);
             return results;
         } else if (scrape === "override content") {

@@ -23,10 +23,6 @@
     display: block;
 }
 
-.extension_bulk_running .run_bulk_analysis_btn {
-    display: none;
-}
-
 .extension_bulk_running .no_bulk_result_history_entry {
     display: none;
 }
