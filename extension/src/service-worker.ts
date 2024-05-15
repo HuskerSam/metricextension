@@ -95,5 +95,5 @@ async function processAnalysisContextMenuAction(text: string, url: string) {
     });
     let selectedSemanticSource = await semanticCommon.getSelectedSemanticSource();
     await semanticCommon.selectSemanticSource(selectedSemanticSource, true);
-    await semanticCommon.lookupDocumentChunks();
+    await semanticCommon.semanticQuery();
   }
