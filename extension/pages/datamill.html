@@ -40,14 +40,14 @@
           <span class="pl-2 text-sm">unique docs</span>
         </label>
         <br>
-        <select class="m-3 form-select-ts llm_prompt_template_select_preset w-[auto]">
-          <option selected>Select a default prompt</option>
-          <option>Answer with Doc Summary</option>
-          <option>OpenAI Cookbook Primitive</option>
-          <option>Answer with Doc Keywords</option>
-        </select>
-        <br>
-        <button class="reset_template_options_button btn btn-secondary m-2">Reset</button>
+        <div class="flex flex-row">
+          <select class="m-3 form-select-ts llm_prompt_template_select_preset w-[auto]">
+            <option>Answer with Doc Summary</option>
+            <option>OpenAI Cookbook Primitive</option>
+            <option>Answer with Doc Keywords</option>
+          </select>
+          <button class="llm_prompt_template_reset_preset_button btn btn-secondary m-2">Set Prompt</button>
+        </div>
       </div>
     </div>
   </div>

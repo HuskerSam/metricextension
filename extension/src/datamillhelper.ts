@@ -32,6 +32,7 @@ export default class DataMillHelper {
     prompt_view_top_splitter = document.body.querySelector(".prompt_view_top_splitter") as HTMLDivElement;
     prompt_view_bottom_splitter = document.body.querySelector(".prompt_view_bottom_splitter") as HTMLDivElement;
     semantic_dropdown_menu = document.body.querySelector(".semantic_dropdown_menu") as HTMLDivElement;
+    llm_prompt_template_reset_preset_button = document.body.querySelector(".llm_prompt_template_reset_preset_button") as HTMLButtonElement;
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
@@ -75,10 +76,6 @@ export default class DataMillHelper {
             this.semantic_query_textarea.select();
             await this.sendPromptToLLM()
         });
-        this.llm_prompt_template_select_preset.addEventListener("input", async () => {
-            const selectedSemanticPromptTemplate = this.llm_prompt_template_select_preset.value;
-            await chrome.storage.local.set({ selectedSemanticPromptTemplate });
-        });
         this.semantic_query_textarea.addEventListener("keydown", async (e: any) => {
             if (e.key === "Enter" && e.shiftKey === false) {
                 e.preventDefault();
@@ -103,7 +100,24 @@ export default class DataMillHelper {
             const semanticContextK = Number(this.semantic_context_k_input.value.trim()) || 1;
             await chrome.storage.local.set({ semanticContextK });
         });
+        this.llm_prompt_template_text_area.addEventListener("input", async () => {
+            const semanticQueryMainPromptTemplate = this.llm_prompt_template_text_area.value.trim();
+            await chrome.storage.local.set({ semanticQueryMainPromptTemplate });
+        });
+        this.llm_document_template_text_area.addEventListener("input", async () => {
+            const semanticQueryDocumentPromptTemplate = this.llm_document_template_text_area.value.trim();
+            await chrome.storage.local.set({ semanticQueryDocumentPromptTemplate });
+        });
+        this.llm_prompt_template_reset_preset_button.addEventListener("click", async () => {
+            const defaultPromptsIndex = this.llm_prompt_template_select_preset.selectedIndex;
 
+            const defaultPromptsNames = Object.keys(this.semanticCommon.semanticPromptTemplatesMap);
+            const defaultPrompts = this.semanticCommon.semanticPromptTemplatesMap[defaultPromptsNames[defaultPromptsIndex]];
+            await chrome.storage.local.set({ semanticQueryMainPromptTemplate: defaultPrompts.mainPrompt });
+            await chrome.storage.local.set({ semanticQueryDocumentPromptTemplate: defaultPrompts.documentPrompt });
+            this.llm_document_template_text_area.value = defaultPrompts.documentPrompt;
+            this.llm_prompt_template_text_area.value = defaultPrompts.mainPrompt;
+        });
         this.chunksTabulator = new TabulatorFull(".semantic_chunk_results_container", {
             layout: "fitDataStretch",
             movableRows: true,
@@ -135,12 +149,6 @@ export default class DataMillHelper {
         this.renderFilters();
         this.renderSearchChunks();
 
-        const selectedSemanticPromptTemplate = (await this.extCommon.getStorageField("selectedSemanticPromptTemplate")) || "Answer with Doc Summary";
-        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
-
-        this.llm_prompt_template_text_area.value = promptTemplate?.mainPrompt;
-        this.llm_document_template_text_area.value = promptTemplate?.documentPrompt;
-        this.llm_prompt_template_select_preset.value = selectedSemanticPromptTemplate;
         const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
         this.semantic_embedded_llm_response.innerText = llmResponse;
 
@@ -148,6 +156,9 @@ export default class DataMillHelper {
         await this.extCommon.getFieldFromStorage(this.semantic_top_k_input, "semanticTopK");
         await this.extCommon.getFieldFromStorage(this.semantic_include_k_input, "semanticIncludeK");
         await this.extCommon.getFieldFromStorage(this.semantic_context_k_input, "semanticContextK");
+        await this.semanticCommon.getPromptTemplates();
+        await this.extCommon.getFieldFromStorage(this.llm_prompt_template_text_area, "semanticQueryMainPromptTemplate");
+        await this.extCommon.getFieldFromStorage(this.llm_document_template_text_area, "semanticQueryDocumentPromptTemplate");
 
         const semantic_running = await chrome.storage.local.get('semantic_running');
         if (semantic_running && semantic_running.semantic_running) {
@@ -379,12 +390,11 @@ export default class DataMillHelper {
         return text + chunkText + " ";
     }
     async buildChunkEmbedText(message: string, semanticChunkRows: any[]): Promise<string> {
-        const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
-        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         let documentsEmbedText = "";
         const contextK = Number(await this.extCommon.getStorageField("semanticContextK")) || 1;
 
         const includedRows = semanticChunkRows.filter((row: any) => row.include);
+        const promptTemplates = await this.semanticCommon.getPromptTemplates();
         await this.semanticCommon.fetchDocumentsLookup(includedRows.map((row: any) => row.id));
         includedRows.forEach((row: any, index: number) => {
             const merge = Object.assign({}, row);
@@ -395,7 +405,7 @@ export default class DataMillHelper {
                 merge.text = "";
             }
             merge.text = merge.text.replaceAll("\n", " ");
-            documentsEmbedText += Mustache.render(promptTemplate.documentPrompt, merge);
+            documentsEmbedText += Mustache.render(promptTemplates.documentTemplate, merge);
         });
 
         await chrome.storage.local.set({
@@ -411,13 +421,12 @@ export default class DataMillHelper {
         }
         const semanticChunkRows = await this.extCommon.getStorageField("semanticChunkRows") || [];
         let documentsEmbedText = await this.buildChunkEmbedText(message, semanticChunkRows);
-        const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
-        const promptTemplate = this.semanticCommon.semanticPromptTemplatesMap[selectedSemanticPromptTemplate];
         const mainMerge = {
             documents: documentsEmbedText,
             prompt: message,
         };
-        const promptT = promptTemplate.mainPrompt;
+        const promptTemplates = await this.semanticCommon.getPromptTemplates();
+        const promptT = promptTemplates.promptTemplate;
         const mainPrompt = Mustache.render(promptT, mainMerge);
         return mainPrompt;
     }
