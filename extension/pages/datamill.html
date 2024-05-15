@@ -2,32 +2,52 @@
   <div class="flex flex-row">
     <label class="p-2">Data Source</label>
     <select class="dmtab_change_session_select form-select-ts flex-1 self-center mr-1"></select>
-
     <div class="dropdown inline-block mr-3 pl-2">
       <button class="btn-ts-secondary dropdown-toggle" type="button" id="promptTemplateOptionsMenu"
         data-bs-toggle="dropdown" aria-expanded="false">
         Embedding Options
       </button>
       <div class="semantic_dropdown_menu dropdown-menu w-[400px]" aria-labelledby="promptTemplateOptionsMenu">
-          <select class="m-3 form-select-ts w-[auto] llm_embedding_type_select">
-            <option class="embed_distinct_chunks_option" value="0">Embed 5 Document Chunks</option>
-            <option class="embed_sequential_chunks_option" value="1">Embed 2 Document Chunks</option>
-            <option class="embed_sequential_chunks2_option" value="2">Embed 1 Chunk with Additional Context</option>
-          </select>
-          <br>
+        <div class="inline-block p-2">
           <label class="inline-block p-2">
-            <input class="form-input-ts w-[18px] inline-block uniqueDocsCheck" type="checkbox">
-            <span class="pl-2 text-sm">unique docs</span>
+            <span>Top K</span>
+            <input class="form-input-ts semantic_top_k_input" type="text">
           </label>
           <br>
-          <select class="m-3 form-select-ts llm_prompt_template_select_preset w-[auto]">
-            <option selected>Select a default prompt</option>
-            <option>Answer with Doc Summary</option>
-            <option>OpenAI Cookbook Primitive</option>
-            <option>Answer with Doc Keywords</option>
-          </select>
+          Number of documents to return from the search.
+        </div>
         <br>
-          <button class="reset_template_options_button btn btn-secondary m-2">Reset</button>
+        <div class="inline-block p-2">
+          <label class="inline-block p-2">
+            <span>Include K</span>
+            <input class="form-input-ts semantic_include_k_input" type="text">
+          </label>
+          <br>
+          Number of documents to embed in the prompt.
+        </div>
+        <br>
+        <div class="inline-block p-2">
+          <label class="inline-block p-2">
+            <span>Context K</span>
+            <input class="form-input-ts semantic_context_k_input" type="text">
+          </label>
+          <br>
+          Number of chunks to include for each document.
+        </div>
+        <br>
+        <label class="inline-block p-2">
+          <input class="form-input-ts w-[18px] inline-block uniqueDocsCheck" type="checkbox">
+          <span class="pl-2 text-sm">unique docs</span>
+        </label>
+        <br>
+        <select class="m-3 form-select-ts llm_prompt_template_select_preset w-[auto]">
+          <option selected>Select a default prompt</option>
+          <option>Answer with Doc Summary</option>
+          <option>OpenAI Cookbook Primitive</option>
+          <option>Answer with Doc Keywords</option>
+        </select>
+        <br>
+        <button class="reset_template_options_button btn btn-secondary m-2">Reset</button>
       </div>
     </div>
   </div>
@@ -70,19 +90,19 @@
       <textarea class="llm_document_template_text_area monospace form-textarea-ts flex-1 m-2 p-1 w-auto"></textarea>
     </div>
     <div class="overflow-hidden flex flex-col prompt_view_bottom_splitter">
-        <div class="semantic_embedded_llm_response whitespace-pre-wrap flex-1 p-2 overflow-auto"></div>
-        <div class="flex-1 overflow-auto hidden">
-          <span class="onboarding_text">Enter a prompt to begin.</span>
-        </div>
-        <div class="p-2 text-right">
-          <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-              stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-            </svg> &nbsp; Run
-          </button>
-        </div>
+      <div class="semantic_embedded_llm_response whitespace-pre-wrap flex-1 p-2 overflow-auto"></div>
+      <div class="flex-1 overflow-auto hidden">
+        <span class="onboarding_text">Enter a prompt to begin.</span>
+      </div>
+      <div class="p-2 text-right">
+        <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+          </svg> &nbsp; Run
+        </button>
+      </div>
     </div>
   </div>
 </div>
