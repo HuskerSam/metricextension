@@ -40,7 +40,6 @@
     margin: var(--spacing-small) 0;
 }
 
-.history_entry_set_wrapper {
+.history_entry_shadow_wrapper {
     box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
 }
-
