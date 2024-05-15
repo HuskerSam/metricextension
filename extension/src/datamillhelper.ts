@@ -30,6 +30,7 @@ export default class DataMillHelper {
     bottom_semantic_view_splitter = document.body.querySelector(".bottom_semantic_view_splitter") as HTMLDivElement;
     prompt_view_top_splitter = document.body.querySelector(".prompt_view_top_splitter") as HTMLDivElement;
     prompt_view_bottom_splitter = document.body.querySelector(".prompt_view_bottom_splitter") as HTMLDivElement;
+    semantic_dropdown_menu = document.body.querySelector(".semantic_dropdown_menu") as HTMLDivElement;
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
@@ -105,6 +106,10 @@ export default class DataMillHelper {
 
         this.chunksTabulator.on("rowSelected", async (cell: any) => this.scrapeChunkRows());
         this.chunksTabulator.on("rowMoved", async (cell: any) => this.scrapeChunkRows());
+
+        this.semantic_dropdown_menu.addEventListener("click", (e: Event) => {
+            e.stopPropagation();
+        });
     }
     async load() {
         await this.initSemanticSessionList();
@@ -228,7 +233,6 @@ export default class DataMillHelper {
         await this.chunksTabulator.setData(semanticChunkData);
         const tableRows = this.chunksTabulator.getRows();
         tableRows.forEach((row: any, index: number) => {
-            const data = row.getData();
             if (semanticChunkRows[index].include) {
                 row.select();
             }

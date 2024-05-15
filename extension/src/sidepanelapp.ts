@@ -39,6 +39,7 @@ export default class SidePanelApp {
   copy_url_scrape = document.querySelector('.copy_url_scrape') as HTMLButtonElement;
   history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
   sidepanel_scrape_webpage_btn = document.querySelector('.sidepanel_scrape_webpage_btn') as HTMLButtonElement;
+  sidepanel_dropdown_menu = document.querySelector('.sidepanel_dropdown_menu') as HTMLDivElement;
   lastSlimSelections = "";
   viewSplitter: Split.Instance;
   previousSlimOptions = '';
@@ -129,6 +130,10 @@ export default class SidePanelApp {
     this.sidepanel_scrape_webpage_btn.addEventListener('click', async () => {
       this.url_scrape_results.value = 'Getting content...'
       this.metricCommon.sidePanelManualScrape();
+    });
+
+    this.sidepanel_dropdown_menu.addEventListener('click', async (e: any) => {
+      e.stopPropagation();
     });
 
     setInterval(() => AnalyzerExtensionCommon.updateTimeSince(document.body), 500);

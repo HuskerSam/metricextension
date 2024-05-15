@@ -253,8 +253,6 @@ export class SemanticCommon {
      * @return {Promise<any{}>}
      */
     async processIncludedChunks(semanticResults: any): Promise<any> {
-        const embedIndex = 5;
-
        const semanticIncludededMatchIds: any = {};
             semanticResults.matches.slice(0, 5).forEach((match: any) => {
                 semanticIncludededMatchIds[match.id] = true;
