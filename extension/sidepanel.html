@@ -34,48 +34,57 @@
       </div>
     </div>
 
-    <div class="header_action_bar flex justify-between mx-3">
+    <div class="header_action_bar flex justify-between mx-2 mt-1">
       <div class="dropdown inline-block pr-2">
         <button class="btn-ts-secondary dropdown-toggle" type="button" id="sidepanelOptionsMenu"
           data-bs-toggle="dropdown" aria-expanded="false">
           Scrape
         </button>
-        <div class="sidepanel_dropdown_menu dropdown-menu  w-[400px] h-[360px]">
-          <div class="block my-1 mx-2">
+        <div class="sidepanel_dropdown_menu dropdown-menu w-[400px] h-[400px] shadow-xl border-gray-300 border-2">
+          <div class="p-2">
+            <div class="block mb-2 mx-2 border-b border-gray-200">
+              <p class="form-input-label-ts mb-2">Select data source type</p>
               <label
-              class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
-              <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1" aria-controls="tabs-input-url-panel"
-                role="tab" type="radio">
-              &nbsp;Web Source
-            </label>
-            <label
-              class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium active">
-              <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked role="tab" type="radio">
-              &nbsp;Manual Input
-            </label>
-          </div>
-          <div class="block my-1">
-            <div class="my-3 mx-2">
-              <p class="form-input-label-ts">Enter url to scrape.</p>
-              <input type="text" name="scrape-website" class="url_source_input form-input-ts"
-                placeholder="Enter url (required)...">
+                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md pb-1 px-1 py-1 text-sm font-medium">
+                <input id="tabs-input-url-tab" name="dataSourceType" class="mb-1" aria-controls="tabs-input-url-panel"
+                  role="tab" type="radio">
+                &nbsp;Web Source
+              </label>
+              <label
+                class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 pb-1 py-1 text-sm font-medium active">
+                <input id="tabs-input-textarea-tab" name="dataSourceType" class="mb-1" checked role="tab" type="radio">
+                &nbsp;Manual Input
+              </label>
             </div>
-            <div class="flex flex-row items-center my-3 mx-2">
-              <div class="flex flex-col mr-4">
-                <p class="form-input-label-ts mb-2">Select scrape method. Authorize permissions to use browser.</p>
-                <label class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
-                  <input type="radio" name="scrape_type" value="server scrape" class="server_scrape_type mr-1">Server
-                </label>
-                <label class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
-                  <input type="radio" name="scrape_type" value="browser scrape" class="browser_scrape_type mr-1">Browser
-                </label>
+            <div class="block">
+              <div class="my-4 mx-2">
+                <p class="form-input-label-ts mb-2">Enter url to scrape.</p>
+                <input type="text" name="scrape-website" class="url_source_input form-input-ts"
+                  placeholder="Enter url (required)...">
               </div>
-              <button class="sidepanel_scrape_webpage_btn btn-ts-secondary self-end">Scrape</button>
-            </div>
-            <div class="my-3 mx-2">
-              <p class="form-input-label-ts">Specify html elements, class name or ID to narrow web scrape</p>
-              <input type="text" name="scrape-website-options" class="url_source_options form-input-ts"
-                placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
+              <div class="my-4 mx-2">
+                <p class="form-input-label-ts mb-2">Select method. Authorize permissions to browser scrape.</p>
+                <div class="flex flex-row items-center">
+                  <div class="flex flex-col mr-4 flex-1">
+                    <label
+                      class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
+                      <input type="radio" name="scrape_type" value="server scrape"
+                        class="server_scrape_type mr-1">Server
+                    </label>
+                    <label
+                      class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
+                      <input type="radio" name="scrape_type" value="browser scrape"
+                        class="browser_scrape_type mr-1">Browser
+                    </label>
+                  </div>
+                  <button class="sidepanel_scrape_webpage_btn btn-ts-secondary self-end flex-1">Scrape</button>
+                </div>
+              </div>
+              <div class="my-4 mx-2">
+                <p class="form-input-label-ts mb-2">Specify HTML elements, class or ID to narrow selection</p>
+                <input type="text" name="scrape-website-options" class="url_source_options form-input-ts"
+                  placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
+              </div>
             </div>
           </div>
         </div>
@@ -97,15 +106,16 @@
             <div class="flex-1 flex flex-row">
               <div class="flex-1 flex flex-col relative">
                 <button type="button"
-                  class="p-2 btn_icon border-none cursor-pointer absolute right-[20px] bottom-[8px] z-10 copy_url_scrape">
+                  class="p-2 btn_icon border-none cursor-pointer absolute right-[24px] bottom-[8px] z-10 copy_url_scrape">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round"
                       d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
                   </svg>
                 </button>
-                <textarea class="url_scrape_results block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none" disabled
-                  placeholder=""></textarea>
+                <textarea
+                  class="url_scrape_results block pb-0 pr-0 flex-1 border border-gray-300 rounded ml-1 mr-1 resize-none"
+                  disabled placeholder=""></textarea>
               </div>
             </div>
           </div>
@@ -145,42 +155,61 @@
       <div class="absolute inset-0 flex items-center" aria-hidden="true">
         <div class="w-full border-t border-gray-300"></div>
       </div>
-      <div class="relative flex items-center justify-around">
-        <span class="bg-white pr-3 text-base font-semibold leading-6 text-gray-900">Quick Nav</span>
+      <div class="relative flex items-center justify-center">
         <span class="isolate inline-flex -space-x-px rounded-md shadow-sm">
           <button type="button"
-            class="show_main_page_btn relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
-            <span class="sr-only">Main</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path
-                d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+            class="open_main_feed_page_btn relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Feed</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 inline-block">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
             </svg>
           </button>
           <button type="button"
-            class="relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
-            <span class="sr-only">Attachment</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd"
-                d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z"
-                clip-rule="evenodd" />
+            class="open_main_activity_page_btn relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Activity</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 inline-block">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
             </svg>
           </button>
           <button type="button"
-            class="relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
-            <span class="sr-only">Annotate</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd"
-                d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902 1.168.188 2.352.327 3.55.414.28.02.521.18.642.413l1.713 3.293a.75.75 0 001.33 0l1.713-3.293a.783.783 0 01.642-.413 41.102 41.102 0 003.55-.414c1.437-.231 2.43-1.49 2.43-2.902V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0010 2zM6.75 6a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 2.5a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5z"
-                clip-rule="evenodd" />
+            class="open_main_prompts_page_btn relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Prompts</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 inline-block">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0 0 12 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 0 1-2.031.352 5.988 5.988 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971Zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0 2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 0 1-2.031.352 5.989 5.989 0 0 1-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971Z" />
             </svg>
           </button>
           <button type="button"
-            class="relative inline-flex items-center rounded-r-md bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
-            <span class="sr-only">Delete</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd"
-                d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
-                clip-rule="evenodd" />
+            class="open_main_semantic_page_btn relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Semantic</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 inline-block">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+            </svg>
+          </button>
+          <button type="button"
+          class="open_main_batch_page_btn relative inline-flex items-center bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+          <span class="sr-only">Batch</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5 inline-block">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+          </svg>
+        </button>
+          <button type="button"
+            class="open_main_settings_page_btn relative inline-flex items-center rounded-r-md bg-white px-3 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10">
+            <span class="sr-only">Settings</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 inline-block">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
           </button>
         </span>

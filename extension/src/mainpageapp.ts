@@ -33,6 +33,13 @@ export default class MainPageApp {
     main_options_tab_view = document.querySelector('#main_options_tab_view') as HTMLDivElement;
     main_datamill_tab_view = document.querySelector('#main_datamill_tab_view') as HTMLDivElement;
     main_feed_tab_view = document.querySelector('#main_feed_tab_view') as HTMLDivElement;
+    main_feed_tab_btn = document.querySelector('#main_feed_tab_btn') as HTMLButtonElement;
+    main_history_tab_btn = document.querySelector('#main_history_tab_btn') as HTMLButtonElement;
+    main_prompt_manager_tab_btn = document.querySelector('#main_prompt_manager_tab_btn') as HTMLButtonElement;
+    main_datamill_tab_btn = document.querySelector('#main_datamill_tab_btn') as HTMLButtonElement;
+    main_bulk_tab_btn = document.querySelector('#main_bulk_tab_btn') as HTMLButtonElement;
+    main_options_tab_btn = document.querySelector('#main_options_tab_btn') as HTMLButtonElement;
+
 
     constructor() {
         this.load();
@@ -76,19 +83,57 @@ export default class MainPageApp {
             hooks: {},
         });
         createRoot(history_result_previous_view).render(this.historyResultPrevious);
+        
+        window.addEventListener('hashchange', () => this.navigateHashtag());
+        this.navigateHashtag();
 
         // list for changes to local storage and update the UI
         chrome.storage.local.onChanged.addListener(() => {
             this.paintData();
         });
         this.paintData(true);
-
+    }
+    navigateHashtag() {
         if (window.location.hash.trim() === "#semantic") {
             document.getElementById("main_datamill_tab_btn")?.click();
         }
+        if (window.location.hash.trim() === "#bulk") {
+            document.getElementById("main_bulk_tab_btn")?.click();
+        }
+        if (window.location.hash.trim() === "#prompts") {
+            document.getElementById("main_prompt_manager_tab_btn")?.click();
+        }
+        if (window.location.hash.trim() === "#settings") {
+            document.getElementById("main_options_tab_btn")?.click();
+        }
+        if (window.location.hash.trim() === "#history") {
+            document.getElementById("main_history_tab_btn")?.click();
+        }
+        if (window.location.hash.trim() === "") {
+            document.getElementById("main_feed_tab_btn")?.click();
+        }
     }
+
     initEventHandlers() {
         this.open_side_panel_from_main.addEventListener('click', async () => this.extCommon.toggleSidePanel());
+        this.main_history_tab_btn.addEventListener('click', () => {
+            window.location.hash = "history"
+        });
+        this.main_prompt_manager_tab_btn.addEventListener('click', () => {
+            window.location.hash = "prompts"
+        });
+        this.main_bulk_tab_btn.addEventListener('click', () => {
+            window.location.hash = "bulk"
+        });
+        this.main_options_tab_btn.addEventListener('click', () => {
+            window.location.hash = "settings"
+        });
+        this.main_datamill_tab_btn.addEventListener('click', () => {
+            window.location.hash = "semantic"
+        });
+        this.main_feed_tab_btn.addEventListener('click', () => {
+            window.location.hash = ""
+        });
     }
     async paintData(forceUpdate = false) {
         this.historyHelper?.renderHistoryDisplay();

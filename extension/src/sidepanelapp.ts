@@ -19,7 +19,12 @@ export default class SidePanelApp {
   lastRunResult: React.ReactElement | null = null;
   analysisSetsSlimSelect: any;
   analysis_set_select = document.querySelector('.analysis_set_select') as HTMLSelectElement;
-  show_main_page_btn = document.querySelector('.show_main_page_btn') as HTMLButtonElement;
+  open_main_feed_page_btn = document.querySelector('.open_main_feed_page_btn') as HTMLButtonElement;
+  open_main_activity_page_btn = document.querySelector('.open_main_activity_page_btn') as HTMLButtonElement;
+  open_main_prompts_page_btn = document.querySelector('.open_main_prompts_page_btn') as HTMLButtonElement;
+  open_main_semantic_page_btn = document.querySelector('.open_main_semantic_page_btn') as HTMLButtonElement;
+  open_main_settings_page_btn = document.querySelector('.open_main_settings_page_btn') as HTMLButtonElement;
+  open_main_batch_page_btn = document.querySelector('.open_main_batch_page_btn') as HTMLButtonElement;
   lastPanelToggleDate = new Date().toISOString();
   run_analysis_btn = document.querySelector('.run_analysis_btn') as HTMLButtonElement;
   user_text_content_field = document.querySelector(".user_text_content_field") as HTMLTextAreaElement;
@@ -81,8 +86,23 @@ export default class SidePanelApp {
         gutterSize: 16,
       });
 
-    this.show_main_page_btn.addEventListener('click', () => {
+    this.open_main_feed_page_btn.addEventListener('click', () => {
       this.extCommon.toggleExentionPage("main.html");
+    });
+    this.open_main_activity_page_btn.addEventListener('click', () => {
+      this.extCommon.toggleExentionPage("main.html#history");
+    });
+    this.open_main_prompts_page_btn.addEventListener('click', () => {
+      this.extCommon.toggleExentionPage("main.html#prompts");
+    });
+    this.open_main_semantic_page_btn.addEventListener('click', () => {
+      this.extCommon.toggleExentionPage("main.html#semantic");
+    });
+    this.open_main_batch_page_btn.addEventListener('click', () => {
+      this.extCommon.toggleExentionPage("main.html#bulk");
+    });
+    this.open_main_settings_page_btn.addEventListener('click', () => {
+      this.extCommon.toggleExentionPage("main.html#settings");
     });
 
     this.run_analysis_btn.addEventListener('click', async () => {

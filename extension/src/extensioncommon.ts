@@ -395,16 +395,18 @@ export class AnalyzerExtensionCommon {
       ctl.innerText = dateDisplay;
     });
   }
-  async toggleExentionPage(url: string, openOnly = false) {
+  async toggleExentionPage(url: string) {
     const [extensionTab] = await this.chrome.tabs.query({
       url: `chrome-extension://${this.chrome.runtime.id}/main.html`,
       lastFocusedWindow: true,
     });
-
-    if (extensionTab && extensionTab.active !== true) {
-      await this.chrome.tabs.update(extensionTab.id, { active: true });
-    } else if (extensionTab && !openOnly) {
-      await this.chrome.tabs.remove(extensionTab.id);
+    const urlHashtag = url.split("#")[1] || "";
+    
+    if (extensionTab) {
+      await this.chrome.tabs.update(extensionTab.id, {
+        active: true,
+        url: `chrome-extension://${this.chrome.runtime.id}/main.html#${urlHashtag}` 
+      });
     } else {
       await this.chrome.tabs.create({
         url
