@@ -620,3 +620,9 @@ body {
 .metric-value {
   margin-left: 5px;
 }
+
+.dropdown-menu.show {
+  max-width: calc(100vw - 30px);
+  margin-left: 0px;
+  margin-right: 10px;
+}
