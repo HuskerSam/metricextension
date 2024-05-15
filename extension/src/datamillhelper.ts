@@ -51,10 +51,6 @@ export default class DataMillHelper {
             const selectedValue = this.dmtab_change_session_select.value;
             await this.semanticCommon.selectSemanticSource(selectedValue, true);
         });
-        this.llm_embedding_type_select.addEventListener("input", async () => {
-            const selectedValue = this.llm_embedding_type_select.value;
-            await chrome.storage.local.set({ selectedEmbeddingType: selectedValue });
-        });
 
         this.dmtab_add_meta_filter_button.addEventListener("click", () => {
             this.addMetaFilter();
@@ -106,6 +102,9 @@ export default class DataMillHelper {
                 },
             ],
         });
+
+        this.chunksTabulator.on("rowSelected", async (cell: any) => this.scrapeChunkRows());
+        this.chunksTabulator.on("rowMoved", async (cell: any) => this.scrapeChunkRows());
     }
     async load() {
         await this.initSemanticSessionList();
@@ -126,10 +125,6 @@ export default class DataMillHelper {
         const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
         this.semantic_embedded_llm_response.innerText = llmResponse;
 
-        let selectedEmbeddingType = await this.extCommon.getStorageField("selectedEmbeddingType");
-        if (selectedEmbeddingType) {
-            this.llm_embedding_type_select.value = selectedEmbeddingType;
-        }
         await this.extCommon.getFieldFromStorage(this.semantic_query_textarea, "semanticQueryText");
 
         const semantic_running = await chrome.storage.local.get('semantic_running');
@@ -138,6 +133,22 @@ export default class DataMillHelper {
         } else {
             document.body.classList.remove("semantic_running");
         }
+    }
+    async scrapeChunkRows(updateCache = true) {
+        const tableRows = this.chunksTabulator.getRows();
+        tableRows.forEach((row: any) => {
+            const data = row.getData();
+            data.include = row.isSelected();
+            row.update(data);
+        });
+
+        const semanticChunkRows = tableRows.map((row: any) => row.getData());
+        if (updateCache) {
+            this.setCacheString(semanticChunkRows);
+        }
+        await chrome.storage.local.set({
+            semanticChunkRows,
+        });
     }
     async renderFilters() {
         this.filter_container.innerHTML = "";
@@ -190,67 +201,38 @@ export default class DataMillHelper {
         }
         let isAlreadyRunning = await this.semanticCommon.setSemanticRunning();
         if (isAlreadyRunning && !confirm("A job is running, start a new one?")) return;
-
-        await this.semanticCommon.lookupDocumentChunks();
+        this.lastRenderedChunkCache = "";
+        await this.semanticCommon.semanticQuery();
+    }
+    setCacheString(semanticResults: any, other: any = {}) {
+        const cacheString = JSON.stringify(semanticResults) + JSON.stringify(other);
+        if (this.lastRenderedChunkCache === cacheString) return false;
+        this.lastRenderedChunkCache = cacheString;
+        return true;
     }
     async renderSearchChunks() {
-        const semanticResults = await this.extCommon.getStorageField("semanticResults");
-        const includes = (await this.extCommon.getStorageField("semanticIncludeMatchIndexes")) || [];
+        const semanticChunkRows = await this.extCommon.getStorageField("semanticChunkRows") || [];
+        const semanticChunkColumns = (await this.extCommon.getStorageField("semanticChunkColumns")) || [];
 
-        const cacheString = JSON.stringify(semanticResults) + JSON.stringify(includes);
-        if (this.lastRenderedChunkCache === cacheString) {
-            return;
-        }
-        this.lastRenderedChunkCache = cacheString;
+        if (!this.setCacheString(semanticChunkRows)) return;
 
-        const chunkIncludedMap: any = {};
-        includes.forEach((include: any) => {
-            chunkIncludedMap[include.id] = include;
-        });
-        if (!semanticResults.matches || semanticResults.matches.length === 0) {
-            this.chunksTabulator.setData([]);
-            return;
-        }
-
-        await this.semanticCommon.fetchDocumentsLookup(semanticResults.matches.map((match: any) => match.id));
-        const chunkList: any[] = [];
-        const columnMap: any = {};
-        semanticResults.matches.forEach((match: any) => {
-            match.fullText = this.semanticCommon.lookupData[match.id];
-            if (!match.fullText) {
-                console.log(match.id, this.semanticCommon.lookupData);
-            }
-            const chunkDetails: any = {};
-            Object.assign(chunkDetails, match.metadata);
-            chunkDetails.id = match.id;
-            chunkDetails.text = match.fullText;
-            chunkDetails.include = chunkIncludedMap[match.id] ? true : false;
-            const keys = Object.keys(chunkDetails);
-            keys.forEach((key: string) => {
-                if (!columnMap[key]) {
-                    columnMap[key] = true;
-                }
-            });
-            chunkList.push(chunkDetails);
-        });
-        const columns = Object.keys(columnMap).map((key: string) => {
-            return { title: key, field: key, headerSort: false };
+        await this.semanticCommon.fetchDocumentsLookup(semanticChunkRows.map((row: any) => row.id));
+        this.chunksTabulator.setColumns(semanticChunkColumns);
+        const semanticChunkData: any[] = [];
+        semanticChunkRows.forEach((row: any) => {
+            const dataCopy = Object.assign({}, row);
+            semanticChunkData.push(dataCopy);
         });
 
-        this.chunksTabulator.setColumns(columns);
-        this.chunksTabulator.setData(chunkList);
-    }
-    async scrapeIncludeStatusOfChunks() {
-        let includes: any[] = [];
-        const semanticResults = await this.extCommon.getStorageField("semanticResults");
-        this.semantic_chunk_results_container.querySelectorAll(".semantic_result_include_checkbox").forEach((checkbox: any) => {
-            if (checkbox.checked) {
-                const matchId = checkbox.getAttribute("data-matchid");
-                const match = semanticResults.matches.find((m: any) => m.id === matchId);
-                includes.push(match);
+        //cache the included state as tabulator will clear it
+        await this.chunksTabulator.setData(semanticChunkData);
+        const tableRows = this.chunksTabulator.getRows();
+        tableRows.forEach((row: any, index: number) => {
+            const data = row.getData();
+            if (semanticChunkRows[index].include) {
+                row.select();
             }
         });
-        await chrome.storage.local.set({ semanticIncludeMatchIndexes: includes });
     }
     async addMetaFilter(metaField = "") {
         if (!metaField) {
@@ -376,32 +358,6 @@ export default class DataMillHelper {
             console.log("no overlap");
         return text + chunkText + " ";
     }
-    async processIncludedChunks(): Promise<any> {
-        const semanticResults = await this.extCommon.getStorageField("semanticResults");
-        const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
-
-        let includeK = this.semanticCommon.chunkSizeMeta.topK;
-        let halfK = Math.ceil(includeK / 2);
-        let semanticIncludeMatchIndexes: any[] = [];
-        // include K chunks as doc
-        if (embedIndex === 0) {
-            semanticIncludeMatchIndexes = semanticResults.matches.slice(0, includeK);
-            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
-            // include halfK doc w/ halfK chunks
-        } else if (embedIndex === 1) {
-            semanticIncludeMatchIndexes = semanticResults.matches.slice(0, halfK);
-            await this.semanticCommon.fetchDocumentsLookup(semanticIncludeMatchIndexes.map((match: any) => match.id));
-            // include 1 doc w includeK chunks
-        } else if (embedIndex === 2) {
-            const match = semanticResults.matches[0];
-            await this.semanticCommon.fetchDocumentsLookup([match.id]);
-        }
-        await chrome.storage.local.set({
-            semanticIncludeMatchIndexes,
-        });
-
-        return semanticIncludeMatchIndexes;
-    }
     async buildChunkEmbedText(message: string, semanticIncludeMatchIndexes: any[]): Promise<string> {
         const embedIndex = Number(await this.extCommon.getStorageField("selectedEmbeddingType")) || 0;
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
@@ -460,7 +416,6 @@ export default class DataMillHelper {
         return documentsEmbedText;
     }
     async embedPrompt(prompt: string): Promise<string> {
-        await this.processIncludedChunks();
         const semanticIncludeMatchIndexes = await this.extCommon.getStorageField("semanticIncludeMatchIndexes") || [];
         let documentsEmbedText = await this.buildChunkEmbedText(prompt, semanticIncludeMatchIndexes);
         const selectedSemanticPromptTemplate = await this.extCommon.getStorageField("selectedSemanticPromptTemplate") || "Answer with Doc Summary";
