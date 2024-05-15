@@ -72,9 +72,9 @@ export default function HistoryResult(props) {
         <div>
             <div className="flex-col items-start mx-1">
                 <div className="flex flex-1 justify-between">
-                    <a className="mt-1 history_source_url text-sm text-blue-500 truncate flex-1 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
+                    <a className="history_source_url text-blue-500 truncate flex-1 active:text-purple-500 focus:text-purple-500 self-center overflow-ellipsis" href={historyEntry.url}
                         target="_blank">{historyEntry.url}</a>
-                    <span className="text-xs text-gray-800 history_long_date time_since" data-timesince={historyEntry.runDate} data-timestyle="gmail"></span>
+                    <span className="time_since text-sm text-gray-800 history_long_date self-end" data-timesince={historyEntry.runDate} data-timestyle="gmail"></span>
                 </div>
             </div>
             <div className="p-2 flex-1 text-sm history_entry_text form-textarea-ts rounded overflow-y-auto whitespace-pre-wrap h-[125px] mb-2 px-1">
@@ -82,8 +82,8 @@ export default function HistoryResult(props) {
             </div>
             <div>
                 {setNamesArray.length > 0 && setNamesArray.map((setName, setIndex) => (
-                    <div className="flex flex-col history_entry_shadow_wrapper mb-3 rounded-b-md">
-                        <div className='flex flex-col bg-gray-100 text-gray-800 mb-1'>
+                    <div className="flex flex-col shadow-md mb-3 rounded-b-md">
+                        <div className='flex flex-col bg-gray-50 text-gray-800 mb-1'>
                             <div className="flex justify-between">
                                 <h3 className="p-2 flex-1 fs-5 rounded-md">{setName}</h3>
                                 <span className="history_index pr-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
