@@ -82,8 +82,8 @@ export default function HistoryResult(props) {
             </div>
             <div>
                 {setNamesArray.length > 0 && setNamesArray.map((setName, setIndex) => (
-                    <div className="flex flex-col shadow-inner mb-3 rounded-b-md">
-                        <div className='flex flex-col bg-gray-100 text-gray-800 mb-1 history_entry_shadow_wrapper'>
+                    <div className="flex flex-col history_entry_shadow_wrapper mb-3 rounded-b-md">
+                        <div className='flex flex-col bg-gray-100 text-gray-800 mb-1'>
                             <div className="flex justify-between">
                                 <h3 className="p-2 flex-1 fs-5 rounded-md">{setName}</h3>
                                 <span className="history_index pr-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
