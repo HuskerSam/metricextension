@@ -155,6 +155,24 @@ export class SemanticCommon {
     async getSelectedSemanticSource() {
         return (await this.extCommon.getStorageField("selectedSemanticSource")) || "song full lyrics chunk";
     }
+    async getPromptTemplates() {
+        const defaultPromptsNames = Object.keys(this.semanticPromptTemplatesMap);
+        const defaultPrompts = this.semanticPromptTemplatesMap[defaultPromptsNames[0]];
+        let promptTemplate = await this.extCommon.getStorageField("semanticQueryMainPromptTemplate");
+        let documentTemplate = await this.extCommon.getStorageField("semanticQueryDocumentPromptTemplate");
+        if (!promptTemplate) {
+            promptTemplate = defaultPrompts.mainPrompt;
+            await this.chrome.storage.local.set({ semanticQueryMainPromptTemplate: promptTemplate });
+        }
+        if (!documentTemplate) {
+            documentTemplate = defaultPrompts.documentPrompt;
+            await this.chrome.storage.local.set({ semanticQueryDocumentPromptTemplate: documentTemplate });
+        }
+        return {
+            promptTemplate,
+            documentTemplate,
+        };
+    }
     async semanticQuery(): Promise<any> {
         const message = await this.extCommon.getStorageField("semanticQueryText");
         await this.chrome.storage.local.set({
