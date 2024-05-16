@@ -33,6 +33,7 @@ export default class DataMillHelper {
     prompt_view_bottom_splitter = document.body.querySelector(".prompt_view_bottom_splitter") as HTMLDivElement;
     semantic_dropdown_menu = document.body.querySelector(".semantic_dropdown_menu") as HTMLDivElement;
     llm_prompt_template_reset_preset_button = document.body.querySelector(".llm_prompt_template_reset_preset_button") as HTMLButtonElement;
+    view_embedded_prompt_button = document.body.querySelector(".view_embedded_prompt_button") as HTMLButtonElement;
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
@@ -137,6 +138,9 @@ export default class DataMillHelper {
 
         this.semantic_dropdown_menu.addEventListener("click", (e: Event) => {
             e.stopPropagation();
+        });
+
+        this.view_embedded_prompt_button.addEventListener("click", async () => {
         });
     }
     async load() {
