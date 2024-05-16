@@ -34,7 +34,7 @@ export default class DataMillHelper {
     semantic_embedding_dropdown_menu = document.body.querySelector(".semantic_embedding_dropdown_menu") as HTMLDivElement;
     llm_prompt_template_reset_preset_button = document.body.querySelector(".llm_prompt_template_reset_preset_button") as HTMLButtonElement;
     semantic_display_monospace_checkbox = document.body.querySelector(".semantic_display_monospace_checkbox") as HTMLInputElement;
-    view_embedded_prompt_button = document.body.querySelector(".view_embedded_prompt_button") as HTMLButtonElement;
+    view_embedded_prompt_toggle = document.body.querySelector(".view_embedded_prompt_toggle") as HTMLInputElement;
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
@@ -145,7 +145,7 @@ export default class DataMillHelper {
         this.semantic_display_monospace_checkbox.addEventListener("input", async () => {
             await chrome.storage.local.set({ semanticDisplayMonospace: this.semantic_display_monospace_checkbox.checked });
         });
-        this.view_embedded_prompt_button.addEventListener("click", async () => this.viewEmbeddedPrompt());
+        this.view_embedded_prompt_toggle.addEventListener("input", async () => this.toggleViewEmbeddedPrompt());
     }
     async load() {
         await this.initSemanticSessionList();
@@ -154,12 +154,20 @@ export default class DataMillHelper {
     async paintData() {
         this.renderFilters();
         this.renderSearchChunks();
-        
+
         const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
         this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
 
-        const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
-        this.semantic_embedded_llm_response.innerText = llmResponse;
+
+        const semanticViewEmbeddedPrompt = await this.extCommon.getStorageField("semanticViewEmbeddedPrompt");
+        this.view_embedded_prompt_toggle.checked = semanticViewEmbeddedPrompt;
+        if (semanticViewEmbeddedPrompt) {
+            const embeddedHTMLDisplay = await this.semanticCommon.getEmbeddedPromptText(true);
+            this.semantic_embedded_llm_response.innerHTML = embeddedHTMLDisplay;
+        } else {
+            const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
+            this.semantic_embedded_llm_response.innerText = llmResponse;
+        }
 
         const semanticDisplayMonospace = await this.extCommon.getStorageField("semanticDisplayMonospace");
         if (semanticDisplayMonospace === true) {
@@ -185,9 +193,9 @@ export default class DataMillHelper {
             document.body.classList.remove("semantic_running");
         }
     }
-    async viewEmbeddedPrompt() {
-        const embeddedHTMLDisplay = await this.semanticCommon.getEmbeddedPromptText(true);
-        this.semantic_embedded_llm_response.innerHTML = embeddedHTMLDisplay;
+    async toggleViewEmbeddedPrompt() {
+        const semanticViewEmbeddedPrompt = await this.extCommon.getStorageField("semanticViewEmbeddedPrompt");
+        await chrome.storage.local.set({ semanticViewEmbeddedPrompt: !semanticViewEmbeddedPrompt });
     }
     async scrapeChunkRows(updateCache = true) {
         const tableRows = this.chunksTabulator.getRows();
