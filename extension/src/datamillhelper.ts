@@ -66,13 +66,13 @@ export default class DataMillHelper {
         this.viewSplitter = Split([this.top_semantic_view_splitter, this.bottom_semantic_view_splitter], {
             sizes: [50, 50],
             direction: 'horizontal',
-            gutterSize: 16,
+            gutterSize: 8,
         });
 
         this.promptSubSplitter = Split([this.prompt_view_top_splitter, this.prompt_view_bottom_splitter], {
             sizes: [50, 50],
             direction: 'vertical',
-            gutterSize: 16,
+            gutterSize: 8,
         });
 
         this.semantic_analyze_embedded_prompt_btn.addEventListener("click", async () => {

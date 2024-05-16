@@ -156,7 +156,7 @@ export default class BulkHelper {
                 sizes: [50, 50],
                 direction: 'vertical',
                 minSize: 100, // min size of both panes
-                gutterSize: 16,
+                gutterSize: 8,
             });
 
         this.bulkUrlListTabulator.on("cellClick", async (e: Event, cell: any) => {
