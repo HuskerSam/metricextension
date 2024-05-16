@@ -37,38 +37,6 @@ export class SemanticCommon {
     async getSemanticFilters() {
         return (await this.extCommon.getStorageField("selectedSemanticFilters")) || [];
     }
-    async getMatchingVectors(message: string, topK: number, apiToken: string, sessionId: string): Promise<any> {
-        const filter: any = {};
-        const selectedSemanticMetaFilters = await this.getSemanticFilters();
-        selectedSemanticMetaFilters.forEach((selectedFilter: any) => {
-            if (selectedFilter.operator === "$se") {
-                filter[selectedFilter.metaField] = { ["$eq"]: selectedFilter.value };
-            } else if (selectedFilter.operator === "$e") {
-                const value = Number(selectedFilter.value) || 0;
-                filter[selectedFilter.metaField] = { ["$eq"]: value };
-            } else {
-                filter[selectedFilter.metaField] = { [selectedFilter.operator]: Number(selectedFilter.value) };
-            }
-        });
-
-        const body = {
-            message,
-            apiToken,
-            sessionId,
-            topK,
-            filter,
-        };
-        const fetchResults = await fetch(this.queryUrl, {
-            method: "POST",
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
-        return await fetchResults.json();
-    }
     async fetchDocumentsLookup(idList: string[]) {
         const promises: any[] = [];
         const docIdMap: any = {};
@@ -149,8 +117,36 @@ export class SemanticCommon {
             apiToken = await this.chrome.storage.local.get('apiToken');
             apiToken = apiToken?.apiToken || "";
         }
-        const result = await this.getMatchingVectors(message, topK, apiToken, sessionId);
-        return result;
+        const filter: any = {};
+        const selectedSemanticMetaFilters = await this.getSemanticFilters();
+        selectedSemanticMetaFilters.forEach((selectedFilter: any) => {
+            if (selectedFilter.operator === "$se") {
+                filter[selectedFilter.metaField] = { ["$eq"]: selectedFilter.value };
+            } else if (selectedFilter.operator === "$e") {
+                const value = Number(selectedFilter.value) || 0;
+                filter[selectedFilter.metaField] = { ["$eq"]: value };
+            } else {
+                filter[selectedFilter.metaField] = { [selectedFilter.operator]: Number(selectedFilter.value) };
+            }
+        });
+
+        const body = {
+            message,
+            apiToken,
+            sessionId,
+            topK,
+            filter,
+        };
+        const fetchResults = await fetch(this.queryUrl, {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        });
+        return await fetchResults.json();
     }
     async getSelectedSemanticSource() {
         return (await this.extCommon.getStorageField("selectedSemanticSource")) || "song full lyrics chunk";
@@ -199,7 +195,19 @@ export class SemanticCommon {
         let includeK = Number(await this.extCommon.getStorageField("semanticIncludeK"));
         if (!includeK || includeK < 1) includeK = 5; 
         const columnMap: any = {};
-        semanticResults.matches.slice(0, includeK).forEach((match: any) => {
+        const usedDocuments: any = {};
+        const uniqueDocsChecked = (await this.extCommon.getStorageField("uniqueSemanticDocs")) === true;
+        const eligibleDocs: any[] = [];
+        semanticResults.matches.forEach((match: any) => {
+            const parts = match.id.split("_");
+            const docID = parts[0];
+            if (!usedDocuments[docID] || !uniqueDocsChecked) {
+                usedDocuments[docID] = true;
+                eligibleDocs.push(match);
+            }
+        });
+
+        eligibleDocs.slice(0, includeK).forEach((match: any) => {
             chunkIncludedMap[match.id] = true;
             Object.keys(match.metadata).forEach((key: string) => {
                 columnMap[key] = true;
@@ -270,22 +278,5 @@ export class SemanticCommon {
             semanticChunkColumns,
             semantic_running: false,
         });
-    }
-    async filterUniqueDocs(matches: any[]) {
-        const uniqueDocsChecked = (await this.extCommon.getStorageField("uniqueDocsChecked")) === true;
-        if (uniqueDocsChecked) {
-            let docMap: any = {};
-            let uniqueMatches: any[] = [];
-            matches.forEach((match: any) => {
-                const parts = match.id.split("_");
-                const docID = parts[0];
-                if (!docMap[docID]) {
-                    docMap[docID] = true;
-                    uniqueMatches.push(match);
-                }
-            });
-            matches = uniqueMatches;
-        }
-        return matches;
     }
 }

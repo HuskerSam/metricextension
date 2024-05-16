@@ -34,7 +34,11 @@ export default class DataMillHelper {
     semantic_dropdown_menu = document.body.querySelector(".semantic_dropdown_menu") as HTMLDivElement;
     semantic_embedding_dropdown_menu = document.body.querySelector(".semantic_embedding_dropdown_menu") as HTMLDivElement;
     llm_prompt_template_reset_preset_button = document.body.querySelector(".llm_prompt_template_reset_preset_button") as HTMLButtonElement;
+<<<<<<< HEAD
     semantic_display_monospace_checkbox = document.body.querySelector(".semantic_display_monospace_checkbox") as HTMLInputElement;
+=======
+    view_embedded_prompt_button = document.body.querySelector(".view_embedded_prompt_button") as HTMLButtonElement;
+>>>>>>> 3191113b761d8d6f05b16f65c175112467922ffd
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
@@ -140,11 +144,16 @@ export default class DataMillHelper {
         this.semantic_dropdown_menu.addEventListener("click", (e: Event) => {
             e.stopPropagation();
         });
+<<<<<<< HEAD
         this.semantic_embedding_dropdown_menu.addEventListener("click", (e: Event) => {
             e.stopPropagation();
         });
         this.semantic_display_monospace_checkbox.addEventListener("input", async () => {
             await chrome.storage.local.set({ semanticDisplayMonospace: this.semantic_display_monospace_checkbox.checked });
+=======
+
+        this.view_embedded_prompt_button.addEventListener("click", async () => {
+>>>>>>> 3191113b761d8d6f05b16f65c175112467922ffd
         });
     }
     async load() {
