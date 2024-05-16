@@ -5,7 +5,6 @@ import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
-import json from 'highlight.js/lib/languages/json';
 declare const chrome: any;
 declare const bootstrap: any;
 
