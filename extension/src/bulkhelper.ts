@@ -458,10 +458,11 @@ export default class BulkHelper {
         jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
         this.json_display_modal_content.innerHTML = this.highlightElement(jsonText);
     }
-    highlightElement(json: any) {
-        if (typeof json !== 'string') {
-            json = JSON.stringify(json, undefined, 2);
+    highlightElement(obj: any) {
+        if (typeof obj !== 'string') {
+            obj = JSON.stringify(obj, undefined, 2);
         }
+        let json: string = obj;
         json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
             var cls = 'number';

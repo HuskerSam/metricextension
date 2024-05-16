@@ -5,7 +5,7 @@ import BulkHelper from './bulkhelper';
 import PromptHelper from './prompthelper';
 import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
-import DataMillHelper from './datamillhelper';
+import SemanticHelper from './semantichelper';
 import NewsFeedView from "./newsfeed.jsx";
 import HistoryResult from './historyresult.jsx';
 import {
@@ -22,7 +22,7 @@ export default class MainPageApp {
     promptHelper: PromptHelper | null = null;
     historyHelper: HistoryHelper | null = null;
     settingsHelper: SettingsHelper | null = null;
-    dataMillHelper: DataMillHelper | null = null;
+    dataMillHelper: SemanticHelper | null = null;
     newsFeedContainer: React.ReactElement | null = null;
     historyResult: React.ReactElement | null = null;
     historyResultPrevious: React.ReactElement | null = null;
@@ -64,7 +64,7 @@ export default class MainPageApp {
         this.bulkHelper = new BulkHelper(this);
         this.promptHelper = new PromptHelper(this);
         this.historyHelper = new HistoryHelper(this);
-        this.dataMillHelper = new DataMillHelper(this);
+        this.dataMillHelper = new SemanticHelper(this);
         this.initEventHandlers();
         
         this.newsFeedContainer = React.createElement(NewsFeedView, {
