@@ -655,6 +655,10 @@ body {
   overflow-x: auto;
 }
 
+.tabulator_prompt_list_manager.custom_tabulator_styles .tabulator-tableholder {
+  overflow-x: hidden;
+}
+  
 .gutter {
   background-color: #eee;
   background-repeat: no-repeat;
@@ -662,6 +666,8 @@ body {
 }
 
 .gutter.gutter-vertical {
+  margin-left: 32px;
+  margin-right: 32px;
   border-radius: 8px;
   cursor: ns-resize;
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
@@ -670,13 +676,22 @@ body {
 .side_panel .gutter.gutter-vertical {
   margin-left: 8px;
   margin-right: 8px;
-  border-radius: 8px;
   cursor: ns-resize;
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+}
+
+#main_datamill_tab_view .gutter.gutter-vertical {
+  margin-left: 8px;
+  margin-right: 4px;
 }
 
 .gutter.gutter-horizontal {
   border-radius: 8px;
   cursor: ew-resize;
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+}
+
+#main_datamill_tab_view .gutter.gutter-horizontal {
+  margin-top: 52px;
+  margin-bottom: 56px;
 }
