@@ -69,26 +69,41 @@ chrome.runtime.onMessageExternal.addListener(
             const response = await m.serverScrapeUrl(url, options);
             sendResponse({ success: "url scraped", response });
         }
+        if (request.specialAction === 'runMetricAnalysis') {
+            const m = new MetricCommon(chrome);
+            const ext = new AnalyzerExtensionCommon(chrome);
+           // const activeTab = await chrome.tabs.getCurrent();
+            const scrapeResults: any = await m.scrapeBulkUrl({
+                scrape: "server scrape",
+                url: request.url,
+                options: '',
+            }, null);
+            let text = '';
+            if (scrapeResults && scrapeResults.text) text = scrapeResults.text;
+            text = text.slice(0, await ext.getEmbeddingCharacterLimit());
+            const results = await m.runAnalysisPrompts(text, request.url, null, request.promptSet, false, request.title);
+            sendResponse({ success: "analysis run", results });
+        }
     }
 );
 async function processAnalysisContextMenuAction(text: string, url: string) {
-    const metricCommon = new MetricCommon(chrome);    
+    const metricCommon = new MetricCommon(chrome);
     const extCommon = new AnalyzerExtensionCommon(chrome);
     let isAlreadyRunning = await metricCommon.setMetricsRunning(true);
     if (isAlreadyRunning) return;
 
     text = text.slice(0, await extCommon.getEmbeddingCharacterLimit());
     await chrome.storage.local.set({
-      sidePanelScrapeContent: text,
-      sidePanelSource: 'scrape',
-      sidePanelUrlSource: url,
-      sidePanelScrapeType: "cache"
+        sidePanelScrapeContent: text,
+        sidePanelSource: 'scrape',
+        sidePanelUrlSource: url,
+        sidePanelScrapeType: "cache"
     });
 
     await metricCommon.runAnalysisPrompts(text, url);
-  }
+}
 
-  async function processSemanticContextMenuAction(text: string, url: string) {
+async function processSemanticContextMenuAction(text: string, url: string) {
     const semanticCommon = new SemanticCommon(chrome);
     const extCommon = new AnalyzerExtensionCommon(chrome);
     let isAlreadyRunning = await semanticCommon.setSemanticRunning(true);
@@ -96,11 +111,11 @@ async function processAnalysisContextMenuAction(text: string, url: string) {
 
     text = text.slice(0, await extCommon.getEmbeddingCharacterLimit());
     await chrome.storage.local.set({
-      semanticQueryText: text,
-      semanticUrlSource: url,
-      semanticScrapeType: "cache"
+        semanticQueryText: text,
+        semanticUrlSource: url,
+        semanticScrapeType: "cache"
     });
     let selectedSemanticSource = await semanticCommon.getSelectedSemanticSource();
     await semanticCommon.selectSemanticSource(selectedSemanticSource, true);
     await semanticCommon.semanticQuery();
-  }
+}

@@ -1,5 +1,7 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import Mustache from 'mustache';
+import Papa from 'papaparse';
+
 
 export class MetricCommon {
     cloudScrapeUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/scrapeurl`;
@@ -71,14 +73,15 @@ export class MetricCommon {
             this.activeTabsBeingScraped[tabId] = resolve;
         });
     }
-    async scrapeTabPage(url: any, tabId: string) {
+    async scrapeTabPage(url: any, tabId: string | null) {
         return new Promise(async (resolve, reject) => {
 
             let tab = await this.chrome.tabs.create({
                 url
             });
-
-            this.chrome.tabs.update(tabId, { active: true })
+            if (tabId) {
+                this.chrome.tabs.update(tabId, { active: true })
+            } 
 
             await this.detectTabLoaded(tab.id);
             setTimeout(async () => {
@@ -100,7 +103,7 @@ export class MetricCommon {
             }, 3000);
         });
     }
-    async scrapeBulkUrl(bulkUrl: any, defaultTabId: string) {
+    async scrapeBulkUrl(bulkUrl: any, defaultTabId: string | null) {
         let scrape = bulkUrl.scrape;
         let url = bulkUrl.url || "";
         let options = bulkUrl.options || "";
@@ -215,7 +218,84 @@ export class MetricCommon {
                 error: err,
             };
         }
+    }  async runBulkAnalysis(rows: any[]) { 
+        const isAlreadyRunning = await this.extCommon.setBulkRunning();
+        if (isAlreadyRunning) {
+            if (confirm("Bulk analysis is already running. Do you want to continue?") === false) {
+                return;
+            }
+        }
+
+        let browserScrape = false;
+        rows.forEach((row: any) => {
+            if (row.scrape === "browser scrape") {
+                browserScrape = true;
+            }
+        });
+        if (browserScrape) {
+            if (confirm("Browser scraping is enabled. This will open tabs in your browser to scrape the pages. Do you want to continue?") === false) {
+                return;
+            }
+            await this.extCommon.enabledBrowserScrapePermissions();
+        }
+
+        const runId = new Date().toISOString();
+        let urls: string[] = [];
+        let promises: any[] = [];
+        const activeTab = await this.chrome.tabs.getCurrent();
+        rows.forEach((row: any) => {
+            urls.push(row.url);
+            promises.push(this.scrapeBulkUrl(row, activeTab.id));
+        });
+
+        let results = await Promise.all(promises);
+        let analysisPromises: any[] = [];
+        results.forEach((result: any, index: number) => {
+            let text = "";
+            if (result && result.text) text = result.text;
+            if (result && result.length > 0 && result[0].result) text = result[0].result;
+            if (!text) {
+                analysisPromises.push((async () => {
+                    return {
+                        text: "No text found in page",
+                        url: urls[index],
+                        results: [],
+                        runDate: new Date().toISOString(),
+                        title: "",
+                    };
+                })());
+            } else {
+                analysisPromises.push(
+                    (async () => {
+                        text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
+                        return this.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title);
+                    })());
+            }
+        });
+        let analysisResults = await Promise.all(analysisPromises);
+        const fullCloudUploadResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId + ".json", analysisResults);
+
+        const compactData = this.extCommon.processRawResultstoCompact(analysisResults);
+        const csv = Papa.unparse(compactData);
+        const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId, csv, "text/csv", "csv");
+
+        let bulkHistory = await this.chrome.storage.local.get('bulkHistory');
+        let bulkHistoryRangeLimit = await this.chrome.storage.local.get('bulkHistoryRangeLimit');
+        bulkHistoryRangeLimit = Number(bulkHistoryRangeLimit.bulkHistoryRangeLimit) || 100;
+        bulkHistory = bulkHistory.bulkHistory || [];
+        bulkHistory.unshift({
+            runId,
+            urls,
+            compactResultPath: compactResult.publicStorageUrlPath,
+            analysisResultPath: fullCloudUploadResult.publicStorageUrlPath,
+        });
+        bulkHistory = bulkHistory.slice(0, bulkHistoryRangeLimit);
+        await this.chrome.storage.local.set({
+            bulkHistory,
+            bulk_running: false,
+        });
     }
+
     async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
         if (text.length > 30000) text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
         const runDate = new Date().toISOString();

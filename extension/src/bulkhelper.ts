@@ -267,7 +267,7 @@ export default class BulkHelper {
             }
 
             let rows = this.bulkUrlListTabulator.getData();
-            await this.runBulkAnalysis(rows);
+            await this.metricCommon.runBulkAnalysis(rows);
         });
         this.download_url_list.addEventListener('click', async (e) => {
             if (this.bulkUrlListTabulator.getData().length === 0) {
@@ -394,83 +394,6 @@ export default class BulkHelper {
         });
         this.bulkUrlListTabulator.setData(bulkUrlList);
         await chrome.storage.local.set({ bulkUrlList });
-    }
-    async runBulkAnalysis(rows: any[]) { 
-        const isAlreadyRunning = await this.extCommon.setBulkRunning();
-        if (isAlreadyRunning) {
-            if (confirm("Bulk analysis is already running. Do you want to continue?") === false) {
-                return;
-            }
-        }
-
-        let browserScrape = false;
-        rows.forEach((row: any) => {
-            if (row.scrape === "browser scrape") {
-                browserScrape = true;
-            }
-        });
-        if (browserScrape) {
-            if (confirm("Browser scraping is enabled. This will open tabs in your browser to scrape the pages. Do you want to continue?") === false) {
-                return;
-            }
-            await this.extCommon.enabledBrowserScrapePermissions();
-        }
-
-        const runId = new Date().toISOString();
-        let urls: string[] = [];
-        let promises: any[] = [];
-        const activeTab = await chrome.tabs.getCurrent();
-        rows.forEach((row: any) => {
-            urls.push(row.url);
-            promises.push(this.metricCommon.scrapeBulkUrl(row, activeTab.id));
-        });
-
-        let results = await Promise.all(promises);
-        let analysisPromises: any[] = [];
-        results.forEach((result: any, index: number) => {
-            let text = "";
-            if (result && result.text) text = result.text;
-            if (result && result.length > 0 && result[0].result) text = result[0].result;
-            if (!text) {
-                analysisPromises.push((async () => {
-                    return {
-                        text: "No text found in page",
-                        url: urls[index],
-                        results: [],
-                        runDate: new Date().toISOString(),
-                        title: "",
-                    };
-                })());
-            } else {
-                analysisPromises.push(
-                    (async () => {
-                        text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
-                        return this.metricCommon.runAnalysisPrompts(text, urls[index], null, "selectedBulkAnalysisSets", false, result.title);
-                    })());
-            }
-        });
-        let analysisResults = await Promise.all(analysisPromises);
-        const fullCloudUploadResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId + ".json", analysisResults);
-
-        const compactData = this.extCommon.processRawResultstoCompact(analysisResults);
-        const csv = Papa.unparse(compactData);
-        const compactResult = await this.extCommon.writeCloudDataUsingUnacogAPI(runId, csv, "text/csv", "csv");
-
-        let bulkHistory = await chrome.storage.local.get('bulkHistory');
-        let bulkHistoryRangeLimit = await chrome.storage.local.get('bulkHistoryRangeLimit');
-        bulkHistoryRangeLimit = Number(bulkHistoryRangeLimit.bulkHistoryRangeLimit) || 100;
-        bulkHistory = bulkHistory.bulkHistory || [];
-        bulkHistory.unshift({
-            runId,
-            urls,
-            compactResultPath: compactResult.publicStorageUrlPath,
-            analysisResultPath: fullCloudUploadResult.publicStorageUrlPath,
-        });
-        bulkHistory = bulkHistory.slice(0, bulkHistoryRangeLimit);
-        await chrome.storage.local.set({
-            bulkHistory,
-            bulk_running: false,
-        });
     }
     async paintAnalysisHistory() {
         let bulkHistory = await chrome.storage.local.get('bulkHistory');
