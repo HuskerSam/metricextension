@@ -2,7 +2,6 @@ import { AnalyzerExtensionCommon } from './extensioncommon';
 import { SemanticCommon } from './semanticcommon';
 import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
-import Mustache from 'mustache';
 import Split from 'split.js';
 
 declare const chrome: any;
@@ -39,7 +38,6 @@ export default class DataMillHelper {
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
-    verboseDebugging = false;
     lastRenderedChunkCache = "";
 
     constructor(app: MainPageApp) {
@@ -147,6 +145,7 @@ export default class DataMillHelper {
         this.semantic_display_monospace_checkbox.addEventListener("input", async () => {
             await chrome.storage.local.set({ semanticDisplayMonospace: this.semantic_display_monospace_checkbox.checked });
         });
+        this.view_embedded_prompt_button.addEventListener("click", async () => this.viewEmbeddedPrompt());
     }
     async load() {
         await this.initSemanticSessionList();
@@ -185,6 +184,10 @@ export default class DataMillHelper {
         } else {
             document.body.classList.remove("semantic_running");
         }
+    }
+    async viewEmbeddedPrompt() {
+        const embeddedHTMLDisplay = await this.semanticCommon.getEmbeddedPromptText(true);
+        this.semantic_embedded_llm_response.innerHTML = embeddedHTMLDisplay;
     }
     async scrapeChunkRows(updateCache = true) {
         const tableRows = this.chunksTabulator.getRows();
@@ -359,7 +362,7 @@ export default class DataMillHelper {
             semanticLLMQueryResultText: "running...",
         });
 
-        const embeddedMessage = await this.getEmbeddedPromptText();
+        const embeddedMessage = await this.semanticCommon.getEmbeddedPromptText();
         const result = await this.extCommon.processPromptUsingUnacogAPI(embeddedMessage);
 
         await chrome.storage.local.set({
@@ -367,86 +370,5 @@ export default class DataMillHelper {
             semanticLLMQueryResult: result,
             semanticLLMQueryResultText: result.resultMessage,
         });
-    }
-    getSmallToBig(matchId: string, contextK: number): string {
-        const lookUpIndex = this.semanticCommon.lookUpKeys.indexOf(matchId);
-        let firstIndex = lookUpIndex - Math.floor(contextK / 2);
-        let lastIndex = lookUpIndex + Math.ceil(contextK / 2);
-        if (firstIndex < 0) firstIndex = 0;
-        if (lastIndex > this.semanticCommon.lookUpKeys.length - 1) lastIndex = this.semanticCommon.lookUpKeys.length - 1;
-        const parts = matchId.split("_");
-        const docID = parts[0];
-        let text = "";
-        for (let i = firstIndex; i <= lastIndex; i++) {
-            const chunkKey = this.semanticCommon.lookUpKeys[i];
-            if (!chunkKey) continue;
-            if (chunkKey.indexOf(docID) === 0) {
-                if (this.semanticCommon.lookupData[chunkKey]) {
-                    text = this.annexChunkWithoutOverlap(text, this.semanticCommon.lookupData[chunkKey]);
-                }
-            }
-        }
-        return text;
-    }
-    annexChunkWithoutOverlap(text: string, chunkText: string, searchDepth = 500): string {
-        let startPos = -1;
-        const l = Math.min(chunkText.length - 1, searchDepth);
-        for (let nextPos = 1; nextPos < l; nextPos++) {
-            const existingOverlap = text.slice(-1 * nextPos);
-            const nextOverlap = chunkText.slice(0, nextPos);
-            if (existingOverlap === nextOverlap) {
-                startPos = nextPos;
-                // break;
-            }
-        }
-        if (startPos > 0) {
-            if (this.verboseDebugging)
-                console.log("overlap", chunkText.slice(0, startPos), startPos);
-            return text + chunkText.slice(startPos) + " ";
-        }
-        if (this.verboseDebugging)
-            console.log("no overlap");
-        return text + chunkText + " ";
-    }
-    async buildChunkEmbedText(message: string, semanticChunkRows: any[]): Promise<string> {
-        let documentsEmbedText = "";
-        const contextK = Number(await this.extCommon.getStorageField("semanticContextK")) || 1;
-
-        const includedRows = semanticChunkRows.filter((row: any) => row.include);
-        const promptTemplates = await this.semanticCommon.getPromptTemplates();
-        await this.semanticCommon.fetchDocumentsLookup(includedRows.map((row: any) => row.id));
-        includedRows.forEach((row: any, index: number) => {
-            const merge = Object.assign({}, row);
-            merge.text = this.getSmallToBig(row.id, contextK);
-            merge.prompt = message;
-            if (!merge.text) {
-                console.log("missing merge", row.id, this.semanticCommon.lookupData)
-                merge.text = "";
-            }
-            merge.text = merge.text.replaceAll("\n", " ");
-            documentsEmbedText += Mustache.render(promptTemplates.documentTemplate, merge);
-        });
-
-        await chrome.storage.local.set({
-            documentsEmbedText,
-        });
-
-        return documentsEmbedText;
-    }
-    async getEmbeddedPromptText(): Promise<string> {
-        const message = await this.extCommon.getStorageField("semanticQueryText") || "";
-        if (!message) {
-            console.log("getEmbeddedPromptText: no message found in storage");
-        }
-        const semanticChunkRows = await this.extCommon.getStorageField("semanticChunkRows") || [];
-        let documentsEmbedText = await this.buildChunkEmbedText(message, semanticChunkRows);
-        const mainMerge = {
-            documents: documentsEmbedText,
-            prompt: message,
-        };
-        const promptTemplates = await this.semanticCommon.getPromptTemplates();
-        const promptT = promptTemplates.promptTemplate;
-        const mainPrompt = Mustache.render(promptT, mainMerge);
-        return mainPrompt;
     }
 }
