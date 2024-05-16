@@ -76,12 +76,22 @@
   }
   
 .document_embedded_chunk {
-    background: rgb(255, 255, 0);
+    background: rgb(255, 255, 200);
     border: solid 1px silver;
-    margin: 3px;
+    margin: 6px;
+    display: block;
 }  
 
 .documents_embed_section {
-    background: rgb(0, 240, 255);
-    padding: 3px;
+    background: rgb(240, 240, 255);
+    padding: 6px;
+    display: block;
 }
+
+
+.jsonformat pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+.jsonformat .string { color: green; }
+.jsonformat .number { color: darkorange; }
+.jsonformat .boolean { color: blue; }
+.jsonformat .null { color: magenta; }
+.jsonformat .key { color: red; }

@@ -316,15 +316,16 @@ export class SemanticCommon {
         }
         const semanticChunkRows = await this.extCommon.getStorageField("semanticChunkRows") || [];
         let documentsEmbedText = await this.buildChunkEmbedText(message, semanticChunkRows, includeSpanTags);
-        const mainMerge = {
-            documents: documentsEmbedText,
-            prompt: message,
-        };
+
         const promptTemplates = await this.getPromptTemplates();
         let promptT = promptTemplates.promptTemplate;
         if (includeSpanTags) {
             documentsEmbedText = `<span class="documents_embed_section">${documentsEmbedText}</span>`;
         }
+        const mainMerge = {
+            documents: documentsEmbedText,
+            prompt: message,
+        };
         const mainPrompt = Mustache.render(promptT, mainMerge);
         return mainPrompt;
     }

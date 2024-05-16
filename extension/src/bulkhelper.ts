@@ -5,7 +5,6 @@ import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
-import hljs from 'highlight.js';
 import json from 'highlight.js/lib/languages/json';
 declare const chrome: any;
 declare const bootstrap: any;
@@ -339,7 +338,6 @@ export default class BulkHelper {
                 this.paintAnalysisHistory();
             }
         });
-        hljs.registerLanguage('json', json);
         this.bulk_url_modal_source_options.addEventListener("input", async () => {
             const optionsMap = AnalyzerExtensionCommon.processOptions(this.bulk_url_modal_source_options.value);
             if (optionsMap.url && this.bulk_modal_input_url.value.trim() === "") {
@@ -459,8 +457,28 @@ export default class BulkHelper {
         let jsonFetchResult = await fetch(bulkHistoryItem.analysisResultPath);
         let jsonText = await jsonFetchResult.text();
         jsonText = JSON.stringify(JSON.parse(jsonText), null, 2);
-        this.json_display_modal_content.innerText = jsonText;
-        hljs.highlightElement(this.json_display_modal_content);
+        this.json_display_modal_content.innerHTML = this.highlightElement(jsonText);
+    }
+    highlightElement(json: any) {
+        if (typeof json !== 'string') {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
     }
     async paintBulkURLList(forceUpdate = false) {
         //only continue if debounce timer is up
