@@ -32,7 +32,9 @@ export default class DataMillHelper {
     prompt_view_top_splitter = document.body.querySelector(".prompt_view_top_splitter") as HTMLDivElement;
     prompt_view_bottom_splitter = document.body.querySelector(".prompt_view_bottom_splitter") as HTMLDivElement;
     semantic_dropdown_menu = document.body.querySelector(".semantic_dropdown_menu") as HTMLDivElement;
+    semantic_embedding_dropdown_menu = document.body.querySelector(".semantic_embedding_dropdown_menu") as HTMLDivElement;
     llm_prompt_template_reset_preset_button = document.body.querySelector(".llm_prompt_template_reset_preset_button") as HTMLButtonElement;
+    semantic_display_monospace_checkbox = document.body.querySelector(".semantic_display_monospace_checkbox") as HTMLInputElement;
     viewSplitter: Split.Instance;
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
@@ -138,19 +140,35 @@ export default class DataMillHelper {
         this.semantic_dropdown_menu.addEventListener("click", (e: Event) => {
             e.stopPropagation();
         });
+        this.semantic_embedding_dropdown_menu.addEventListener("click", (e: Event) => {
+            e.stopPropagation();
+        });
+        this.semantic_display_monospace_checkbox.addEventListener("input", async () => {
+            await chrome.storage.local.set({ semanticDisplayMonospace: this.semantic_display_monospace_checkbox.checked });
+        });
     }
     async load() {
         await this.initSemanticSessionList();
 
-        const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
-        this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
     }
     async paintData() {
         this.renderFilters();
         this.renderSearchChunks();
+        
+        const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
+        this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
 
         const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
         this.semantic_embedded_llm_response.innerText = llmResponse;
+
+        const semanticDisplayMonospace = await this.extCommon.getStorageField("semanticDisplayMonospace");
+        if (semanticDisplayMonospace === true) {
+            this.semantic_display_monospace_checkbox.checked = true;
+            document.body.classList.add("semantic_display_monospace");
+        } else {
+            this.semantic_display_monospace_checkbox.checked = false;
+            document.body.classList.remove("semantic_display_monospace");
+        }
 
         await this.extCommon.getFieldFromStorage(this.semantic_query_textarea, "semanticQueryText");
         await this.extCommon.getFieldFromStorage(this.semantic_top_k_input, "semanticTopK");

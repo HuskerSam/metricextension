@@ -41,28 +41,30 @@
           Scrape
         </button>
         <div
-          class="sidepanel_dropdown_menu dropdown-menu w-[400px] h-[440px] overflow-y-auto shadow-xl border-gray-300 border-2">
+          class="sidepanel_dropdown_menu dropdown-menu w-[400px] overflow-y-auto shadow-xl border-gray-300 border-2">
           <div class="p-2">
             <div class="block">
               <div class="mb-3 mx-2">
-                <p class="form-input-label-ts mb-2">Optional memo</p>
+                <p class="form-input-label-ts mb-1">Optional memo</p>
                 <input type="text" class="analysis_run_label form-input-ts text-sm py-2"
                   placeholder="Enter custom label...">
               </div>
               <div class="my-3 mx-2">
-                <p class="form-input-label-ts mb-2">Select method</p>
-                <label
-                  class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
-                  <input type="radio" name="scrape_type" value="server scrape" class="server_scrape_type mr-1">Server
-                </label>
-                <label
-                  class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
-                  <input type="radio" name="scrape_type" value="browser scrape" class="browser_scrape_type mr-1">Browser <br>
-                  <span class="text-xs pt-1">External host access permission required.</span>
-                </label>
+                <p class="form-input-label-ts mb-1">Select method</p>
+                <div class="flex flex-col">
+                  <label
+                    class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
+                    <input type="radio" name="scrape_type" value="server scrape" class="server_scrape_type mr-1">Server
+                  </label>
+                  <label
+                    class="text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md px-1 py-1 text-sm font-medium">
+                    <input type="radio" name="scrape_type" value="browser scrape" class="browser_scrape_type mr-1">Browser <br>
+                    <span class="text-xs pt-1">External host access permission required.</span>
+                  </label>
+                </div>
               </div>
               <div class="my-3 mx-2">
-                <p class="form-input-label-ts mb-2">Specify elements</p>
+                <p class="form-input-label-ts mb-1">Specify elements</p>
                 <input type="text" name="scrape-website-options" class="url_source_options form-input-ts"
                   placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
               </div>

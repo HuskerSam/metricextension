@@ -49,3 +49,29 @@
 .semantic_running .semantic_display_results_running {
     display: block;
 }
+
+.llm_prompt_template_text_area,
+.llm_document_template_text_area,
+.semantic_embedded_llm_response {
+    font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.semantic_display_monospace .llm_prompt_template_text_area,
+.semantic_display_monospace .llm_document_template_text_area,
+.semantic_display_monospace .semantic_embedded_llm_response {
+    font-family: 'Lucida Console', Monaco, monospace;
+}
+
+.tabulator-header-contents .tabulator-headers .tabulator-frozen,
+.tabulator-header-contents .tabulator-headers .tabulator-col {
+    background-color: rgb(245, 245, 245);
+}
+
+#main_datamill_tab_view .tabulator-tableholder {
+    background-color: rgb(245, 245, 245);
+}
+
+#main_datamill_tab_view .prompt_list_editor .tabulator-tableholder {
+    overflow-x: auto;
+  }
+  

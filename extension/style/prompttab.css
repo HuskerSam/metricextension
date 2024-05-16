@@ -1,25 +1,4 @@
 
-.prompt_list_editor {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--font-size-small);
-  }
-  
-  .prompt_list_editor th,
-  .prompt_list_editor td {
-    padding: var(--spacing-medium);
-    border: 1px solid var(--border-color);
-  }
-  
-  .prompt_list_editor th {
-    background-color: var(--light-color);
-    font-weight: bold;
-    text-align: left;
-  }
-  
-  .prompt_list_editor tr:nth-child(even) {
-    background-color: var(--background-color);
-  }
   
   .prompt_controls {
     display: flex;

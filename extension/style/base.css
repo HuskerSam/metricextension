@@ -8,7 +8,7 @@
   }
 
   .btn-ts-secondary {
-    @apply inline-flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50;
+    @apply inline-flex items-center justify-center rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50;
   }
 
   .btn-ts-primary {
@@ -184,12 +184,6 @@ body {
 
 .status_container {
   flex: 1;
-}
-
-.analysis_actions {
-  display: flex;
-  flex-direction: row;
-  gap: var(--spacing-medium);
 }
 
 .analysis_output {
@@ -458,10 +452,6 @@ body {
     display: none;
   }
 
-  .analysis_actions {
-    gap: var(--spacing-medium);
-  }
-
   .footer_row {
     flex-direction: column;
     gap: var(--spacing-medium);
@@ -643,4 +633,40 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: #9ca3af;
+}
+
+.custom_tabulator_styles {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+.custom_tabulator_styles th,
+.custom_tabulator_styles td {
+  padding: var(--spacing-medium);
+  border: 1px solid var(--border-color);
+}
+
+.custom_tabulator_styles th {
+  background-color: var(--light-color);
+  font-weight: bold;
+  text-align: left;
+}
+
+.custom_tabulator_styles tr:nth-child(even) {
+  background-color: var(--background-color);
+}
+
+.custom_tabulator_styles .tabulator-header-contents .tabulator-headers .tabulator-frozen,
+.tabulator-header-contents .tabulator-headers .tabulator-col {
+  background-color: rgb(245, 245, 245);
+}
+
+.tabulator .tabulator-tableholder,
+.custom_tabulator_styles .tabulator-tableholder {
+  background-color: rgb(245, 245, 245);
+}
+
+.custom_tabulator_styles .tabulator-tableholder {
+  overflow-x: auto;
 }
