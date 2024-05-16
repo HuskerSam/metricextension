@@ -1,6 +1,7 @@
 import chunkSizeMetaData from './dmdefaultindexes.json';
 import semanticPromptTemplates from '../defaults/semanticPromptTemplates.json';
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import Mustache from 'mustache';
 
 export class SemanticCommon {
     queryUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/vectorquery`;
@@ -278,5 +279,89 @@ export class SemanticCommon {
             semanticChunkColumns,
             semantic_running: false,
         });
+    }
+    async buildChunkEmbedText(message: string, semanticChunkRows: any[], includeSpanTags = false): Promise<string> {
+        let documentsEmbedText = "";
+        const contextK = Number(await this.extCommon.getStorageField("semanticContextK")) || 1;
+
+        const includedRows = semanticChunkRows.filter((row: any) => row.include);
+        const promptTemplates = await this.getPromptTemplates();
+        await this.fetchDocumentsLookup(includedRows.map((row: any) => row.id));
+        let documentTemplate = promptTemplates.documentTemplate;
+        if (includeSpanTags) {
+            documentTemplate = `<span class="document_embedded_chunk">${documentTemplate}</span>`;
+        }
+        includedRows.forEach((row: any, index: number) => {
+            const merge = Object.assign({}, row);
+            merge.text = this.getSmallToBig(row.id, contextK);
+            merge.prompt = message;
+            if (!merge.text) {
+                console.log("missing merge", row.id, this.lookupData)
+                merge.text = "";
+            }
+            merge.text = merge.text.replaceAll("\n", " ");
+            documentsEmbedText += Mustache.render(documentTemplate, merge);
+        });
+
+        await this.chrome.storage.local.set({
+            documentsEmbedText,
+        });
+
+        return documentsEmbedText;
+    }
+    async getEmbeddedPromptText(includeSpanTags = false): Promise<string> {
+        const message = await this.extCommon.getStorageField("semanticQueryText") || "";
+        if (!message) {
+            console.log("getEmbeddedPromptText: no message found in storage");
+        }
+        const semanticChunkRows = await this.extCommon.getStorageField("semanticChunkRows") || [];
+        let documentsEmbedText = await this.buildChunkEmbedText(message, semanticChunkRows, includeSpanTags);
+        const mainMerge = {
+            documents: documentsEmbedText,
+            prompt: message,
+        };
+        const promptTemplates = await this.getPromptTemplates();
+        let promptT = promptTemplates.promptTemplate;
+        if (includeSpanTags) {
+            documentsEmbedText = `<span class="documents_embed_section">${documentsEmbedText}</span>`;
+        }
+        const mainPrompt = Mustache.render(promptT, mainMerge);
+        return mainPrompt;
+    }
+    getSmallToBig(matchId: string, contextK: number): string {
+        const lookUpIndex = this.lookUpKeys.indexOf(matchId);
+        let firstIndex = lookUpIndex - Math.floor(contextK / 2);
+        let lastIndex = lookUpIndex + Math.ceil(contextK / 2);
+        if (firstIndex < 0) firstIndex = 0;
+        if (lastIndex > this.lookUpKeys.length - 1) lastIndex = this.lookUpKeys.length - 1;
+        const parts = matchId.split("_");
+        const docID = parts[0];
+        let text = "";
+        for (let i = firstIndex; i <= lastIndex; i++) {
+            const chunkKey = this.lookUpKeys[i];
+            if (!chunkKey) continue;
+            if (chunkKey.indexOf(docID) === 0) {
+                if (this.lookupData[chunkKey]) {
+                    text = this.annexChunkWithoutOverlap(text, this.lookupData[chunkKey]);
+                }
+            }
+        }
+        return text;
+    }
+    annexChunkWithoutOverlap(text: string, chunkText: string, searchDepth = 500): string {
+        let startPos = -1;
+        const l = Math.min(chunkText.length - 1, searchDepth);
+        for (let nextPos = 1; nextPos < l; nextPos++) {
+            const existingOverlap = text.slice(-1 * nextPos);
+            const nextOverlap = chunkText.slice(0, nextPos);
+            if (existingOverlap === nextOverlap) {
+                startPos = nextPos;
+                // break;
+            }
+        }
+        if (startPos > 0) {
+            return text + chunkText.slice(startPos) + " ";
+        }
+        return text + chunkText + " ";
     }
 }

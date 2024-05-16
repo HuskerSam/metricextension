@@ -1,17 +1,17 @@
 [
     {
         "title": "Answer with Doc Summary",
-        "mainPrompt": "Given the context information below and without prior knowledge, please answer the query.\nContext:{{documents}}\n\nQuery: {{prompt}}\n\nOverall Response to Query based on all documents:\n\nIn addition, respond for each document using the following format:\nTitle:\nSummary:",
+        "mainPrompt": "Given the context information below and without prior knowledge, please answer the query.\nContext:{{{documents}}}\n\nQuery: {{prompt}}\n\nOverall Response to Query based on all documents:\n\nIn addition, respond for each document using the following format:\nTitle:\nSummary:",
         "documentPrompt": "Title: {{title}}:\n{{text}}\n\n"
     },
     {
         "title": "OpenAI Cookbook Primitive",
-        "mainPrompt": "Answer the question based on the context below.\nContext:\n{{documents}}\nQuestion: {{prompt}}\nAnswer:",
+        "mainPrompt": "Answer the question based on the context below.\nContext:\n{{{documents}}}\nQuestion: {{prompt}}\nAnswer:",
         "documentPrompt": "Question: {{prompt}}\nAnswer: {{text}}\n"
     },
     {
         "title": "Answer with Doc Keywords",
-        "mainPrompt": "Given the context information below and without prior knowledge, please answer the query.\nContext:{{documents}}\nQuery: {{prompt}}\n\nProvide title and a list of keywords for each document:",
+        "mainPrompt": "Given the context information below and without prior knowledge, please answer the query.\nContext:{{{documents}}}\nQuery: {{prompt}}\n\nProvide title and a list of keywords for each document:",
         "documentPrompt": "Title: {{title}}:\n{{text}}\n"
     }
 ]

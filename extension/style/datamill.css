@@ -75,3 +75,13 @@
     overflow-x: auto;
   }
   
+.document_embedded_chunk {
+    background: rgb(255, 255, 0);
+    border: solid 1px silver;
+    margin: 3px;
+}  
+
+.documents_embed_section {
+    background: rgb(0, 240, 255);
+    padding: 3px;
+}
