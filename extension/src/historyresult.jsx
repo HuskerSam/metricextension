@@ -49,7 +49,7 @@ export default function HistoryResult(props) {
             let metric = json.contentRating;
             return metric;
         } catch (err) {
-            console.log("Error parsing metric result", err, resultMessage);
+     //       console.log("Error parsing metric result", err, resultMessage);
             return -1;
         }
     }

@@ -96,6 +96,7 @@
       </div>
       <textarea
         class="llm_prompt_template_text_area w-auto form-textarea-ts flex-2 p-2 my-2 ml-2 resize-none"></textarea>
+        <p class="form-input-label-ts pr-3 text-end text-gray-400 text-xs">Use {{{ }}} to embed raw html. Use {{ }} to embed encoded html.</p>
       <textarea
         class="llm_document_template_text_area form-textarea-ts flex-1 w-auto p-2 my-2 ml-2 resize-none"></textarea>
     </div>
@@ -104,7 +105,7 @@
       <div class="flex-1 overflow-auto hidden">
         <span class="onboarding_text">Enter a prompt to begin.</span>
       </div>
-      <div class="py-2 px-1 text-right border-t border-gray-400 mx-3">
+      <div class="py-2 px-1 text-right border-t border-gray-400 mx-2">
         <label class="form-input-label-ts float-start">
           <input type="checkbox" class="view_embedded_prompt_toggle form-input-checkbox-ts">&nbsp;
           <span>View Embedded Prompt</span>

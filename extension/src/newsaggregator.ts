@@ -26,7 +26,7 @@ export default class NewsAggregator {
                     const response = await this.metricCommon.serverScrapeUrl(newsSiteOptions.url, newsSite);
                     return { response, url: newsSiteOptions.url };
                 } catch (e: any) {
-                    console.log("serverScrapeUrl error", e.message);
+            //        console.log("serverScrapeUrl error", e.message);
                     return {
                         success: false,
                         message: e.message,
@@ -50,7 +50,6 @@ export default class NewsAggregator {
                 });
             }
         });
-        console.log("promptsList", promptsList);
         const metricRows: any[] = [];
         promptsList.forEach((prompt: any) => {
 
@@ -61,9 +60,7 @@ export default class NewsAggregator {
                 scrape: "broswer scrape",
             });
         });
-        console.log("metricRows", metricRows);
 
         const bulkResults = await this.metricCommon.runBulkAnalysis(metricRows);
-        console.log("bulkResults", bulkResults);
     }
 }
