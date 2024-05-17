@@ -12,4 +12,4 @@
 
 -Safelisting can be a a last-resort where it’s impossible to scan certain content for class names
 
-##### This project uses https://heroicons.com/ for svg icons
+##### This project uses https://heroicons.com/ for svg icons 
