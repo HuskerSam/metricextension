@@ -9,7 +9,6 @@ export default class PromptHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
     metricCommon: MetricCommon;
-    viewSplitter: Split.Instance;
     leftrightSplitter: Split.Instance;
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
     prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
@@ -18,7 +17,6 @@ export default class PromptHelper {
     test_modal = document.querySelector('.test_modal') as HTMLDivElement;
     create_prompt_tab = document.getElementById('create-prompt-tab') as HTMLButtonElement;
     prompt_id_input = document.querySelector('.prompt_id_input') as HTMLInputElement;
-    prompt_description = document.querySelector('.prompt_description') as HTMLInputElement;
     template_type = document.querySelector('.template_type') as HTMLInputElement;
     prompt_template_text = document.querySelector('.prompt_template_text') as HTMLInputElement;
     user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
@@ -31,8 +29,6 @@ export default class PromptHelper {
     fileInput = document.getElementById('prompt_list_file_input') as HTMLInputElement;
     tabulator_prompt_list_manager = document.querySelector('.tabulator_prompt_list_manager') as HTMLDivElement;
     exportButton = document.querySelector('.prompt_list_export_rows') as HTMLButtonElement;
-    prompt_manager_lower_pane = document.querySelector('.prompt_manager_lower_pane') as HTMLDivElement;
-    prompt_manager_upper_pane = document.querySelector('.prompt_manager_upper_pane') as HTMLDivElement;
     prompt_manager_left_pane = document.querySelector('.prompt_manager_left_pane') as HTMLDivElement;
     prompt_manager_right_pane = document.querySelector('.prompt_manager_right_pane') as HTMLDivElement;
     prompt_helper_save_prompt_button = document.querySelector('.prompt_helper_save_prompt_button') as HTMLButtonElement;
@@ -51,12 +47,6 @@ export default class PromptHelper {
             {
                 sizes: [50, 50],
                 direction: 'horizontal',
-                gutterSize: 8,
-            });
-        this.viewSplitter = Split([this.prompt_manager_upper_pane, this.prompt_manager_lower_pane],
-            {
-                sizes: [60, 40],
-                direction: 'vertical',
                 gutterSize: 8,
             });
        
@@ -213,7 +203,6 @@ export default class PromptHelper {
         this.promptsTable.on("rowSelected", (row: any) => {
             const prompt = row.getData();
             this.prompt_id_input.value = prompt.id;
-            this.prompt_description.value = prompt.description;
             this.template_type.value = prompt.promptType;
             this.prompt_template_text.value = prompt.prompt;
             this.prompt_setname_input.value = prompt.setName;
@@ -363,7 +352,6 @@ export default class PromptHelper {
     }
     async savePromptToLibrary() {
         let promptId = this.prompt_id_input.value.trim();
-        let promptDescription = this.prompt_description.value.trim();
         let promptSuggestion = this.wizard_input_prompt.value.trim();
         let templateType = this.template_type.value;
         let promptTemplate = this.prompt_template_text.value.trim();
@@ -375,7 +363,7 @@ export default class PromptHelper {
         let promptType = "text";
         if (templateType === 'metric') promptType = "metric";
         if (templateType === 'json') promptType = "json";
-        let prompt = { id: promptId, description: promptDescription, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
+        let prompt = { id: promptId, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
         let promptTemplateList = await this.promptsTable.getData();
         const existingIndex = Number(this.prompt_row_index.value) - 1;
         if (this.save_override_checkbox.checked) {

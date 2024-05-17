@@ -71,7 +71,7 @@
     background-color: rgb(245, 245, 245);
 }
 
-#main_datamill_tab_view .prompt_list_editor .tabulator-tableholder {
+#main_datamill_tab_view .prompt_list_editor_style .tabulator-tableholder {
     overflow-x: auto;
   }
   

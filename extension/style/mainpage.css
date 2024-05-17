@@ -23,7 +23,7 @@
     margin-right: var(--spacing-small);
 }
 
-.prompt_list_editor .tabulator-row.tabulator-group {
+.prompt_list_editor_style .tabulator-row.tabulator-group {
     background-color: var(--background-color);
     border-right: none;
     border-top: none;
@@ -35,7 +35,7 @@
     align-items: center;
 }
 
-.prompt_list_editor .tabulator-row.tabulator-group .tabulator-group-toggle {
+.prompt_list_editor_style .tabulator-row.tabulator-group .tabulator-group-toggle {
     padding: 4px;
 }
 
@@ -49,6 +49,6 @@
     height: 40px;
 }
 
-#main_bulk_tab_view .prompt_list_editor .tabulator-row .tabulator-cell.tabulator-row-handle {
+#main_bulk_tab_view .prompt_list_editor_style .tabulator-row .tabulator-cell.tabulator-row-handle {
     background: white;
 }
