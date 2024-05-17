@@ -239,52 +239,6 @@ export class AnalyzerExtensionCommon {
     }
     return compactData;
   }
-  async getDefaultAnalysisPrompts() {
-    const promptListFile = await fetch("/defaults/promptDefaultsList.json");
-    const defaultPromptList = await promptListFile.json();
-    const promises: any[] = [];
-    defaultPromptList.forEach((url: string) => {
-      promises.push((async (url) => {
-        let promptQuery = await fetch("/defaults/" + url + ".json");
-        let defaultPrompts = await promptQuery.json();
-        const allPrompts: any[] = [];
-        defaultPrompts.forEach((prompt: any) => {
-          prompt.setName = url;
-          allPrompts.push(prompt);
-        });
-        return allPrompts;
-      })(url));
-    });
-    const defaultPrompts = await Promise.all(promises);
-    const resultPrompts: any[] = [];
-    defaultPrompts.forEach((promptList, index) => {
-      promptList.forEach((prompt: any) => {
-        resultPrompts.push(prompt);
-      });
-    });
-    return resultPrompts;
-  }
-  async getAnalysisPrompts() {
-    let prompts = await this.getDefaultAnalysisPrompts();
-    prompts = this.processPromptRows(prompts);
-    let rawData = await this.chrome.storage.local.get('masterAnalysisList');
-    if (rawData && rawData.masterAnalysisList && Object.keys(rawData.masterAnalysisList).length > 0) {
-      prompts = rawData.masterAnalysisList;
-    }
-    return prompts;
-  }
-  async getAnalysisSetNames() {
-    let allPrompts = await this.getAnalysisPrompts();
-    let analysisSets: any = {};
-    allPrompts.forEach((prompt) => {
-      if (!analysisSets[prompt.setName]) {
-        analysisSets[prompt.setName] = [];
-      }
-      analysisSets[prompt.setName].push(prompt);
-    });
-
-    return Object.keys(analysisSets);
-  }
   async setBulkRunning() {
     let bulk_running = await this.chrome.storage.local.get('bulk_running');
     if (bulk_running && bulk_running.bulk_running) {
@@ -463,12 +417,6 @@ export class AnalyzerExtensionCommon {
   async setFieldToStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string) {
     let value = domInput.value;
     await this.chrome.storage.local.set({ [storageKey]: value });
-  }
-  processPromptRows(rows: any[]): any[] {
-    rows.forEach((row: any) => {
-      if (!row.promptType) row.promptType = 'metric';
-    });
-    return rows;
   }
   async enabledBrowserScrapePermissions() {
     // Permissions must be requested from inside a user gesture, like a button's

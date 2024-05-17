@@ -301,7 +301,7 @@ export class MetricCommon {
         const runDate = new Date().toISOString();
 
         let prompts: any = [];
-        let analysisPrompts: any = await this.extCommon.getAnalysisPrompts();
+        let analysisPrompts: any = await this.getAnalysisPrompts();
         let selectedAnalysisSets: any = await this.chrome.storage.local.get(selectedSetName);
         if (promptToUse) {
             prompts = [promptToUse];
@@ -376,4 +376,56 @@ export class MetricCommon {
         });
         return false;
     }
+    async getDefaultAnalysisPrompts() {
+        const promptListFile = await fetch("/defaults/promptDefaultsList.json");
+        const defaultPromptList = await promptListFile.json();
+        const promises: any[] = [];
+        defaultPromptList.forEach((url: string) => {
+          promises.push((async (url) => {
+            let promptQuery = await fetch("/defaults/" + url + ".json");
+            let defaultPrompts = await promptQuery.json();
+            const allPrompts: any[] = [];
+            defaultPrompts.forEach((prompt: any) => {
+              prompt.setName = url;
+              allPrompts.push(prompt);
+            });
+            return allPrompts;
+          })(url));
+        });
+        const defaultPrompts = await Promise.all(promises);
+        const resultPrompts: any[] = [];
+        defaultPrompts.forEach((promptList, index) => {
+          promptList.forEach((prompt: any) => {
+            resultPrompts.push(prompt);
+          });
+        });
+        return resultPrompts;
+      }
+      async getAnalysisPrompts() {
+        let prompts = await this.getDefaultAnalysisPrompts();
+        prompts = this.processPromptRows(prompts);
+        let rawData = await this.chrome.storage.local.get('masterAnalysisList');
+        if (rawData && rawData.masterAnalysisList && Object.keys(rawData.masterAnalysisList).length > 0) {
+          prompts = rawData.masterAnalysisList;
+        }
+        return prompts;
+      }
+      async getAnalysisSetNames() {
+        let allPrompts = await this.getAnalysisPrompts();
+        let analysisSets: any = {};
+        allPrompts.forEach((prompt) => {
+          if (!analysisSets[prompt.setName]) {
+            analysisSets[prompt.setName] = [];
+          }
+          analysisSets[prompt.setName].push(prompt);
+        });
+    
+        return Object.keys(analysisSets);
+      }
+      processPromptRows(rows: any[]): any[] {
+        rows.forEach((row: any) => {
+          if (!row.promptType) row.promptType = 'metric';
+        });
+        return rows;
+      }
 }

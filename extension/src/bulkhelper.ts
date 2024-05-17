@@ -493,7 +493,7 @@ export default class BulkHelper {
 
         this.bulkUrlListTabulator.setData(allUrls);
 
-        const setNames = await this.extCommon.getAnalysisSetNames();
+        const setNames = await this.metricCommon.getAnalysisSetNames();
         let html = "";
         setNames.forEach((setName) => {
             html += `<option value="${setName}">${setName}</option>`;

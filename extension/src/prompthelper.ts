@@ -1,4 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import { MetricCommon } from './metriccommon';
 import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
 import Split from 'split.js';
@@ -7,6 +8,7 @@ declare const chrome: any;
 export default class PromptHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
+    metricCommon: MetricCommon;
     viewSplitter: Split.Instance;
     leftrightSplitter: Split.Instance;
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
@@ -39,10 +41,12 @@ export default class PromptHelper {
     prompt_template_tab = document.querySelector('.prompt_template_tab') as HTMLDivElement;
     wizard_template_tab = document.querySelector('.wizard_template_tab') as HTMLDivElement;
     promptsTable: TabulatorFull;
+    lastRenderedPromptsList = "";
 
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
+        this.metricCommon = app.metricCommon;
         this.leftrightSplitter = Split([this.prompt_manager_left_pane, this.prompt_manager_right_pane],
             {
                 sizes: [50, 50],
@@ -164,7 +168,7 @@ export default class PromptHelper {
                 let promptTemplateList = JSON.parse(e.target.result);
                 let existingPrompts = await this.promptsTable.getData();
                 promptTemplateList = existingPrompts.concat(promptTemplateList);
-                promptTemplateList = this.extCommon.processPromptRows(promptTemplateList);
+                promptTemplateList = this.metricCommon.processPromptRows(promptTemplateList);
                 await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
                 this.hydrateAllPromptRows();
                 this.fileInput.value = ''; // Reset the file input value
@@ -210,7 +214,7 @@ export default class PromptHelper {
             const prompt = row.getData();
             this.prompt_id_input.value = prompt.id;
             this.prompt_description.value = prompt.description;
-            this.template_type.value = prompt.templateType;
+            this.template_type.value = prompt.promptType;
             this.prompt_template_text.value = prompt.prompt;
             this.prompt_setname_input.value = prompt.setName;
             this.wizard_input_prompt.value = prompt.promptSuggestion;
@@ -239,7 +243,12 @@ export default class PromptHelper {
             this.prompt_template_tab.style.display = 'none';
         }
     }
-
+    setCacheString(allPrompts: any, other: any = {}) {
+        const cacheString = JSON.stringify(allPrompts) + JSON.stringify(other);
+        if (this.lastRenderedPromptsList === cacheString) return false;
+        this.lastRenderedPromptsList = cacheString;
+        return true;
+    }
     async getSummaryPromptForDescription(description: string): Promise<string> {
         const newPromptAgent = `Please help me form a concise set of guidenlines for summarizing content based on the following description: ${description}`;
         let newPromptContent = (await this.extCommon.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
@@ -347,8 +356,9 @@ export default class PromptHelper {
         chrome.storage.local.set({ masterAnalysisList });
     }
     async hydrateAllPromptRows() {
-        let allPrompts = await this.extCommon.getAnalysisPrompts();
-        allPrompts = this.extCommon.processPromptRows(allPrompts);
+        const allPrompts = await this.metricCommon.getAnalysisPrompts();
+        if (!this.setCacheString(allPrompts)) return;
+
         this.promptsTable.setData(allPrompts);
     }
     async savePromptToLibrary() {
@@ -367,20 +377,23 @@ export default class PromptHelper {
         if (templateType === 'json') promptType = "json";
         let prompt = { id: promptId, description: promptDescription, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
         let promptTemplateList = await this.promptsTable.getData();
-        let existingIndex = Number(this.prompt_row_index.value) - 1;
+        const existingIndex = Number(this.prompt_row_index.value) - 1;
         if (this.save_override_checkbox.checked) {
             promptTemplateList[existingIndex] = prompt;
+            const selectedRow = this.promptsTable.getRows()[existingIndex];
+            selectedRow.update(prompt);
+            selectedRow.select();
         } else {
             promptTemplateList.push(prompt);
         }
 
-        promptTemplateList = this.extCommon.processPromptRows(promptTemplateList);
+        promptTemplateList = this.metricCommon.processPromptRows(promptTemplateList);
+        this.setCacheString(promptTemplateList);
         await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-        this.hydrateAllPromptRows();
     }
     async getAnalysisSetNameList() {
         let html = '';
-        let promptSetNames = await this.extCommon.getAnalysisSetNames();
+        let promptSetNames = await this.metricCommon.getAnalysisSetNames();
         promptSetNames.forEach((setName) => {
             html += `<option>${setName}</option>`;
         });

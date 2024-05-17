@@ -211,7 +211,7 @@ export default class SidePanelApp {
     this.renderSourceDetails();
   }
   async renderSlimSelect() {
-    const setNames = await this.extCommon.getAnalysisSetNames();
+    const setNames = await this.metricCommon.getAnalysisSetNames();
     let html = "";
     setNames.forEach((setName) => {
       html += `<option value="${setName}">${setName}</option>`;
