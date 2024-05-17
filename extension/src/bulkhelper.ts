@@ -15,6 +15,7 @@ export default class BulkHelper {
     bulkUrlListTabulator: TabulatorFull;
     bulkResultsTabulator: TabulatorFull;
     bulkUrlScrapeResultsTabulator: TabulatorFull;
+    viewSplitter: Split.Instance;
     bulkSelected: any;
     itemsPerView = 5;
     bulkSelectedIndex = 0;
@@ -45,9 +46,9 @@ export default class BulkHelper {
     bulkScrapeURLModal = document.querySelector('#bulkScrapeURLModal') as HTMLDivElement;
     bdModal = new bootstrap.Modal(this.bulkScrapeURLModal);
     lastSlimSelections = "";
-    viewSplitter: Split.Instance;
     previousSlimOptions = "";
-    lastTableEdit = new Date();
+    lastRenderedUrlListCache = "";
+    lastTableEdit = new Date("1900-01-01");
 
     constructor(app: MainPageApp) {
         this.app = app;
@@ -344,6 +345,67 @@ export default class BulkHelper {
             }
         });
     }
+    async paint() {
+        this.paintAnalysisHistory();
+        
+        //only continue if debounce timer is up
+        if (this.lastTableEdit.getTime() > new Date().getTime() - 1000) {
+            return;
+        }
+        const allUrls: any[] = await this.extCommon.getStorageField('bulkUrlList') || [];
+        if (this.setURLListCacheString(allUrls)) {
+            this.bulkUrlListTabulator.setData(allUrls);
+        }
+
+        const setNames = await this.metricCommon.getAnalysisSetNames();
+        let html = "";
+        setNames.forEach((setName) => {
+            html += `<option value="${setName}">${setName}</option>`;
+        });
+        let selectedBulkAnalysisSets = await chrome.storage.local.get("selectedBulkAnalysisSets");
+        let slimOptions: any[] = [];
+        setNames.forEach((setName) => {
+            slimOptions.push({ text: setName, value: setName });
+        });
+        const slimOptionsString = JSON.stringify(slimOptions);
+        let dataChange = false;
+        if (this.previousSlimOptions !== slimOptionsString) {
+            dataChange = true;
+            this.bulkSelected.setData(slimOptions);
+            this.previousSlimOptions = slimOptionsString;
+        }
+
+        if (selectedBulkAnalysisSets && selectedBulkAnalysisSets.selectedBulkAnalysisSets) {
+            let setCache = JSON.stringify(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
+            if (setCache !== this.lastSlimSelections || dataChange) {
+                this.lastSlimSelections = setCache;
+
+                this.bulkSelected.setSelected(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
+                let domSelections = this.bulkSelected.render.main.values.querySelectorAll('.ss-value');
+                let indexMap: any = {};
+                domSelections.forEach((item: any, index: any) => {
+                    indexMap[item.innerText] = index;
+                });
+                let setOrder = selectedBulkAnalysisSets.selectedBulkAnalysisSets;
+                setOrder.forEach((setName: any, index: any) => {
+                    let domIndex = indexMap[setName];
+                    if (domSelections[domIndex]) {
+                        this.bulkSelected.render.main.values.appendChild(domSelections[domIndex]);
+                    }
+                });
+            }
+        }
+        if (this.bulkSelected.getSelected().length === 0) {
+            this.bulkSelected.setSelected([setNames[0]]);
+        }
+    }
+    /** returns true if cache changed */
+    setURLListCacheString(tableRows: any, other: any = {}) {
+        const cacheString = JSON.stringify(tableRows) + JSON.stringify(other);
+        if (this.lastRenderedUrlListCache === cacheString) return false;
+        this.lastRenderedUrlListCache = cacheString;
+        return true;
+    }
     async checkForEmptyRows() {
         let bulkUrlList = this.bulkUrlListTabulator.getData();
         let emptyRows = bulkUrlList.filter((row: any) => {
@@ -479,60 +541,5 @@ export default class BulkHelper {
             }
             return '<span class="' + cls + '">' + match + '</span>';
         });
-    }
-    async paintBulkURLList(forceUpdate = false) {
-        //only continue if debounce timer is up
-        if (this.lastTableEdit.getTime() > new Date().getTime() - 1000 && !forceUpdate) {
-            return;
-        }
-        let allUrls: any[] = [];
-        let rawData = await chrome.storage.local.get('bulkUrlList');
-        if (rawData && rawData.bulkUrlList && Object.keys(rawData.bulkUrlList).length > 0) {
-            allUrls = rawData.bulkUrlList;
-        }
-
-        this.bulkUrlListTabulator.setData(allUrls);
-
-        const setNames = await this.metricCommon.getAnalysisSetNames();
-        let html = "";
-        setNames.forEach((setName) => {
-            html += `<option value="${setName}">${setName}</option>`;
-        });
-        let selectedBulkAnalysisSets = await chrome.storage.local.get("selectedBulkAnalysisSets");
-        let slimOptions: any[] = [];
-        setNames.forEach((setName) => {
-            slimOptions.push({ text: setName, value: setName });
-        });
-        const slimOptionsString = JSON.stringify(slimOptions);
-        let dataChange = false;
-        if (this.previousSlimOptions !== slimOptionsString) {
-            dataChange = true;
-            this.bulkSelected.setData(slimOptions);
-            this.previousSlimOptions = slimOptionsString;
-        }
-
-        if (selectedBulkAnalysisSets && selectedBulkAnalysisSets.selectedBulkAnalysisSets) {
-            let setCache = JSON.stringify(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
-            if (setCache !== this.lastSlimSelections || dataChange) {
-                this.lastSlimSelections = setCache;
-
-                this.bulkSelected.setSelected(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
-                let domSelections = this.bulkSelected.render.main.values.querySelectorAll('.ss-value');
-                let indexMap: any = {};
-                domSelections.forEach((item: any, index: any) => {
-                    indexMap[item.innerText] = index;
-                });
-                let setOrder = selectedBulkAnalysisSets.selectedBulkAnalysisSets;
-                setOrder.forEach((setName: any, index: any) => {
-                    let domIndex = indexMap[setName];
-                    if (domSelections[domIndex]) {
-                        this.bulkSelected.render.main.values.appendChild(domSelections[domIndex]);
-                    }
-                });
-            }
-        }
-        if (this.bulkSelected.getSelected().length === 0) {
-            this.bulkSelected.setSelected([setNames[0]]);
-        }
     }
 }

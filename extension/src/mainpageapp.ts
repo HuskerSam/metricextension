@@ -137,8 +137,7 @@ export default class MainPageApp {
     }
     async paintData(forceUpdate = false) {
         this.historyHelper?.renderHistoryDisplay();
-        this.bulkHelper?.paintAnalysisHistory();
-        this.bulkHelper?.paintBulkURLList(forceUpdate);
+        this.bulkHelper?.paint();
         this.dataMillHelper?.paintData();
         this.extCommon.updateSessionKeyStatus();
         this.promptHelper?.paintPromptTab();
