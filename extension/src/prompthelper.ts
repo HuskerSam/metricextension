@@ -8,6 +8,7 @@ export default class PromptHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
     viewSplitter: Split.Instance;
+    leftrightSplitter: Split.Instance;
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
     prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
     generate_metric_prompt = document.querySelector('.generate_metric_prompt') as HTMLButtonElement;
@@ -30,6 +31,8 @@ export default class PromptHelper {
     exportButton = document.querySelector('.prompt_list_export_rows') as HTMLButtonElement;
     prompt_manager_lower_pane = document.querySelector('.prompt_manager_lower_pane') as HTMLDivElement;
     prompt_manager_upper_pane = document.querySelector('.prompt_manager_upper_pane') as HTMLDivElement;
+    prompt_manager_left_pane = document.querySelector('.prompt_manager_left_pane') as HTMLDivElement;
+    prompt_manager_right_pane = document.querySelector('.prompt_manager_right_pane') as HTMLDivElement;
     prompt_helper_save_prompt_button = document.querySelector('.prompt_helper_save_prompt_button') as HTMLButtonElement;
     wizard_template_tab_input = document.querySelector('.wizard_template_tab_input') as HTMLInputElement;
     prompt_template_tab_input = document.querySelector('.prompt_template_tab_input') as HTMLInputElement;
@@ -40,14 +43,19 @@ export default class PromptHelper {
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
-        this.viewSplitter = Split([this.prompt_manager_upper_pane, this.prompt_manager_lower_pane],
+        this.leftrightSplitter = Split([this.prompt_manager_left_pane, this.prompt_manager_right_pane],
             {
                 sizes: [50, 50],
-                direction: 'vertical',
-                minSize: 100, // min size of both panes
+                direction: 'horizontal',
                 gutterSize: 8,
             });
-
+        this.viewSplitter = Split([this.prompt_manager_upper_pane, this.prompt_manager_lower_pane],
+            {
+                sizes: [60, 40],
+                direction: 'vertical',
+                gutterSize: 8,
+            });
+       
         this.promptsTable = new TabulatorFull(".tabulator_prompt_list_manager", {
             layout: "fitDataStretch",
             movableRows: true,
