@@ -290,12 +290,16 @@ export default class SidePanelApp {
     this.source_tokens_length.innerText = tokenCount;
   }
   async renderResultsPanel() {
-    let history = await chrome.storage.local.get('history');
-    history = history.history || [];
+    let history = await this.extCommon.getStorageField("history") || [];
     let entry = history[0];
 
-    this.lastRunResult?.props.hooks.setHistoryEntry(entry);
-    this.lastRunResult?.props.hooks.setShow(true);
+    if (entry) {
+      entry.historyIndex = 0;
+      this.lastRunResult?.props.hooks.setHistoryEntry(entry);
+      this.lastRunResult?.props.hooks.setShow(true);
+    } else {
+      this.lastRunResult?.props.hooks.setShow(false);
+    }
 
     this.sidepanel_history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
       btn.addEventListener('click', async (e: any) => {

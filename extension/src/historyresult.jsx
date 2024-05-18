@@ -2,9 +2,7 @@ import React from 'react';
 import { AnalyzerExtensionCommon } from './extensioncommon';
 
 export default function HistoryResult(props) {
-    const [historyEntry, setHistoryEntry] = React.useState({
-        results: [],
-    });
+    const [historyEntry, setHistoryEntry] = React.useState({});
     const [show, setShow] = React.useState(false);
 
     props.hooks.setHistoryEntry = setHistoryEntry;
@@ -13,23 +11,35 @@ export default function HistoryResult(props) {
     let allResults = historyEntry.results;
     let usageCreditTotal = 0;
     let setBasedResults = {};
-    allResults.forEach((result) => {
-        if (!setBasedResults[result.prompt.setName]) {
-            setBasedResults[result.prompt.setName] = [];
+    let setNamesArray = null;
+    if (show) {
+        allResults.forEach((result) => {
+            if (!setBasedResults[result.prompt.setName]) {
+                setBasedResults[result.prompt.setName] = [];
+            }
+            setBasedResults[result.prompt.setName].push(result);
+            try {
+                usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+            } catch (err) {
+                console.log("Usage total credit summming error", err);
+            }
+    
+        });
+        historyEntry.usageCreditTotal = usageCreditTotal;
+    
+        setNamesArray = Object.keys(setBasedResults);
+        if (setNamesArray.length === 0) {
+            setNamesArray = [];
         }
-        setBasedResults[result.prompt.setName].push(result);
-        try {
-            usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
-        } catch (err) {
-            console.log("Usage total credit summming error", err);
-        }
-
-    });
-    historyEntry.usageCreditTotal = usageCreditTotal;
-
-    let setNamesArray = Object.keys(setBasedResults);
-    if (setNamesArray.length === 0) {
-        setNamesArray = [];
+        setNamesArray.forEach((setName) => {
+            setBasedResults[setName].map((result, index) => {
+                result.id = index;
+                return result;
+            });
+        });
+        setNamesArray = setNamesArray.map((setName, index) => {
+            return { setName, id: index };
+        });
     }
 
     /*
@@ -81,16 +91,16 @@ export default function HistoryResult(props) {
                 {historyEntry.text}
             </div>
             <div>
-                {setNamesArray.length > 0 && setNamesArray.map((setName, setIndex) => (
-                    <div className="flex flex-col shadow-md mb-3 rounded-b-md">
+                {setNamesArray && setNamesArray.length > 0 && setNamesArray.map((promptSet, setIndex) => (
+                    <div key={promptSet.id} className="flex flex-col shadow-md mb-3 rounded-b-md">
                         <div className='flex flex-col bg-gray-50 text-gray-800 mb-1'>
                             <div className="flex justify-between">
-                                <h3 className="p-2 flex-1 fs-5 rounded-md">{setName}</h3>
+                                <h3 className="p-2 flex-1 fs-5 rounded-md">{promptSet.setName}</h3>
                                 <span className="history_index pr-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
                             </div>
                         </div>
-                        {setBasedResults[setName].length > 0 && setBasedResults[setName].map((result, resultIndex) => (
-                            <div>
+                        {setBasedResults[promptSet.setName].length > 0 && setBasedResults[promptSet.setName].map((result, resultIndex) => (
+                            <div key={result.id}>
                                 {result.prompt.promptType === 'metric' && (
                                     <div className="prompt_result metric_result px-2 py-2">
                                         <span className="prompt_id">{result.prompt.id}</span>
