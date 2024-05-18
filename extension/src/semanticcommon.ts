@@ -77,7 +77,6 @@ export class SemanticCommon {
         try {
             let lookupPath: string = this.chunkSizeMeta.lookupPath;
             lookupPath = lookupPath.replace("DOC_ID_URIENCODED", docId);
-            console.log(lookupPath);
             const r = await fetch(lookupPath);
             const result = await r.json();
             return result;
@@ -222,7 +221,6 @@ export class SemanticCommon {
             titleFormatter: "rowSelection",
             headerSort: false,
             resizable: false,
-            frozen: true,
             headerHozAlign: "center",
             hozAlign: "center",
             title: "",

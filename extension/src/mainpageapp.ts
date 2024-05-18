@@ -8,6 +8,7 @@ import SettingsHelper from './settingshelper';
 import SemanticHelper from './semantichelper';
 import NewsFeedView from "./newsfeed.jsx";
 import HistoryResult from './historyresult.jsx';
+import Papa from 'papaparse';
 import {
     createRoot,
 } from "react-dom/client";
@@ -59,18 +60,43 @@ export default class MainPageApp {
         await this.loadHTMLTemplate("pages/news.html", this.main_feed_tab_view);
 
         await this.semanticCommon.semanticLoad();
-        
+
         this.settingsHelper = new SettingsHelper(this);
         this.bulkHelper = new BulkHelper(this);
         this.promptHelper = new PromptHelper(this);
         this.historyHelper = new HistoryHelper(this);
         this.dataMillHelper = new SemanticHelper(this);
         this.initEventHandlers();
-        
+
         this.newsFeedContainer = React.createElement(NewsFeedView, {
             hooks: {},
         });
         createRoot(this.main_feed_tab_view).render(this.newsFeedContainer);
+
+        let query = await fetch('https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/KlydeNews%2Fnewsfeed.json?alt=media');
+        let json = await query.json();
+        let compactCSV = json.newsItems[0].csvDocPath;
+        let fullJSON = json.newsItems[0].jsonDocPath;
+        let csvQuery = await fetch(compactCSV);
+        let fullJsonQuery = await fetch(fullJSON);
+        json.newsItems[0].compactCSVData = await csvQuery.text();
+        let columnMaps: any[] = [];
+        json.newsItems[0].csvResultData = Papa.parse(json.newsItems[0].compactCSVData, { header: true });
+        let columnNames = Object.keys(json.newsItems[0].csvResultData.data[0]);
+        columnNames.forEach((col, index) => {
+            const [metricName, metricSetName] = col.split('_');
+            columnMaps.push({
+                name: metricName,
+                type: 'string',
+                key: index,
+                setName: metricSetName
+            });
+        });
+        json.newsItems[0].columnMaps = columnMaps;
+        json.newsItems[0].fullJSONData = await fullJsonQuery.json();
+
+        this.newsFeedContainer.props.hooks.setNewsItem(json.newsItems);
+        this.newsFeedContainer.props.hooks.setShow(true);
 
         const history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
         const history_result_previous_view = document.querySelector('.history_result_previous_view') as HTMLDivElement;
@@ -83,7 +109,7 @@ export default class MainPageApp {
             hooks: {},
         });
         createRoot(history_result_previous_view).render(this.historyResultPrevious);
-        
+
         window.addEventListener('hashchange', () => this.navigateHashtag());
         this.navigateHashtag();
 

@@ -1,36 +1,19 @@
 import React from 'react';
-import Papa from 'papaparse';
 
 export default function NewsFeedContainer(props) {
   const [newsItems, setNewsItem] = React.useState([]);
-  let loaded = false;
+  const [show, setShow] = React.useState(false);
 
-  const load = async () => {
-    let query = await fetch('https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/KlydeNews%2Fnewsfeed.json?alt=media');
-    let json = await query.json();
-    let compactCSV = json.newsItems[0].csvDocPath;
-    let fullJSON = json.newsItems[0].jsonDocPath;
-    let csvQuery = await fetch(compactCSV);
-    let fullJsonQuery = await fetch(fullJSON);
-    json.newsItems[0].compactCSVData = await csvQuery.text();
-    let columnMaps = [];
-    json.newsItems[0].csvResultData = Papa.parse(json.newsItems[0].compactCSVData, { header: true });
-    let columnNames = Object.keys(json.newsItems[0].csvResultData.data[0]);
-    columnNames.forEach((col, index) => {
-        const [metricName, metricSetName] = col.split('_');
-        columnMaps.push({ name: metricName, type: 'string', key: index, setName: metricSetName });
-    });
-    json.newsItems[0].columnMaps = columnMaps;
-    json.newsItems[0].fullJSONData = await fullJsonQuery.json();
-
-    setNewsItem(json.newsItems);
-  };
-
-  if (!loaded) {
-    load();
-    loaded = true;
+  props.hooks.setNewsItem = setNewsItem;
+  props.hooks.setShow = setShow;
+  
+  if (!show) {
+    return (
+      <div>
+        no news today
+      </div>
+    )
   }
-
   return (
     <div className="grid grid-rows-1 sm:grid-rows-2 md:grid-rows-3 lg:grid-rows-4 gap-4">
       {newsItems.map((doc) => (

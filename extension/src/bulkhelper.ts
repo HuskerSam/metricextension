@@ -63,7 +63,15 @@ export default class BulkHelper {
         this.bulkUrlListTabulator = new TabulatorFull(".bulk_url_list_tabulator", {
             layout: "fitColumns",
             movableRows: true,
-            rowHeader: { headerSort: false, resizable: false, minWidth: 24, width: 24, rowHandle: true, formatter: "handle" },
+            rowHeader: {
+                headerSort: false,
+                resizable: false,
+                minWidth: 24, 
+                width: 24,
+                rowHandle: true,
+                formatter: "handle",
+                frozen: true,
+            },
             columns: [
                 { title: "URL", field: "url", editor: "input", headerSort: false },
                 {
@@ -101,7 +109,6 @@ export default class BulkHelper {
             selectableRange: true,
             rowHeader: {
                 resizable: false,
-                frozen: true,
                 hozAlign: "center",
                 formatter: "rownum",
                 width: 40,
@@ -347,7 +354,7 @@ export default class BulkHelper {
     }
     async paint() {
         this.paintAnalysisHistory();
-        
+
         //only continue if debounce timer is up
         if (this.lastTableEdit.getTime() > new Date().getTime() - 1000) {
             return;
