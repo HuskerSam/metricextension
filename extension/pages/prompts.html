@@ -31,12 +31,38 @@
       class="tabulator_prompt_list_manager prompt_list_editor_style custom_tabulator_styles rounded my-2 border flex-1 overflow-hidden">
     </div>
   </div>
-  <div class="prompt_manager_right_pane flex">
-    <div class="flex flex-col px-4">
-      <div class="flex pt-1.5 items-start space-x-5">
+  <div class="prompt_manager_right_pane flex flex-col">
+    <ul class="nav nav-pills mx-2" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-center"
+          id="prompt_helper_template_examples_button" data-bs-toggle="tab"
+          data-bs-target="#prompt_helper_template_examples_view" type="button" role="tab"
+          aria-controls="prompt_helper_template_examples_view" aria-selected="true">
+          Examples
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-center"
+          id="prompt_helper_template_generate_button" data-bs-toggle="tab"
+          data-bs-target="#prompt_helper_template_generate_view" type="button" role="tab"
+          aria-controls="prompt_helper_template_generate_view" aria-selected="false">
+          Generate
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-center"
+          id="prompt_helper_template_create_button" data-bs-toggle="tab"
+          data-bs-target="#prompt_helper_template_create_view" type="button" role="tab"
+          aria-controls="prompt_helper_template_create_view" aria-selected="false">
+          Create
+        </button>
+      </li>
+    </ul>
+    <div class="tab-content flex-1 flex pt-1.5 items-start space-x-5">
+      <div class="tab-pane active" id="prompt_helper_template_examples_view" role="tabpanel"
+        aria-labelledby="prompt_helper_template_examples_button">
         <h2 class="text-2xl font-bold text-gray-900">Prompts Wizard</h2>
         <p class="text-sm font-medium text-gray-500">Adjust prompts and create new ones using the wizard.</p>
-
         <div
           class="inline-flex flex-1 flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:flex-row md:space-x-3"
           style="align-self: flex-end;">
@@ -48,7 +74,20 @@
           </label>
         </div>
       </div>
-      <div class="grid grid-cols-1 py-4">
+      <div class="tab-pane" id="prompt_helper_template_generate_view" role="tabpanel"
+        aria-labelledby="prompt_helper_template_generate_button">
+        <h2 class="text-2xl font-bold text-gray-900">Generate Prompt</h2>
+        <p class="text-sm font-medium text-gray-500">Generate a prompt using the wizard.</p>
+        <div
+          class="inline-flex flex-1 flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:flex-row md:space-x-3"
+          style="align-self: flex-end;">
+          <button class="prompt_helper_save_prompt_button btn-ts-success w-28 justify-center mr-4">
+            Save as New
+          </button>
+        </div>
+      </div>
+      <div class="tab-pane" id="prompt_helper_template_create_view" role="tabpanel"
+        aria-labelledby="prompt_helper_template_create_button">
         <div class="flex flex-col px-4 sm:px-2">
           <div class="px-2 mt-auto">
             <div class="grid grid-cols-2 gap-4 mb-4">
@@ -87,25 +126,8 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="px-4 sm:px-2 flex flex-col flex-1">
+
         <div class="flex flex-col justify-center p-4 h-[100px]">
-          <ul class="nav gap-2 flex flex-1 items-center justify-center p-2" id="promptTabs" role="tablist">
-            <li class="nav-item pr-4" role="presentation">
-              <label class="form-input-label-ts">
-                Prompt Template &nbsp;
-                <input class="prompt_template_tab_input" type="radio" role="tab" aria-controls="prompt-template"
-                  name="template_type" checked>
-              </label>
-            </li>
-            <li class="nav-item" role="presentation">
-              <label class="form-input-label-ts">
-                Use Generator &nbsp;
-                <input class="wizard_template_tab_input" type="radio" role="tab" aria-controls="wizard-template"
-                  name="template_type">
-              </label>
-            </li>
-          </ul>
           <p class="form-note-ts text-center flex-1 prompthelper_tab_help_text pt-0 mt-0">Klyde uses prompts to help
             you
             analyze
@@ -113,7 +135,7 @@
         </div>
         <div
           class="overflow-hidden border rounded-lg border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 w-100 flex-1 my-3">
-          <div class="prompt_template_tab flex flex-1" tabindex="1">
+          <div class="prompt_helper_template_tab flex flex-1" tabindex="1">
             <div class="mb-1 flex-1 flex flex-col">
               <div class="flex items-center justify-between space-x-3 border-b border-gray-200 px-2 py-2 sm:px-3">
                 <div class="flex flex-row">
@@ -123,8 +145,9 @@
                 </div>
               </div>
               <textarea
-                class="prompt_template_text flex-1 block w-full p-2.5 border-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 h-full"
-                name="prompt_template_text" rows="6" placeholder="Enter prompt template here..." required></textarea>
+                class="prompt_helper_template_text flex-1 block w-full p-2.5 border-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 h-full"
+                name="prompt_helper_template_text" rows="6" placeholder="Enter prompt template here..."
+                required></textarea>
             </div>
           </div>
           <div class="wizard_template_tab flex-1" tabindex="1">
@@ -148,6 +171,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>

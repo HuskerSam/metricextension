@@ -32,10 +32,7 @@ export default class PromptHelper {
     prompt_manager_left_pane = document.querySelector('.prompt_manager_left_pane') as HTMLDivElement;
     prompt_manager_right_pane = document.querySelector('.prompt_manager_right_pane') as HTMLDivElement;
     prompt_helper_save_prompt_button = document.querySelector('.prompt_helper_save_prompt_button') as HTMLButtonElement;
-    wizard_template_tab_input = document.querySelector('.wizard_template_tab_input') as HTMLInputElement;
-    prompt_template_tab_input = document.querySelector('.prompt_template_tab_input') as HTMLInputElement;
-    prompt_template_tab = document.querySelector('.prompt_template_tab') as HTMLDivElement;
-    wizard_template_tab = document.querySelector('.wizard_template_tab') as HTMLDivElement;
+
     promptsTable: TabulatorFull;
     lastRenderedPromptsList = "";
 
@@ -92,17 +89,11 @@ export default class PromptHelper {
 
             ],
         });
-        this.wizard_template_tab_input.addEventListener('click',
-        async () => chrome.storage.local.set({ promptHelperPanelView: 'wizard' }));
-
-        this.prompt_template_tab_input.addEventListener('click',
-        async () => chrome.storage.local.set({ promptHelperPanelView: 'prompt' }));
 
         this.generate_metric_prompt.addEventListener('click', async () => {
             this.prompt_template_text.value = `generating prompt...`;
             let text = this.wizard_input_prompt.value;
             let newPrompt = '';
-            this.wizard_template_tab_input.checked = true;
             if (this.template_type.value === 'metric') {
                 newPrompt = await this.getMetricPromptForDescription(text);
             } else if (this.template_type.value === 'keywords') {
@@ -126,15 +117,8 @@ export default class PromptHelper {
             
             this.savePromptToLibrary();
         });
-
-        this.promptTabs.addEventListener('click', (e: any) => {
-            if (this.prompt_template_tab_input.checked === true) {
-                this.prompthelper_tab_help_text.innerText = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
-                } else if (this.wizard_template_tab_input.checked === true) {
-                this.prompthelper_tab_help_text.innerText = `Use Klyde to help you generate prompts for content analysis.`;
-            }
-        });
-
+       // this.prompthelper_tab_help_text.innerText = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
+       // this.prompthelper_tab_help_text.innerText = `Use Klyde to help you generate prompts for content analysis.`;
 
         this.exportButton.addEventListener('click', async () => {
             let promptTemplateList = await this.promptsTable.getData();
@@ -217,20 +201,6 @@ export default class PromptHelper {
     }
     async paintPromptTab() {
         this.hydrateAllPromptRows();
-        let value = await this.extCommon.getStorageField("promptHelperPanelView") as string;
-        if (value === 'prompt') {
-            this.wizard_template_tab_input.classList.remove('active');
-            this.prompt_template_tab_input.classList.add('active');
-            this.prompt_template_tab_input.checked = true;
-            this.wizard_template_tab.style.display = 'none';
-            this.prompt_template_tab.style.display = '';
-        } else {
-            this.wizard_template_tab_input.classList.add('active');
-            this.prompt_template_tab_input.classList.remove('active');
-            this.wizard_template_tab_input.checked = true;
-            this.wizard_template_tab.style.display = '';
-            this.prompt_template_tab.style.display = 'none';
-        }
     }
     setCacheString(allPrompts: any, other: any = {}) {
         const cacheString = JSON.stringify(allPrompts) + JSON.stringify(other);

@@ -61,6 +61,6 @@ export default class NewsAggregator {
             });
         });
 
-        const bulkResults = await this.metricCommon.runBulkAnalysis(metricRows);
+      //  const bulkResults = await this.metricCommon.runBulkAnalysis(metricRows);
     }
 }
