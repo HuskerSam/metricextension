@@ -6,5 +6,6 @@
 @import './mainpage.css';
 @import './bulktab.css';
 @import './historytab.css';
-@import './datamill.css';
+@import './prompttab.css';
+@import './semantic.css';
 @import './llmchat.css';

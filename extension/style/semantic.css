@@ -1,0 +1,97 @@
+.filter_container .filter_chips {
+    gap:4px;
+    margin: 4px;
+    display: flex;
+    display: inline-flex;
+    align-items: center;
+    color: rgb(17 24 39);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;  
+    background: white;
+}
+
+.filter_container .filter-header {
+    margin: 0 4px;
+    font-size: 14px;
+}
+
+.filter_container .delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.3s;
+}
+
+.filter_container .delete-button:hover {
+    color: #ff4d4d;
+}
+
+.similarity_score_badge {
+    background-color: #28a745;
+    color: #fff;
+    font-size: 18px;
+    padding: 4px;
+    border-radius: 8px;
+    display: inline-block;
+    font-family: monospace;
+}
+
+.semantic_running .semantic_chunk_results_container {
+    display: none;
+}
+
+.semantic_running .run_semantic_search_query_button {
+    display: none;
+}
+
+.semantic_running .semantic_display_results_running {
+    display: block;
+}
+
+.llm_prompt_template_text_area,
+.llm_document_template_text_area,
+.semantic_embedded_llm_response {
+    font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.semantic_display_monospace .llm_prompt_template_text_area,
+.semantic_display_monospace .llm_document_template_text_area,
+.semantic_display_monospace .semantic_embedded_llm_response {
+    font-family: 'Lucida Console', Monaco, monospace;
+}
+
+.tabulator-header-contents .tabulator-headers .tabulator-frozen,
+.tabulator-header-contents .tabulator-headers .tabulator-col {
+    background-color: rgb(245, 245, 245);
+}
+
+#main_datamill_tab_view .tabulator-tableholder {
+    background-color: rgb(245, 245, 245);
+}
+
+#main_datamill_tab_view .prompt_list_editor_style .tabulator-tableholder {
+    overflow-x: auto;
+  }
+  
+.document_embedded_chunk {
+    background: rgb(255, 255, 200);
+    border: solid 1px silver;
+    margin: 6px;
+    display: block;
+}  
+
+.documents_embed_section {
+    background: rgb(240, 240, 255);
+    padding: 6px;
+    display: block;
+}
+
+
+.jsonformat pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+.jsonformat .string { color: green; }
+.jsonformat .number { color: darkorange; }
+.jsonformat .boolean { color: blue; }
+.jsonformat .null { color: magenta; }
+.jsonformat .key { color: red; }
