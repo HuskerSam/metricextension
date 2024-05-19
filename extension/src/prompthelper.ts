@@ -2,6 +2,7 @@ import { AnalyzerExtensionCommon } from './extensioncommon';
 import { MetricCommon } from './metriccommon';
 import MainPageApp from './mainpageapp';
 import { TabulatorFull } from 'tabulator-tables';
+import { exampleMetrics } from './examplemetrics';
 import Split from 'split.js';
 declare const chrome: any;
 
@@ -10,8 +11,8 @@ export default class PromptHelper {
     extCommon: AnalyzerExtensionCommon;
     metricCommon: MetricCommon;
     leftrightSplitter: Split.Instance;
+    metricTemplateExamples = exampleMetrics();
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
-    prompt_row_index = document.querySelector('.prompt_row_index') as HTMLInputElement;
     generate_metric_prompt = document.querySelector('.generate_metric_prompt') as HTMLButtonElement;
     test_metric_container = document.querySelector('.test_metric_container') as HTMLDivElement;
     test_modal = document.querySelector('.test_modal') as HTMLDivElement;
@@ -31,6 +32,8 @@ export default class PromptHelper {
     prompt_manager_right_pane = document.querySelector('.prompt_manager_right_pane') as HTMLDivElement;
     prompt_helper_save_prompt_button = document.querySelector('.prompt_helper_save_prompt_button') as HTMLButtonElement;
     metric_format_type = document.querySelector('.metric_format_type') as HTMLSelectElement;
+    example_template_type = document.querySelector('.example_template_type') as HTMLSelectElement;
+    template_preview_container = document.querySelector('.template_preview_container') as HTMLDivElement;
 
     promptsTable: TabulatorFull;
     lastRenderedPromptsList = "";
@@ -51,7 +54,6 @@ export default class PromptHelper {
             movableRows: true,
             groupBy: "setName",
             resizableColumnGuide: true,
-            selectableRows: 1,
             groupHeader: (value: any, count: number, data: any, group: any) => {
                 return `
                 <div class='inline-flex flex-1 justify-between items-center'>
@@ -91,7 +93,7 @@ export default class PromptHelper {
 
         this.generate_metric_prompt.addEventListener('click', async () => {
             this.prompt_template_text.value = `generating prompt...`;
-            let text = this.wizard_input_prompt.value;
+           // let text = this.wizard_input_prompt.value;
             let newPrompt = '';
             /*
             if (this.template_type.value === 'metric') {
@@ -142,8 +144,24 @@ export default class PromptHelper {
             };
             reader.readAsText(file);
         });
+
+        let exampleOptionHTML = "";
+        this.metricTemplateExamples.forEach((example, index) => {
+            exampleOptionHTML += `<option>${example.title}</option>`;
+        });
+        this.example_template_type.innerHTML = exampleOptionHTML;
+        this.example_template_type.selectedIndex = 0;
+        this.example_template_type.addEventListener('change', () => {
+            this.updateExampleTemplateSelection();
+        });
+        this.updateExampleTemplateSelection();
+
         this.initPromptTable();
         this.paintPromptTab();
+    }
+    updateExampleTemplateSelection() {
+        let selectedIndex = this.example_template_type.selectedIndex;
+        this.template_preview_container.innerText = this.metricTemplateExamples[selectedIndex].template;
     }
     initPromptTable() {
         this.promptsTable.on("renderComplete", () => {
@@ -176,16 +194,6 @@ export default class PromptHelper {
                     }
                 }
             }
-        });
-        this.promptsTable.on("rowSelected", (row: any) => {
-            const prompt = row.getData();
-            this.prompt_id_input.value = prompt.id;
-            this.prompt_template_text.value = prompt.prompt;
-            this.prompt_setname_input.value = prompt.setName;
-            this.wizard_input_prompt.value = prompt.promptSuggestion;
-            let rowIndex = row.getPosition();
-            this.prompt_row_index.value = rowIndex;
-            this.getAnalysisSetNameList();
         });
         this.promptsTable.on("rowMoved", async (cell: any) => {
             this.savePromptTableData();
@@ -326,11 +334,8 @@ export default class PromptHelper {
         if (templateType === 'metric') promptType = "metric";
         if (templateType === 'json') promptType = "json";
         let prompt = { id: promptId, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
-        let promptTemplateList = await this.promptsTable.getData();
-        const existingIndex = Number(this.prompt_row_index.value) - 1;
+        let promptTemplateList = this.promptsTable.getData();
         promptTemplateList.push(prompt);
-
-
         promptTemplateList = this.metricCommon.processPromptRows(promptTemplateList);
         this.setCacheString(promptTemplateList);
         await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
