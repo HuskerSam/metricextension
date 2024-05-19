@@ -6,7 +6,7 @@ import { exampleMetrics } from './examplemetrics';
 import Split from 'split.js';
 declare const chrome: any;
 
-export default class PromptHelper {
+export default class MetricHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
     metricCommon: MetricCommon;
@@ -124,7 +124,6 @@ export default class PromptHelper {
                 let existingPrompts = this.promptsTable.getData();
                 promptTemplateList = existingPrompts.concat(promptTemplateList);
                 await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-                this.renderMetricList();
                 this.fileInput.value = ''; // Reset the file input value
             };
             reader.readAsText(file);

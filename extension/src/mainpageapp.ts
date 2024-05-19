@@ -2,7 +2,7 @@ import { AnalyzerExtensionCommon } from './extensioncommon';
 import { SemanticCommon } from './semanticcommon';
 import { MetricCommon } from './metriccommon';
 import BulkHelper from './bulkhelper';
-import PromptHelper from './prompthelper';
+import MetricHelper from './metrichelper';
 import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
 import SemanticHelper from './semantichelper';
@@ -20,7 +20,7 @@ export default class MainPageApp {
     semanticCommon = new SemanticCommon(chrome);
     metricCommon = new MetricCommon(chrome);
     bulkHelper: BulkHelper | null = null;
-    promptHelper: PromptHelper | null = null;
+    metricHelper: MetricHelper | null = null;
     historyHelper: HistoryHelper | null = null;
     settingsHelper: SettingsHelper | null = null;
     dataMillHelper: SemanticHelper | null = null;
@@ -63,7 +63,7 @@ export default class MainPageApp {
 
         this.settingsHelper = new SettingsHelper(this);
         this.bulkHelper = new BulkHelper(this);
-        this.promptHelper = new PromptHelper(this);
+        this.metricHelper = new MetricHelper(this);
         this.historyHelper = new HistoryHelper(this);
         this.dataMillHelper = new SemanticHelper(this);
         this.initEventHandlers();
@@ -162,11 +162,12 @@ export default class MainPageApp {
         });
     }
     async paintData(forceUpdate = false) {
+        this.extCommon.updateSessionKeyStatus();
+
         this.historyHelper?.renderHistoryDisplay();
         this.bulkHelper?.paint();
         this.dataMillHelper?.paintData();
-        this.extCommon.updateSessionKeyStatus();
-        this.promptHelper?.paint();
+        this.metricHelper?.paint();
         this.settingsHelper?.paintData();
     }
 }
