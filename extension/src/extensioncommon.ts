@@ -202,7 +202,7 @@ export class AnalyzerExtensionCommon {
       if (results) {
         results.forEach((metricResult: any) => {
           const fieldName = metricResult.prompt.id + "_" + metricResult.prompt.setName;
-          if (metricResult.prompt.promptType === "metric") {
+          if (metricResult.prompt.promptType === "score 0 - 10") {
             let metric = 0;
             try {
               let json = JSON.parse(metricResult.result.resultMessage);

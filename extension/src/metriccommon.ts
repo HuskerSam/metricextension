@@ -408,7 +408,6 @@ Example prompt template:
     }
     async getAnalysisPrompts() {
         let prompts = await this.getDefaultAnalysisPrompts();
-        prompts = this.processPromptRows(prompts);
         let rawData = await this.chrome.storage.local.get('masterAnalysisList');
         if (rawData && rawData.masterAnalysisList && Object.keys(rawData.masterAnalysisList).length > 0) {
             prompts = rawData.masterAnalysisList;
@@ -426,12 +425,6 @@ Example prompt template:
         });
 
         return Object.keys(analysisSets);
-    }
-    processPromptRows(rows: any[]): any[] {
-        rows.forEach((row: any) => {
-            if (!row.promptType) row.promptType = 'metric';
-        });
-        return rows;
     }
     async generateMetricTemplate(metricTemplate: string, description: string) {
         return "";
