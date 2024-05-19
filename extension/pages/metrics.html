@@ -40,24 +40,34 @@
     </div>
     <div id="metric_prompt_create_splitter" class="flex flex-col flex-1 my-2 overflow-hidden">
       <div class="metric_prompt_create_upper_panel flex flex-col overflow-hidden">
-        <h3 class="text-lg font-bold mb-2">Examples</h3>
-        <select class="form-select-ts example_template_type" name="example_template_type"></select>
-        <div class="template_preview_container mt-2 p-2 overflow-auto flex-2 whitespace-pre-wrap">
+        <div class="flex justify-between">
+          <h3 class="text-lg font-bold mb-2">Examples</h3>
         </div>
-        <div class="flex flex-row mt-1">
-          <label class="form-input-label-ts mt-2">Metric Type:</label>
-          <label class="example_metric_type font-bold mt-2 ml-2"></label>
-          <div class="flex-1"></div>
-          <button class="copy_metric_example_template_to_create btn-ts-secondary">
-            Use
+        <div class="flex flex-row">
+          <div class="flex-1">
+            <select class="form-select-ts example_template_type p-2" name="example_template_type"></select>
+          </div>
+          <button class="copy_metric_example_template_to_create btn-ts-secondary p-2 mx-2">
+            Use Template
           </button>
+          <div class="inline-flex mt-1">
+            <label class="form-input-label-ts leading-4 text-xs w-20 text-center">Metric Type:<br><span class="example_metric_type font-bold"></span>
+            </label>
+          </div>
         </div>
-        <textarea name="wizard_prompt" rows="3" class="wizard_input_prompt flex-1 form-input-ts mt-2 mb-1"
-          placeholder="using example make these adjustments..."></textarea>
-        <div class="text-right mb-1">
-          <button class="generate_metric_prompt btn-ts-secondary">
-            Generate
-          </button>
+        <div class="template_preview_container mt-2 p-2 overflow-auto flex-2 whitespace-pre-wrap form-textarea-ts">
+        </div>
+        <div class="flex flex-row my-2">
+          <div class="flex-1">
+            <textarea name="wizard_prompt" rows="3"
+              class="wizard_input_prompt flex-1 form-input-ts resize-none"
+              placeholder="using example make these adjustments..."></textarea>
+          </div>
+          <div class="ml-2">
+            <button class="generate_metric_prompt btn-ts-secondary block">
+              Generate
+            </button>
+          </div>
         </div>
       </div>
       <div class="metric_prompt_create_lower_panel flex flex-col overflow-hidden">
@@ -75,8 +85,8 @@
           </label>
         </div>
         <label for="metric_template_text" class="form-input-label-ts block">Metric Template</label>
-        <textarea class="metric_template_text form-input-ts mb-1 flex-2" name="metric_template_text"
-          rows="4" placeholder="Use an example or generate one to get started..." required></textarea>
+        <textarea class="metric_template_text form-input-ts mb-1 flex-2" name="metric_template_text" rows="4"
+          placeholder="Use an example or generate one to get started..." required></textarea>
         <div class="text-right">
           <button class="prompt_helper_save_prompt_button btn-ts-primary">
             Create

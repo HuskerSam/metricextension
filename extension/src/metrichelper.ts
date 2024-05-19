@@ -60,6 +60,15 @@ export default class MetricHelper {
         this.promptsTable = new TabulatorFull(".tabulator_prompt_list_manager", {
             layout: "fitDataStretch",
             movableRows: true,
+            rowHeader: {
+                headerSort: false,
+                resizable: false,
+                minWidth: 24, 
+                width: 24,
+                rowHandle: true,
+                formatter: "handle",
+                frozen: true,
+            },
             groupBy: "setName",
             resizableColumnGuide: true,
             headerVisible: false,
@@ -219,6 +228,9 @@ export default class MetricHelper {
             }
         });
         this.promptsTable.on("rowMoved", async (cell: any) => {
+            this.savePromptTableData();
+        });
+        this.promptsTable.on("cellEdited", async (cell: any) => {
             this.savePromptTableData();
         });
     }
