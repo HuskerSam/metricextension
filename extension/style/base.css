@@ -666,11 +666,14 @@ body {
 }
 
 .gutter.gutter-vertical {
-  margin-left: 32px;
-  margin-right: 32px;
   border-radius: 8px;
   cursor: ns-resize;
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+}
+
+#main_bulk_tab_view .gutter.gutter-vertical {
+  margin-left: 32px;
+  margin-right: 32px;
 }
 
 .side_panel .gutter.gutter-vertical {

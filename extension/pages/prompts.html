@@ -38,83 +38,52 @@
         <p class="text-sm font-medium text-gray-500">Adjust prompts and create new ones using the wizard.</p>
       </div>
     </div>
-    <div id="metric_prompt_list_accordion" class="accordion flex flex-col flex-1 my-2 overflow-hidden">
-      <div class="accordion-item">
-        <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse"
-            data-bs-target="#metric_prompt_collapse_1" aria-expanded="true" aria-controls="metric_prompt_collapse_1">
-            Example Metric Templates
+    <div id="metric_prompt_create_splitter" class="flex flex-col flex-1 my-2 overflow-hidden">
+      <div class="metric_prompt_create_upper_panel flex flex-col overflow-hidden">
+        <h2> Example Metric Templates </h2>
+        <select class="form-select-ts example_template_type" name="example_template_type"></select>
+        <div class="template_preview_container mt-2 p-2 overflow-auto flex-2 whitespace-pre-wrap">
+        </div>
+        <div class="text-right mt-1">
+          <button class="generate_metric_prompt btn-ts-secondary">
+            Use Example
           </button>
-        </h2>
-        <div class="accordion-collapse collapse show" id="metric_prompt_collapse_1">
-          <div class="accordion-body">
-            <select class="form-select-ts example_template_type" name="example_template_type"></select>
-            <div class="template_preview_container mt-2 p-2 overflow-auto h-[12em] whitespace-pre-wrap">
-            </div>
-            <div class="text-right mt-1">
-              <button class="generate_metric_prompt btn-ts-secondary">
-                Use Example
-              </button>
-            </div>
-            <div class="wizard_template_tab flex-1" tabindex="1">
-              <textarea name="wizard_prompt" rows="3" class="wizard_input_prompt form-input-ts mt-2 mb-1"
-                placeholder="generate a metric like..."></textarea>
-              <div class="text-right">
-                <button class="generate_metric_prompt btn-ts-primary">
-                  Generate Metric
-                </button>
-              </div>
-            </div>
-          </div>
+        </div>
+        <textarea name="wizard_prompt" rows="3" class="wizard_input_prompt flex-1 form-input-ts mt-2 mb-1"
+          placeholder="generate a metric like..."></textarea>
+        <div class="text-right">
+          <button class="generate_metric_prompt btn-ts-primary">
+            Generate Metric
+          </button>
         </div>
       </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header">
-          <button class="accordion-button collapsed font-bold" type="button" data-bs-toggle="collapse"
-            data-bs-target="#metric_prompt_collapse_3" aria-expanded="true" aria-controls="metric_prompt_collapse_3">
-            Create Metric
+      <div class="metric_prompt_create_lower_panel flex flex-col overflow-hidden">
+        <h2>Create Metric</h2>
+        <div class="">
+          <label class="form-input-label-ts">Set Name:
+            <input type="text" class="form-input-ts prompt_setname_input" list="input_datalist_prompt_list" required
+              value="">
+          </label>
+          <datalist id="input_datalist_prompt_list"></datalist>
+          <label class="form-input-label-ts">Name/Id:
+            <input type="text" class="form-input-ts prompt_id_input">
+          </label>
+          <br>
+          <label class="form-input-label-ts">Result Format Type:
+            <select class="form-select-ts metric_format_type" name="metric_format_type">
+              <option>metric</option>
+              <option>text</option>
+              <option>json</option>
+            </select>
+          </label>
+        </div>
+        <label for="prompt_description" class="form-input-label-ts block">Metric Template</label>
+        <textarea class="prompt_helper_template_text form-input-ts mb-1 flex-2" name="prompt_helper_template_text"
+          rows="4" placeholder="Use an example or generate one to get started..." required></textarea>
+        <div class="text-right">
+          <button class="prompt_helper_save_prompt_button btn-ts-primary">
+            Create
           </button>
-        </h2>
-        <div class="accordion-collapse collapse" id="metric_prompt_collapse_3">
-          <div class="accordion-body">
-            <div class="px-2">
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label class="form-input-label-ts">Set Name:
-                    <input type="text" class="form-input-ts prompt_setname_input" list="input_datalist_prompt_list"
-                      required value="">
-                  </label>
-                  <datalist id="input_datalist_prompt_list"></datalist>
-                </div>
-                <div>
-                  <label class="form-input-label-ts">Name/Id:
-                    <input type="text" class="form-input-ts prompt_id_input">
-                  </label>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label class="form-input-label-ts">Result Format Type:
-                    <select class="form-select-ts metric_format_type" name="metric_format_type">
-                      <option>metric</option>
-                      <option>text</option>
-                      <option>json</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label for="prompt_description" class="form-input-label-ts block">Metric Template</label>
-                <textarea class="prompt_helper_template_text form-input-ts mb-1" name="prompt_helper_template_text"
-                  rows="4" placeholder="Use an example or generate one to get started..." required></textarea>
-              </div>
-              <div class="text-right">
-                <button class="prompt_helper_save_prompt_button btn-ts-primary">
-                  Create
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

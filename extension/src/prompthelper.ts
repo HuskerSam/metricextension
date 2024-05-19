@@ -11,6 +11,7 @@ export default class PromptHelper {
     extCommon: AnalyzerExtensionCommon;
     metricCommon: MetricCommon;
     leftrightSplitter: Split.Instance;
+    metricCreateSplitter: Split.Instance;
     metricTemplateExamples = exampleMetrics();
     wizard_input_prompt = document.querySelector('.wizard_input_prompt') as HTMLInputElement;
     generate_metric_prompt = document.querySelector('.generate_metric_prompt') as HTMLButtonElement;
@@ -48,7 +49,13 @@ export default class PromptHelper {
                 direction: 'horizontal',
                 gutterSize: 8,
             });
-       
+        this.metricCreateSplitter = Split([".metric_prompt_create_upper_panel", ".metric_prompt_create_lower_panel"],
+            {
+                sizes: [50, 50],
+                direction: 'vertical',
+                gutterSize: 8,
+            });
+
         this.promptsTable = new TabulatorFull(".tabulator_prompt_list_manager", {
             layout: "fitDataStretch",
             movableRows: true,
@@ -93,7 +100,7 @@ export default class PromptHelper {
 
         this.generate_metric_prompt.addEventListener('click', async () => {
             this.prompt_template_text.value = `generating prompt...`;
-           // let text = this.wizard_input_prompt.value;
+            // let text = this.wizard_input_prompt.value;
             let newPrompt = '';
             /*
             if (this.template_type.value === 'metric') {
@@ -108,12 +115,12 @@ export default class PromptHelper {
         });
 
         this.prompt_helper_save_prompt_button.addEventListener('click', async () => {
-             
-            
+
+
             this.savePromptToLibrary();
         });
-       // this.prompthelper_tab_help_text.innerText = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
-       // this.prompthelper_tab_help_text.innerText = `Use Klyde to help you generate prompts for content analysis.`;
+        // this.prompthelper_tab_help_text.innerText = `Klyde uses prompts to help you analyze content. You can create your own prompts or import them from a file.`;
+        // this.prompthelper_tab_help_text.innerText = `Use Klyde to help you generate prompts for content analysis.`;
 
         this.exportButton.addEventListener('click', async () => {
             let promptTemplateList = await this.promptsTable.getData();

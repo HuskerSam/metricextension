@@ -16,35 +16,3 @@
     margin-top: 67px;
     margin-bottom: 8px;
   }
-
-  .metric_prompt_list_accordion .accordion-item {
-    flex: 1;
-    flex-direction: column;
-  }
-
-  .accordion-collapse.show {
-    display: flex;
-    visibility: visible;
-    flex: 1;
-    overflow: auto;
-  }
-
-  .accordion-collapse {
-    display: none;
-  }
-
-  .accordion-item {
-    flex-direction: column;
-    display: flex;
-    overflow: hidden;
-    min-height: 50px;
-  }
-
-  .accordion-button {
-    background-color: var(--border-color);
-  }
-
-  .accordion-body {
-    min-height: 50vh;
-    width: 100%;
-  }
