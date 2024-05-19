@@ -43,3 +43,8 @@
   .accordion-button {
     background-color: var(--border-color);
   }
+
+  .accordion-body {
+    min-height: 50vh;
+    width: 100%;
+  }

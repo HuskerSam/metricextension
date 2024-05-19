@@ -17,10 +17,8 @@ export default class PromptHelper {
     test_modal = document.querySelector('.test_modal') as HTMLDivElement;
     create_prompt_tab = document.getElementById('create-prompt-tab') as HTMLButtonElement;
     prompt_id_input = document.querySelector('.prompt_id_input') as HTMLInputElement;
-    template_type = document.querySelector('.template_type') as HTMLInputElement;
     prompt_template_text = document.querySelector('.prompt_template_text') as HTMLInputElement;
     user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
-    save_override_checkbox = document.querySelector('.save_override_checkbox') as HTMLInputElement;
     prompt_setname_input = document.querySelector('.prompt_setname_input') as HTMLInputElement;
     prompthelper_tab_help_text = document.querySelector('.prompthelper_tab_help_text') as HTMLDivElement;
     promptTabs = document.querySelector('#promptTabs') as HTMLDivElement;
@@ -32,6 +30,7 @@ export default class PromptHelper {
     prompt_manager_left_pane = document.querySelector('.prompt_manager_left_pane') as HTMLDivElement;
     prompt_manager_right_pane = document.querySelector('.prompt_manager_right_pane') as HTMLDivElement;
     prompt_helper_save_prompt_button = document.querySelector('.prompt_helper_save_prompt_button') as HTMLButtonElement;
+    metric_format_type = document.querySelector('.metric_format_type') as HTMLSelectElement;
 
     promptsTable: TabulatorFull;
     lastRenderedPromptsList = "";
@@ -94,6 +93,7 @@ export default class PromptHelper {
             this.prompt_template_text.value = `generating prompt...`;
             let text = this.wizard_input_prompt.value;
             let newPrompt = '';
+            /*
             if (this.template_type.value === 'metric') {
                 newPrompt = await this.getMetricPromptForDescription(text);
             } else if (this.template_type.value === 'keywords') {
@@ -101,15 +101,8 @@ export default class PromptHelper {
             } else if (this.template_type.value === 'shortsummary') {
                 newPrompt = await this.getSummaryPromptForDescription(text);
             };
+            */
             this.prompt_template_text.value = newPrompt;
-        });
-
-        this.save_override_checkbox.addEventListener('click', (e: any) => {
-            if (e.target.checked) {
-                this.prompt_helper_save_prompt_button.innerText = 'Save Edit';
-            } else {
-                this.prompt_helper_save_prompt_button.innerText = 'Save New';
-            }
         });
 
         this.prompt_helper_save_prompt_button.addEventListener('click', async () => {
@@ -187,7 +180,6 @@ export default class PromptHelper {
         this.promptsTable.on("rowSelected", (row: any) => {
             const prompt = row.getData();
             this.prompt_id_input.value = prompt.id;
-            this.template_type.value = prompt.promptType;
             this.prompt_template_text.value = prompt.prompt;
             this.prompt_setname_input.value = prompt.setName;
             this.wizard_input_prompt.value = prompt.promptSuggestion;
@@ -323,7 +315,7 @@ export default class PromptHelper {
     async savePromptToLibrary() {
         let promptId = this.prompt_id_input.value.trim();
         let promptSuggestion = this.wizard_input_prompt.value.trim();
-        let templateType = this.template_type.value;
+        let templateType = this.metric_format_type.value;
         let promptTemplate = this.prompt_template_text.value.trim();
         let setName = this.prompt_setname_input.value.trim();
         if (!promptId || !templateType || !promptTemplate || !setName) {
@@ -336,14 +328,8 @@ export default class PromptHelper {
         let prompt = { id: promptId, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
         let promptTemplateList = await this.promptsTable.getData();
         const existingIndex = Number(this.prompt_row_index.value) - 1;
-        if (this.save_override_checkbox.checked) {
-            promptTemplateList[existingIndex] = prompt;
-            const selectedRow = this.promptsTable.getRows()[existingIndex];
-            selectedRow.update(prompt);
-            selectedRow.select();
-        } else {
-            promptTemplateList.push(prompt);
-        }
+        promptTemplateList.push(prompt);
+
 
         promptTemplateList = this.metricCommon.processPromptRows(promptTemplateList);
         this.setCacheString(promptTemplateList);
