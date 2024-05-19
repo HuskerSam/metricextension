@@ -2,12 +2,17 @@ import { AnalyzerExtensionCommon } from './extensioncommon';
 import Mustache from 'mustache';
 import Papa from 'papaparse';
 
-
 export class MetricCommon {
     cloudScrapeUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/scrapeurl`;
     chrome: any;
     extCommon: AnalyzerExtensionCommon;
     activeTabsBeingScraped: any = [];
+    generatePromptPrefix = `I would like to produce a new prompt template based on a description and an example.
+Description for new prompt template: 
+{{description}}
+    
+Example prompt template:
+{{exampleTemplate}}`;
 
     constructor(chrome: any) {
         this.chrome = chrome;
@@ -41,32 +46,32 @@ export class MetricCommon {
         }
     }
     async sidePanelScrapeUrl() {
-            const url = await this.getURLContentSource();
-            let sidePanelScrapeType = await this.extCommon.getStorageField("sidePanelScrapeType");
-            const options = await this.extCommon.getStorageField("sidePanelUrlSourceOptions");
-            let bulkUrl = {
-                url,
-                scrape: sidePanelScrapeType,
-                options,
-            }
-            if (sidePanelScrapeType === "browser scrape") {
-                this.extCommon.enabledBrowserScrapePermissions();
-            }
-            const activeTab = await this.chrome.tabs.getCurrent();
-            const result: any = await this.scrapeBulkUrl(bulkUrl, activeTab?.id);
-            let text = "";
-            if (result && result.text) text = result.text;
-            if (result && result.length > 0 && result[0].result) text = result[0].result;
-            let content = text;
-            if (result.success) {
-                content = result.result.text;
-                content = content.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
-            } else {
-                content
-            }
+        const url = await this.getURLContentSource();
+        let sidePanelScrapeType = await this.extCommon.getStorageField("sidePanelScrapeType");
+        const options = await this.extCommon.getStorageField("sidePanelUrlSourceOptions");
+        let bulkUrl = {
+            url,
+            scrape: sidePanelScrapeType,
+            options,
+        }
+        if (sidePanelScrapeType === "browser scrape") {
+            this.extCommon.enabledBrowserScrapePermissions();
+        }
+        const activeTab = await this.chrome.tabs.getCurrent();
+        const result: any = await this.scrapeBulkUrl(bulkUrl, activeTab?.id);
+        let text = "";
+        if (result && result.text) text = result.text;
+        if (result && result.length > 0 && result[0].result) text = result[0].result;
+        let content = text;
+        if (result.success) {
+            content = result.result.text;
+            content = content.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
+        } else {
+            content
+        }
 
-            await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
-        
+        await this.chrome.storage.local.set({ sidePanelScrapeContent: content });
+
     }
     async detectTabLoaded(tabId: number) {
         return new Promise((resolve, reject) => {
@@ -81,7 +86,7 @@ export class MetricCommon {
             });
             if (tabId) {
                 this.chrome.tabs.update(tabId, { active: true })
-            } 
+            }
 
             await this.detectTabLoaded(tab.id);
             setTimeout(async () => {
@@ -218,7 +223,7 @@ export class MetricCommon {
                 error: err,
             };
         }
-    }  async runBulkAnalysis(rows: any[]) { 
+    } async runBulkAnalysis(rows: any[]) {
         const isAlreadyRunning = await this.extCommon.setBulkRunning();
         if (isAlreadyRunning) {
             if (confirm("Bulk analysis is already running. Do you want to continue?") === false) {
@@ -295,7 +300,6 @@ export class MetricCommon {
             bulk_running: false,
         });
     }
-
     async runAnalysisPrompts(text: string, url = "", promptToUse = null, selectedSetName = "selectedAnalysisSets", addToHistory = true, title = "") {
         if (text.length > 30000) text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
         const runDate = new Date().toISOString();
@@ -381,51 +385,54 @@ export class MetricCommon {
         const defaultPromptList = await promptListFile.json();
         const promises: any[] = [];
         defaultPromptList.forEach((url: string) => {
-          promises.push((async (url) => {
-            let promptQuery = await fetch("/defaults/" + url + ".json");
-            let defaultPrompts = await promptQuery.json();
-            const allPrompts: any[] = [];
-            defaultPrompts.forEach((prompt: any) => {
-              prompt.setName = url;
-              allPrompts.push(prompt);
-            });
-            return allPrompts;
-          })(url));
+            promises.push((async (url) => {
+                let promptQuery = await fetch("/defaults/" + url + ".json");
+                let defaultPrompts = await promptQuery.json();
+                const allPrompts: any[] = [];
+                defaultPrompts.forEach((prompt: any) => {
+                    prompt.setName = url;
+                    allPrompts.push(prompt);
+                });
+                return allPrompts;
+            })(url));
         });
         const defaultPrompts = await Promise.all(promises);
         const resultPrompts: any[] = [];
         defaultPrompts.forEach((promptList, index) => {
-          promptList.forEach((prompt: any) => {
-            resultPrompts.push(prompt);
-          });
+            promptList.forEach((prompt: any) => {
+                resultPrompts.push(prompt);
+            });
         });
         return resultPrompts;
-      }
-      async getAnalysisPrompts() {
+    }
+    async getAnalysisPrompts() {
         let prompts = await this.getDefaultAnalysisPrompts();
         prompts = this.processPromptRows(prompts);
         let rawData = await this.chrome.storage.local.get('masterAnalysisList');
         if (rawData && rawData.masterAnalysisList && Object.keys(rawData.masterAnalysisList).length > 0) {
-          prompts = rawData.masterAnalysisList;
+            prompts = rawData.masterAnalysisList;
         }
         return prompts;
-      }
-      async getAnalysisSetNames() {
+    }
+    async getAnalysisSetNames() {
         let allPrompts = await this.getAnalysisPrompts();
         let analysisSets: any = {};
         allPrompts.forEach((prompt) => {
-          if (!analysisSets[prompt.setName]) {
-            analysisSets[prompt.setName] = [];
-          }
-          analysisSets[prompt.setName].push(prompt);
+            if (!analysisSets[prompt.setName]) {
+                analysisSets[prompt.setName] = [];
+            }
+            analysisSets[prompt.setName].push(prompt);
         });
-    
+
         return Object.keys(analysisSets);
-      }
-      processPromptRows(rows: any[]): any[] {
+    }
+    processPromptRows(rows: any[]): any[] {
         rows.forEach((row: any) => {
-          if (!row.promptType) row.promptType = 'metric';
+            if (!row.promptType) row.promptType = 'metric';
         });
         return rows;
-      }
+    }
+    async generateMetricTemplate(metricTemplate: string, description: string) {
+        return "";
+    }
 }
