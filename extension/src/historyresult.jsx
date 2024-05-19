@@ -101,27 +101,27 @@ export default function HistoryResult(props) {
                         </div>
                         {setBasedResults[promptSet.setName].length > 0 && setBasedResults[promptSet.setName].map((result, resultIndex) => (
                             <div key={result.id}>
-                                {result.prompt.promptType === 'score 0 - 10' && (
+                                {result.prompt.metricType === 'score 0 - 10' && (
                                     <div className="prompt_result metric_result px-2 py-2">
-                                        <span className="prompt_id">{result.prompt.id}</span>
+                                        <span className="prompt_id">{result.prompt.name}</span>
                                         <span className="metric_score">{getMetricsResultValue(result.result.resultMessage)}<span className="outofscore">/10</span></span>
                                         <div className="metric_bar">
                                             <div className="metric_fill" style={{ width: getMetricsResultValue(result.result.resultMessage) * 10 + "%" }}></div>
                                         </div>
                                     </div>
                                 )}
-                                {result.prompt.promptType === 'json' && (
+                                {result.prompt.metricType === 'json' && (
                                     <div className="prompt_result json_result mx-2 py-2">
                                         <div className="prompt_header">
-                                            <span className="prompt_id">{result.prompt.id}</span>
+                                            <span className="prompt_id">{result.prompt.name}</span>
                                         </div>
                                         <div className="result_content">{resultDisplay}</div>
                                     </div>
                                 )}
-                                {(result.prompt.promptType === 'text') && (
+                                {(result.prompt.metricType === 'text') && (
                                     <div className="prompt_result text_result mx-2 py-2">
                                         <div className="prompt_header">
-                                            <span className="prompt_id">{result.prompt.id}</span>
+                                            <span className="prompt_id">{result.prompt.name}</span>
                                         </div>
                                         <div className="result_content">{result.result.resultMessage}</div>
                                     </div>

@@ -75,7 +75,7 @@ export default class PromptHelper {
                 </div>`;
             },
             columns: [
-                { title: "Id", field: "id", headerSort: false, width: 100 },
+                { title: "Name", field: "name", headerSort: false, width: 100 },
                 {
                     title: "",
                     field: "delete",
@@ -91,10 +91,10 @@ export default class PromptHelper {
                     width: 30,
                 },
                 {
-                    title: "Type", field: "promptType",
+                    title: "Metric Type", field: "metricType",
                     headerSort: false,
                 },
-                { title: "Prompt", field: "prompt", headerSort: false, width: 100 },
+                { title: "Template", field: "template", headerSort: false, width: 100 },
             ],
         });
 
@@ -104,7 +104,7 @@ export default class PromptHelper {
         });
 
         this.exportButton.addEventListener('click', async () => {
-            let promptTemplateList = await this.promptsTable.getData();
+            let promptTemplateList = this.promptsTable.getData();
             let blob = new Blob([JSON.stringify(promptTemplateList)], { type: "application/json" });
             let url = URL.createObjectURL(blob);
             let a = document.createElement('a');
@@ -123,11 +123,10 @@ export default class PromptHelper {
             let reader = new FileReader();
             reader.onload = async (e: any) => {
                 let promptTemplateList = JSON.parse(e.target.result);
-                let existingPrompts = await this.promptsTable.getData();
+                let existingPrompts = this.promptsTable.getData();
                 promptTemplateList = existingPrompts.concat(promptTemplateList);
-                promptTemplateList = this.metricCommon.processPromptRows(promptTemplateList);
                 await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
-                this.hydrateAllPromptRows();
+                this.renderMetricList();
                 this.fileInput.value = ''; // Reset the file input value
             };
             reader.readAsText(file);
@@ -161,7 +160,7 @@ export default class PromptHelper {
         this.paint();
     }
     async paint() {
-        this.hydrateAllPromptRows();
+        this.renderMetricList();
         this.populateAnalysisSetNameList();
     }
     getExampleMetric() {
@@ -220,32 +219,26 @@ export default class PromptHelper {
         this.prompt_helper_template_text.value = newMetricTemplate;
     }
     async savePromptTableData() {
-        let masterAnalysisList = await this.promptsTable.getData();
+        let masterAnalysisList = this.promptsTable.getData();
         chrome.storage.local.set({ masterAnalysisList });
     }
-    async hydrateAllPromptRows() {
+    async renderMetricList() {
         const allPrompts = await this.metricCommon.getAnalysisPrompts();
         if (!this.setCacheString(allPrompts)) return;
-
         this.promptsTable.setData(allPrompts);
     }
     async savePromptToLibrary() {
-        let promptId = this.prompt_id_input.value.trim();
-        let promptSuggestion = this.wizard_input_prompt.value.trim();
-        let templateType = this.metric_format_type.value;
-        let promptTemplate = this.prompt_template_text.value.trim();
+        let name = this.prompt_id_input.value.trim();
+        let metricType = this.metric_format_type.value;
+        let template = this.prompt_template_text.value.trim();
         let setName = this.prompt_setname_input.value.trim();
-        if (!promptId || !templateType || !promptTemplate || !setName) {
-            alert('Please fill out all fields to add a prompt to the library.');
+        if (!name || !template || !setName) {
+            alert('Please fill out template, set name and name.');
             return;
         }
-        let promptType = "text";
-        if (templateType === 'metric') promptType = "metric";
-        if (templateType === 'json') promptType = "json";
-        let prompt = { id: promptId, templateType, promptType, prompt: promptTemplate, setName, promptSuggestion };
+        let prompt = { name, metricType, template, setName };
         let promptTemplateList = this.promptsTable.getData();
         promptTemplateList.push(prompt);
-        promptTemplateList = this.metricCommon.processPromptRows(promptTemplateList);
         this.setCacheString(promptTemplateList);
         await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
     }

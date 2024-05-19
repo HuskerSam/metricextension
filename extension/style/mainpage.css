@@ -39,10 +39,6 @@
     padding: 4px;
 }
 
-.tabulator_prompt_list_manager .tabulator-header {
-    display: none;
-}
-
 #main_bulk_tab_view .tabulator .tabulator-header .tabulator-header-contents .tabulator-headers,
 #main_bulk_tab_view .tabulator .tabulator-header .tabulator-header-contents .tabulator-headers {
     filter: contrast(0.94);

@@ -321,7 +321,7 @@ Example prompt template:
         }
 
         const runPrompt = async (prompt: any, text: string) => {
-            let fullPrompt = await this.sendPromptForMetric(prompt.prompt, text);
+            let fullPrompt = await this.sendPromptForMetric(prompt.template, text);
             let result = await this.extCommon.processPromptUsingUnacogAPI(fullPrompt);
             return {
                 prompt,
@@ -408,9 +408,9 @@ Example prompt template:
     }
     async getAnalysisPrompts() {
         let prompts = await this.getDefaultAnalysisPrompts();
-        let rawData = await this.chrome.storage.local.get('masterAnalysisList');
-        if (rawData && rawData.masterAnalysisList && Object.keys(rawData.masterAnalysisList).length > 0) {
-            prompts = rawData.masterAnalysisList;
+        const masterAnalysisList = await this.extCommon.getStorageField('masterAnalysisList') || [];
+        if (masterAnalysisList > 0) {
+            prompts = masterAnalysisList;
         }
         return prompts;
     }
