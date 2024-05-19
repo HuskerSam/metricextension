@@ -270,11 +270,6 @@ body {
   border-bottom: solid 1px var(--border-color);
 }
 
-
-.prompt_id_input {
-  font-weight: bold;
-}
-
 .result_content {
   white-space: pre-wrap;
   font-size: var(--font-size-base);

@@ -407,12 +407,12 @@ Example prompt template:
         return resultPrompts;
     }
     async getAnalysisPrompts() {
-        let prompts = await this.getDefaultAnalysisPrompts();
+        let metrics = await this.getDefaultAnalysisPrompts();
         const masterAnalysisList = await this.extCommon.getStorageField('masterAnalysisList') || [];
-        if (masterAnalysisList > 0) {
-            prompts = masterAnalysisList;
+        if (masterAnalysisList.length > 0) {
+            metrics = masterAnalysisList;
         }
-        return prompts;
+        return metrics;
     }
     async getAnalysisSetNames() {
         let allPrompts = await this.getAnalysisPrompts();

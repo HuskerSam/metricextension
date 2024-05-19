@@ -20,7 +20,7 @@ export default class PromptHelper {
     test_modal = document.querySelector('.test_modal') as HTMLDivElement;
     create_prompt_tab = document.getElementById('create-prompt-tab') as HTMLButtonElement;
     prompt_id_input = document.querySelector('.prompt_id_input') as HTMLInputElement;
-    prompt_template_text = document.querySelector('.prompt_template_text') as HTMLInputElement;
+    metric_template_text = document.querySelector('.metric_template_text') as HTMLInputElement;
     user_prompt_library = document.querySelector('.user_prompt_library') as HTMLDivElement;
     prompt_setname_input = document.querySelector('.prompt_setname_input') as HTMLInputElement;
     prompthelper_tab_help_text = document.querySelector('.prompthelper_tab_help_text') as HTMLDivElement;
@@ -37,7 +37,6 @@ export default class PromptHelper {
     example_template_type = document.querySelector('.example_template_type') as HTMLSelectElement;
     template_preview_container = document.querySelector('.template_preview_container') as HTMLDivElement;
     copy_metric_example_template_to_create = document.querySelector('.copy_metric_example_template_to_create') as HTMLButtonElement;
-    prompt_helper_template_text = document.querySelector('.prompt_helper_template_text') as HTMLTextAreaElement;
     example_metric_type = document.querySelector('.example_metric_type') as HTMLDivElement;
     lastRenderedPromptsList = "";
 
@@ -63,6 +62,7 @@ export default class PromptHelper {
             movableRows: true,
             groupBy: "setName",
             resizableColumnGuide: true,
+            headerVisible: false,
             groupHeader: (value: any, count: number, data: any, group: any) => {
                 return `
                 <div class='inline-flex flex-1 justify-between items-center'>
@@ -98,10 +98,8 @@ export default class PromptHelper {
             ],
         });
 
-        this.generate_metric_prompt.addEventListener('click', async () => this.generateMetric());
-        this.prompt_helper_save_prompt_button.addEventListener('click', async () => {
-            this.savePromptToLibrary();
-        });
+        this.generate_metric_prompt.addEventListener('click', () => this.generateMetric());
+        this.prompt_helper_save_prompt_button.addEventListener('click', () => this.addMetric());
 
         this.exportButton.addEventListener('click', async () => {
             let promptTemplateList = this.promptsTable.getData();
@@ -145,7 +143,7 @@ export default class PromptHelper {
 
         this.copy_metric_example_template_to_create.addEventListener('click', () => {
             const t = this.getExampleMetric().template;
-            this.prompt_helper_template_text.value = t;
+            this.metric_template_text.value = t;
             this.metric_format_type.value = this.getExampleMetric().metricType;
         });
 
@@ -160,7 +158,9 @@ export default class PromptHelper {
         this.paint();
     }
     async paint() {
-        this.renderMetricList();
+        const allMetrics = await this.metricCommon.getAnalysisPrompts();
+        if (this.setCacheString(allMetrics)) this.promptsTable.setData(allMetrics);
+
         this.populateAnalysisSetNameList();
     }
     getExampleMetric() {
@@ -216,31 +216,26 @@ export default class PromptHelper {
         const template = this.metricTemplateExamples[this.example_template_type.selectedIndex].template;
         const query = this.wizard_input_prompt.value;
         const newMetricTemplate = await this.metricCommon.generateMetricTemplate(template, query);
-        this.prompt_helper_template_text.value = newMetricTemplate;
+        this.metric_template_text.value = newMetricTemplate;
     }
     async savePromptTableData() {
         let masterAnalysisList = this.promptsTable.getData();
         chrome.storage.local.set({ masterAnalysisList });
     }
-    async renderMetricList() {
-        const allPrompts = await this.metricCommon.getAnalysisPrompts();
-        if (!this.setCacheString(allPrompts)) return;
-        this.promptsTable.setData(allPrompts);
-    }
-    async savePromptToLibrary() {
-        let name = this.prompt_id_input.value.trim();
-        let metricType = this.metric_format_type.value;
-        let template = this.prompt_template_text.value.trim();
-        let setName = this.prompt_setname_input.value.trim();
+    async addMetric() {
+        const name = this.prompt_id_input.value.trim();
+        const metricType = this.metric_format_type.value;
+        const template = this.metric_template_text.value.trim();
+        const setName = this.prompt_setname_input.value.trim();
         if (!name || !template || !setName) {
             alert('Please fill out template, set name and name.');
             return;
         }
-        let prompt = { name, metricType, template, setName };
-        let promptTemplateList = this.promptsTable.getData();
-        promptTemplateList.push(prompt);
-        this.setCacheString(promptTemplateList);
-        await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
+        const metric = { name, metricType, template, setName };
+        this.promptsTable.addRow(metric);
+        const metricList = this.promptsTable.getData();
+        this.setCacheString(metricList);
+        await chrome.storage.local.set({ masterAnalysisList: metricList });
     }
     async populateAnalysisSetNameList() {
         let html = '';

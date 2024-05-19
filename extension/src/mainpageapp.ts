@@ -54,7 +54,7 @@ export default class MainPageApp {
     async load() {
         await this.loadHTMLTemplate("pages/history.html", this.main_history_tab_view);
         await this.loadHTMLTemplate("pages/bulk.html", this.main_bulk_tab_view);
-        await this.loadHTMLTemplate("pages/prompts.html", this.main_prompt_manager_tab_view);
+        await this.loadHTMLTemplate("pages/metrics.html", this.main_prompt_manager_tab_view);
         await this.loadHTMLTemplate("pages/settings.html", this.main_options_tab_view);
         await this.loadHTMLTemplate("pages/semantic.html", this.main_datamill_tab_view);
         await this.loadHTMLTemplate("pages/news.html", this.main_feed_tab_view);
