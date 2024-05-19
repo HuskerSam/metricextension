@@ -166,7 +166,7 @@ export default class MainPageApp {
         this.bulkHelper?.paint();
         this.dataMillHelper?.paintData();
         this.extCommon.updateSessionKeyStatus();
-        this.promptHelper?.paintPromptTab();
+        this.promptHelper?.paint();
         this.settingsHelper?.paintData();
     }
 }

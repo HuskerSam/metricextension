@@ -35,6 +35,8 @@ export default class PromptHelper {
     metric_format_type = document.querySelector('.metric_format_type') as HTMLSelectElement;
     example_template_type = document.querySelector('.example_template_type') as HTMLSelectElement;
     template_preview_container = document.querySelector('.template_preview_container') as HTMLDivElement;
+    copy_metric_example_template_to_create = document.querySelector('.copy_metric_example_template_to_create') as HTMLButtonElement;
+    prompt_helper_template_text = document.querySelector('.prompt_helper_template_text') as HTMLTextAreaElement;
 
     promptsTable: TabulatorFull;
     lastRenderedPromptsList = "";
@@ -163,12 +165,21 @@ export default class PromptHelper {
         });
         this.updateExampleTemplateSelection();
 
+        this.copy_metric_example_template_to_create.addEventListener('click', () => {
+            const t = this.metricTemplateExamples[this.example_template_type.selectedIndex].template;
+            this.prompt_helper_template_text.value = t;
+        });
+
         this.initPromptTable();
-        this.paintPromptTab();
+        this.paint();
+    }
+    async paint() {
+        this.hydrateAllPromptRows();
+        this.populateAnalysisSetNameList();
     }
     updateExampleTemplateSelection() {
-        let selectedIndex = this.example_template_type.selectedIndex;
-        this.template_preview_container.innerText = this.metricTemplateExamples[selectedIndex].template;
+        this.template_preview_container.innerText = 
+        this.metricTemplateExamples[this.example_template_type.selectedIndex].template;
     }
     initPromptTable() {
         this.promptsTable.on("renderComplete", () => {
@@ -205,9 +216,6 @@ export default class PromptHelper {
         this.promptsTable.on("rowMoved", async (cell: any) => {
             this.savePromptTableData();
         });
-    }
-    async paintPromptTab() {
-        this.hydrateAllPromptRows();
     }
     setCacheString(allPrompts: any, other: any = {}) {
         const cacheString = JSON.stringify(allPrompts) + JSON.stringify(other);
@@ -347,7 +355,7 @@ export default class PromptHelper {
         this.setCacheString(promptTemplateList);
         await chrome.storage.local.set({ masterAnalysisList: promptTemplateList });
     }
-    async getAnalysisSetNameList() {
+    async populateAnalysisSetNameList() {
         let html = '';
         let promptSetNames = await this.metricCommon.getAnalysisSetNames();
         promptSetNames.forEach((setName) => {
