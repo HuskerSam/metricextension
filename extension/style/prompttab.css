@@ -16,3 +16,7 @@
     margin-top: 67px;
     margin-bottom: 8px;
   }
+
+  .tabulator-cell.tabulator-editable textarea {
+    overflow: hidden;
+  }

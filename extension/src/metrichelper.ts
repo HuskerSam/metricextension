@@ -74,27 +74,44 @@ export default class MetricHelper {
                     </button>
                 </div>`;
             },
-            columns: [
-                { title: "Name", field: "name", headerSort: false, width: 100 },
-                {
-                    title: "",
-                    field: "delete",
-                    headerSort: false,
-                    formatter: () => {
-                        return `
+            columns: [{
+                title: "Name",
+                field: "name",
+                headerSort: false,
+                editor: "input",
+                width: 100
+            }, {
+                title: "",
+                field: "delete",
+                headerSort: false,
+                formatter: () => {
+                    return `
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                         </svg>
                       `;
+                },
+                hozAlign: "center",
+                width: 30,
+            }, {
+                title: "Metric Type",
+                field: "metricType",
+                editor: "list",
+                editorParams: {
+                    values: {
+                        "score 0 - 10": "score 0 - 10",
+                        "text": "text",
+                        "json": "json",
                     },
-                    hozAlign: "center",
-                    width: 30,
                 },
-                {
-                    title: "Metric Type", field: "metricType",
-                    headerSort: false,
-                },
-                { title: "Template", field: "template", headerSort: false, width: 100 },
+                headerSort: false,
+            }, {
+                title: "Template",
+                field: "template",
+                editor: "textarea",
+                headerSort: false,
+                width: 100,
+            },
             ],
         });
 
@@ -166,7 +183,7 @@ export default class MetricHelper {
         return this.metricTemplateExamples[this.example_template_type.selectedIndex];
     }
     updateExampleTemplateSelection() {
-        this.template_preview_container.innerText =this.getExampleMetric().template;
+        this.template_preview_container.innerText = this.getExampleMetric().template;
         this.example_metric_type.innerText = this.getExampleMetric().metricType;
     }
     initPromptTable() {
@@ -214,6 +231,10 @@ export default class MetricHelper {
     async generateMetric() {
         const template = this.metricTemplateExamples[this.example_template_type.selectedIndex].template;
         const query = this.wizard_input_prompt.value;
+        if (!template || !query) {
+            alert('Please fill out the prompt and select a template.');
+            return;
+        }
         const newMetricTemplate = await this.metricCommon.generateMetricTemplate(template, query);
         this.metric_template_text.value = newMetricTemplate;
     }

@@ -4,15 +4,15 @@ export const exampleMetrics = () => {
             metricType: "score 0-10",
             title: "Language Score 0 - 10",
             template: `Describe language suitability for under age audiences.
-            Please respond with a number between 0 and 10.
+Please respond with a number between 0 and 10.
             
-            Please respond with json and only json in this format:
-            {
-                "contentRating": 0
-            }
-            
-            Here is the content to analyze:
-            {{query}}`,
+Please respond with json and only json in this format:
+{
+    "contentRating": 0
+}
+
+Here is the content to analyze:
+{{query}}`,
         }, {
             metricType: "text",
             title: "Keywords",

@@ -8,7 +8,7 @@ export class MetricCommon {
     extCommon: AnalyzerExtensionCommon;
     activeTabsBeingScraped: any = [];
     metricTypes = ["score 0-10", "text", "json"];
-    generatePromptPrefix = `I would like to produce a new prompt template based on a description and an example.
+    generatePromptTemplate = `I would like to produce a new prompt template based on a description and an example.
 Description for new prompt template: 
 {{description}}
     
@@ -427,6 +427,9 @@ Example prompt template:
         return Object.keys(analysisSets);
     }
     async generateMetricTemplate(metricTemplate: string, description: string) {
-        return "";
+        
+        const result = await Mustache.render(this.generatePromptTemplate, { query: q });
+        
+        let newPromptContent = (await this.extCommon.processPromptUsingUnacogAPI(newPromptAgent)).resultMessage;
     }
 }
