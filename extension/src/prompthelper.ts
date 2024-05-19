@@ -38,6 +38,7 @@ export default class PromptHelper {
     template_preview_container = document.querySelector('.template_preview_container') as HTMLDivElement;
     copy_metric_example_template_to_create = document.querySelector('.copy_metric_example_template_to_create') as HTMLButtonElement;
     prompt_helper_template_text = document.querySelector('.prompt_helper_template_text') as HTMLTextAreaElement;
+    example_metric_type = document.querySelector('.example_metric_type') as HTMLDivElement;
     lastRenderedPromptsList = "";
 
     constructor(app: MainPageApp) {
@@ -144,9 +145,17 @@ export default class PromptHelper {
         this.updateExampleTemplateSelection();
 
         this.copy_metric_example_template_to_create.addEventListener('click', () => {
-            const t = this.metricTemplateExamples[this.example_template_type.selectedIndex].template;
+            const t = this.getExampleMetric().template;
             this.prompt_helper_template_text.value = t;
+            this.metric_format_type.value = this.getExampleMetric().metricType;
         });
+
+        let metricTypeOptionHTML = "";
+        this.metricCommon.metricTypes.forEach((type) => {
+            metricTypeOptionHTML += `<option>${type}</option>`;
+        });
+        this.metric_format_type.innerHTML = metricTypeOptionHTML;
+        this.metric_format_type.selectedIndex = 0;
 
         this.initPromptTable();
         this.paint();
@@ -155,9 +164,12 @@ export default class PromptHelper {
         this.hydrateAllPromptRows();
         this.populateAnalysisSetNameList();
     }
+    getExampleMetric() {
+        return this.metricTemplateExamples[this.example_template_type.selectedIndex];
+    }
     updateExampleTemplateSelection() {
-        this.template_preview_container.innerText =
-            this.metricTemplateExamples[this.example_template_type.selectedIndex].template;
+        this.template_preview_container.innerText =this.getExampleMetric().template;
+        this.example_metric_type.innerText = this.getExampleMetric().metricType;
     }
     initPromptTable() {
         this.promptsTable.on("renderComplete", () => {

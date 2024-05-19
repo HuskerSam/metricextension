@@ -44,13 +44,16 @@
         <select class="form-select-ts example_template_type" name="example_template_type"></select>
         <div class="template_preview_container mt-2 p-2 overflow-auto flex-2 whitespace-pre-wrap">
         </div>
-        <div class="text-right mt-1">
+        <div class="flex flex-row mt-1">
+          <label class="form-input-label-ts mt-2">Metric Type:</label>
+          <label class="example_metric_type font-bold mt-2 ml-2"></label>
+          <div class="flex-1"></div>
           <button class="copy_metric_example_template_to_create btn-ts-secondary">
             Use
           </button>
         </div>
         <textarea name="wizard_prompt" rows="3" class="wizard_input_prompt flex-1 form-input-ts mt-2 mb-1"
-          placeholder="generate a metric like..."></textarea>
+          placeholder="using example make these adjustments..."></textarea>
         <div class="text-right mb-1">
           <button class="generate_metric_prompt btn-ts-secondary">
             Generate
@@ -59,22 +62,16 @@
       </div>
       <div class="metric_prompt_create_lower_panel flex flex-col overflow-hidden">
         <div class="flex flex-row">
-          <label class="form-input-label-ts mr-2">Set Name:
+          <label class="form-input-label-ts mr-2 flex-1">Analysis Set:
             <input type="text" class="form-input-ts prompt_setname_input" list="input_datalist_prompt_list" required
               value="">
           </label>
           <datalist id="input_datalist_prompt_list"></datalist>
-          <label class="form-input-label-ts">Name/Id:
+          <label class="form-input-label-ts flex-1">Metric Name:
             <input type="text" class="form-input-ts prompt_id_input">
           </label>
-        </div>
-        <div>
-          <label class="form-input-label-ts inline-block">Metric Type:
-            <select class="form-select-ts metric_format_type width-auto" name="metric_format_type">
-              <option>metric</option>
-              <option>text</option>
-              <option>json</option>
-            </select>
+          <label class="form-input-label-ts inline-block ml-2">Output Type:
+            <select class="form-select-ts metric_format_type width-auto"></select>
           </label>
         </div>
         <label for="prompt_description" class="form-input-label-ts block">Metric Template</label>

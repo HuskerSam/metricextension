@@ -7,6 +7,7 @@ export class MetricCommon {
     chrome: any;
     extCommon: AnalyzerExtensionCommon;
     activeTabsBeingScraped: any = [];
+    metricTypes = ["score 0-10", "text", "json"];
     generatePromptPrefix = `I would like to produce a new prompt template based on a description and an example.
 Description for new prompt template: 
 {{description}}
