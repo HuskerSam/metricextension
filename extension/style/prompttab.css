@@ -37,6 +37,7 @@
     flex-direction: column;
     display: flex;
     overflow: hidden;
+    min-height: 50px;
   }
 
   .accordion-button {
