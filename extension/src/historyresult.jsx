@@ -94,7 +94,7 @@ export default function HistoryResult(props) {
             </div>
             <div>
                 {setNamesArray && setNamesArray.length > 0 && setNamesArray.map((promptSet, setIndex) => (
-                    <div key={promptSet.id} className="flex flex-col shadow-md rounded-b-md">
+                    <div key={promptSet.id} className="flex flex-col shadow-md rounded-b-md mb-3">
                         <div className='flex flex-col bg-gray-50 text-gray-800 mb-1'>
                             <div className="flex justify-between">
                                 <h3 className="p-2 flex-1 fs-5 rounded-md">{promptSet.setName}</h3>
@@ -152,7 +152,7 @@ export default function HistoryResult(props) {
                     </div>
                 ))}
             </div>
-            <div className="flex-col items-start mx-1 pb-1 mt-[-8px]">
+            <div className="flex-col items-start mx-1">
                 <div className='flex flex-1 justify-between'>
                     <span className="text-xxs text-end mr-2">Credits: {Math.round(historyEntry.usageCreditTotal)}</span>
                     <span className="text-gray-800 history_short_date text-xxs time_since text-nowrap inline-block min-w-18" data-timesince={historyEntry.runDate}></span>
