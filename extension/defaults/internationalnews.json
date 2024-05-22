@@ -50,13 +50,13 @@
     {
         "name": "Main Subject",
         "template": "what is the main subject, person, place or topic of this scraped webpage?\nHere is the content to analyze:\n    {{query}}",
-        "metricType": "template",
+        "metricType": "text",
         "setName": "International Articles"
     },
     {
         "name": "Controversy",
         "template": "access what is main controversy of this article (web scraped news article)? \n  Here is the content to analyze:\n  {{query}}",
-        "metricType": "template",
+        "metricType": "text",
         "setName": "International Articles"
     }
 ]

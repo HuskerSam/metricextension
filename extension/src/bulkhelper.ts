@@ -12,15 +12,115 @@ export default class BulkHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
     metricCommon: MetricCommon;
-    bulkUrlListTabulator: TabulatorFull;
-    bulkResultsTabulator: TabulatorFull;
-    bulkUrlScrapeResultsTabulator: TabulatorFull;
-    viewSplitter: Split.Instance;
-    bulkSelected: any;
-    itemsPerView = 5;
-    bulkSelectedIndex = 0;
-    currentPageIndex = 0;
-    bulk_analysis_sets_select: any = document.querySelector('.bulk_analysis_sets_select');
+    bulkUrlListTabulator = new TabulatorFull(".bulk_url_list_tabulator", {
+        layout: "fitColumns",
+        movableRows: true,
+        rowHeader: {
+            headerSort: false,
+            resizable: false,
+            minWidth: 24,
+            width: 24,
+            rowHandle: true,
+            formatter: "handle",
+            frozen: true,
+        },
+        columns: [
+            { title: "URL", field: "url", editor: "input", headerSort: false },
+            {
+                title: "Scrape",
+                field: "scrape",
+                headerSort: false,
+                editor: "list",
+                editorParams: {
+                    values: {
+                        "server scrape": "Server Scrape",
+                        "browser scrape": "Browser Scrape",
+                        "override content": "Override Content",
+                    },
+                },
+                width: 120,
+            },
+            { title: "Options", field: "options", editor: "input", headerSort: false, width: 120, },
+            { title: "Content", field: "content", editor: "textarea", headerSort: false, width: 120, },
+            {
+                title: "",
+                field: "delete",
+                headerSort: false,
+                formatter: () => {
+                    return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>`;
+                },
+                hozAlign: "center",
+                width: 30,
+            },
+        ],
+    });
+    bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
+        layout: "fitColumns",
+        resizableColumnFit: true,
+        columns: [],
+    });
+    bulkUrlScrapeResultsTabulator = new TabulatorFull(".url_result_list", {
+        layout: "fitColumns",
+        selectableRange: true,
+        rowHeader: {
+            resizable: false,
+            hozAlign: "center",
+            formatter: "rownum",
+            width: 40,
+            headerSort: false,
+        },
+        clipboard: true,
+        headerVisible: false,
+        clipboardCopyRowRange: "range",
+        clipboardPasteParser: "range",
+        clipboardPasteAction: "range",
+        clipboardCopyConfig: {
+            rowHeaders: false, //do not include row headers in clipboard output
+            columnHeaders: false, //do not include column headers in clipboard output
+        },
+        clipboardCopyStyled: false,
+        columns: [
+            { title: "URL", field: "url", headerSort: true },
+        ],
+    });
+    top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
+    bottom_bulk_view_splitter = document.querySelector('.bottom_bulk_view_splitter') as HTMLDivElement;
+    viewSplitter = Split([this.top_bulk_view_splitter, this.bottom_bulk_view_splitter],
+        {
+            sizes: [50, 50],
+            direction: 'vertical',
+            minSize: 100, // min size of both panes
+            gutterSize: 8,
+        });
+    bulkSelected = new SlimSelect({
+        select: '.bulk_analysis_sets_select',
+        settings: {
+            showSearch: false,
+            placeholderText: 'Select Analysis Set(s)',
+            keepOrder: true,
+            hideSelected: true,
+            minSelected: 1,
+            closeOnSelect: false,
+        },
+        events: {
+            afterChange: async (newVal: any) => {
+                let selectedBulkAnalysisSets: any[] = [];
+                this.bulkSelected.render?.main.values.querySelectorAll('.ss-value')
+                    .forEach((item: any) => {
+                        selectedBulkAnalysisSets.push(item.innerText);
+                    });
+                if (selectedBulkAnalysisSets.length <= 1) {
+                    this.bulk_analysis_sets_select.classList.add('slimselect_onevalue');
+                } else {
+                    this.bulk_analysis_sets_select.classList.remove('slimselect_onevalue');
+                }
+                await chrome.storage.local.set({ selectedBulkAnalysisSets });
+            },
+        },
+    });
+    bulk_analysis_sets_select = document.querySelector('.bulk_analysis_sets_select') as HTMLSelectElement;
     add_bulk_url_row = document.querySelector('.add_bulk_url_row') as HTMLAnchorElement;
     run_bulk_analysis_btn = document.querySelector('.run_bulk_analysis_btn') as HTMLButtonElement;
     download_url_list = document.querySelector('.download_url_list') as HTMLAnchorElement;
@@ -34,8 +134,6 @@ export default class BulkHelper {
     clear_bulk_history = document.querySelector('.clear_bulk_history') as HTMLButtonElement;
     json_display_modal = document.querySelector('.json_display_modal') as HTMLDivElement;
     json_display_modal_content = document.querySelector('.json_display_modal_content') as HTMLDivElement;
-    top_bulk_view_splitter = document.querySelector('.top_bulk_view_splitter') as HTMLDivElement;
-    bottom_bulk_view_splitter = document.querySelector('.bottom_bulk_view_splitter') as HTMLDivElement;
     bulk_option_scrape_url = document.querySelector('.bulk_option_scrape_url') as HTMLInputElement;
     scrape_url_button = document.querySelector('.scrape_url_button') as HTMLButtonElement;
     bulk_modal_input_url = document.querySelector('.bulk_modal_input_url') as HTMLInputElement;
@@ -50,121 +148,17 @@ export default class BulkHelper {
     lastRenderedUrlListCache = "";
     bulkHistoryCache = "";
     lastTableEdit = new Date("1900-01-01");
+    itemsPerView = 5;
+    bulkSelectedIndex = 0;
+    currentPageIndex = 0;
 
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
         this.metricCommon = app.metricCommon;
-        this.bulkResultsTabulator = new TabulatorFull(".bulk_analysis_results_tabulator", {
-            layout: "fitColumns",
-            resizableColumnFit: true,
-            columns: [],
-        });
 
-        this.bulkUrlListTabulator = new TabulatorFull(".bulk_url_list_tabulator", {
-            layout: "fitColumns",
-            movableRows: true,
-            rowHeader: {
-                headerSort: false,
-                resizable: false,
-                minWidth: 24, 
-                width: 24,
-                rowHandle: true,
-                formatter: "handle",
-                frozen: true,
-            },
-            columns: [
-                { title: "URL", field: "url", editor: "input", headerSort: false },
-                {
-                    title: "Scrape",
-                    field: "scrape",
-                    headerSort: false,
-                    editor: "list",
-                    editorParams: {
-                        values: {
-                            "server scrape": "Server Scrape",
-                            "browser scrape": "Browser Scrape",
-                            "override content": "Override Content",
-                        },
-                    },
-                    width: 120,
-                },
-                { title: "Options", field: "options", editor: "input", headerSort: false, width: 120, },
-                { title: "Content", field: "content", editor: "textarea", headerSort: false, width: 120, },
-                {
-                    title: "",
-                    field: "delete",
-                    headerSort: false,
-                    formatter: () => {
-                        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                    </svg>`;
-                    },
-                    hozAlign: "center",
-                    width: 30,
-                },
-            ],
-        });
-        this.bulkUrlScrapeResultsTabulator = new TabulatorFull(".url_result_list", {
-            layout: "fitColumns",
-            selectableRange: true,
-            rowHeader: {
-                resizable: false,
-                hozAlign: "center",
-                formatter: "rownum",
-                width: 40,
-                headerSort: false,
-            },
-            clipboard: true,
-            headerVisible: false,
-            clipboardCopyRowRange: "range",
-            clipboardPasteParser: "range",
-            clipboardPasteAction: "range",
-            clipboardCopyConfig: {
-                rowHeaders: false, //do not include row headers in clipboard output
-                columnHeaders: false, //do not include column headers in clipboard output
-            },
-            clipboardCopyStyled: false,
-            columns: [
-                { title: "URL", field: "url", headerSort: true },
-            ],
-        });
         this.bulk_option_scrape_url.addEventListener('click', () => this.showBulkURLScrapeDialog());
         this.scrape_url_button.addEventListener('click', () => this.scrapeModalBulkUrl());
-        this.bulkSelected = new SlimSelect({
-            select: '.bulk_analysis_sets_select',
-            settings: {
-                showSearch: false,
-                placeholderText: 'Select Analysis Set(s)',
-                keepOrder: true,
-                hideSelected: true,
-                minSelected: 1,
-                closeOnSelect: false,
-            },
-            events: {
-                afterChange: async (newVal) => {
-                    let selectedBulkAnalysisSets: any[] = [];
-                    this.bulkSelected.render.main.values.querySelectorAll('.ss-value')
-                        .forEach((item: any) => {
-                            selectedBulkAnalysisSets.push(item.innerText);
-                        });
-                    if (selectedBulkAnalysisSets.length <= 1) {
-                        this.bulk_analysis_sets_select.classList.add('slimselect_onevalue');
-                    } else {
-                        this.bulk_analysis_sets_select.classList.remove('slimselect_onevalue');
-                    }
-                    await chrome.storage.local.set({ selectedBulkAnalysisSets });
-                },
-            },
-        });
-
-        this.viewSplitter = Split([this.top_bulk_view_splitter, this.bottom_bulk_view_splitter],
-            {
-                sizes: [50, 50],
-                direction: 'vertical',
-                minSize: 100, // min size of both panes
-                gutterSize: 8,
-            });
 
         this.bulkUrlListTabulator.on("cellClick", async (e: Event, cell: any) => {
             if (cell.getColumn().getField() === "delete") {
@@ -319,24 +313,23 @@ export default class BulkHelper {
             };
             reader.readAsText(file);
         });
-        this.download_full_json.addEventListener('click', async (e) => {
-            let bulkHistory = await chrome.storage.local.get('bulkHistory');
-            bulkHistory = bulkHistory.bulkHistory || [];
+        this.download_full_json.addEventListener('click', async () => {
+            const bulkHistory = await this.extCommon.getStorageField('bulkHistory') || [];
             let historyItem = bulkHistory[this.bulkSelectedIndex];
             let a = document.createElement('a');
             document.body.appendChild(a);
             a.href = historyItem.analysisResultPath;
+            a.target = "_blank";
             a.click();
             document.body.removeChild(a);
-            e.preventDefault();
         });
         this.download_compact_csv.addEventListener('click', async () => {
-            let bulkHistory = await chrome.storage.local.get('bulkHistory');
-            bulkHistory = bulkHistory.bulkHistory || [];
+            const bulkHistory = await this.extCommon.getStorageField('bulkHistory') || [];
             let historyItem = bulkHistory[this.bulkSelectedIndex];
             let a = document.createElement('a');
             document.body.appendChild(a);
             a.href = historyItem.compactResultPath;
+            a.target = "_blank";
             a.click();
             document.body.removeChild(a);
         });
@@ -389,7 +382,7 @@ export default class BulkHelper {
                 this.lastSlimSelections = setCache;
 
                 this.bulkSelected.setSelected(selectedBulkAnalysisSets.selectedBulkAnalysisSets);
-                let domSelections = this.bulkSelected.render.main.values.querySelectorAll('.ss-value');
+                let domSelections = this.bulkSelected.render?.main.values.querySelectorAll('.ss-value') as NodeListOf<Element>;
                 let indexMap: any = {};
                 domSelections.forEach((item: any, index: any) => {
                     indexMap[item.innerText] = index;
@@ -398,7 +391,7 @@ export default class BulkHelper {
                 setOrder.forEach((setName: any, index: any) => {
                     let domIndex = indexMap[setName];
                     if (domSelections[domIndex]) {
-                        this.bulkSelected.render.main.values.appendChild(domSelections[domIndex]);
+                        this.bulkSelected.render?.main.values.appendChild(domSelections[domIndex]);
                     }
                 });
             }
@@ -468,7 +461,7 @@ export default class BulkHelper {
         const newCache = JSON.stringify({
             bulkHistory,
             bulkRunning,
-            selectedIndex: this.bulkSelectedIndex, 
+            selectedIndex: this.bulkSelectedIndex,
             pageIndex: this.currentPageIndex,
         });
         if (newCache === this.bulkHistoryCache) return;

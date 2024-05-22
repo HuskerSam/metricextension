@@ -59,3 +59,7 @@
 .scrape_type_server_scrape .html_element_selector_wrapper {
   visibility: visible;
 }
+
+.metrics_running .side_panel_no_result_display {
+  display: none;
+}

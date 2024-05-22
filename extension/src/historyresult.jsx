@@ -1,5 +1,6 @@
 import React from 'react';
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import Papa from 'papaparse';
 
 export default function HistoryResult(props) {
     const [historyEntry, setHistoryEntry] = React.useState({});
@@ -8,6 +9,7 @@ export default function HistoryResult(props) {
     props.hooks.setHistoryEntry = setHistoryEntry;
     props.hooks.setShow = setShow;
 
+    const extCommon = new AnalyzerExtensionCommon();
     let allResults = historyEntry.results;
     let usageCreditTotal = 0;
     let setBasedResults = {};
@@ -52,15 +54,14 @@ export default function HistoryResult(props) {
       }
     }); 
     */
+    const copyCompactResultsToClipboard = async () => {
+        let compactData = extCommon.processRawResultstoCompact([historyEntry]);
+        let csvData = Papa.unparse(compactData);
+        navigator.clipboard.writeText(csvData);
+    };
 
-    /*
-    
-    this.sidepanel_history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
-      btn.addEventListener('click', async (e: any) => {
-        e.preventDefault();
-        const historyIndex = Number(btn.dataset.historyindex);
-        const entry = history[historyIndex];
-        let compactData = this.extCommon.processRawResultstoCompact(entry.results);
+    const downloadCompactResults = async () => {
+        let compactData = extCommon.processRawResultstoCompact([historyEntry]);
         let csvData = Papa.unparse(compactData);
         let blob = new Blob([csvData], { type: "text/csv" });
         let url = URL.createObjectURL(blob);
@@ -71,14 +72,10 @@ export default function HistoryResult(props) {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-      });
-    });
-    this.sidepanel_history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
-      btn.addEventListener('click', async (e: any) => {
-        e.preventDefault();
-        const historyIndex = Number(btn.dataset.historyindex);
-        const entry = history[historyIndex];
-        let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
+    };
+
+    const downloadFullResults = async () => {
+        let blob = new Blob([JSON.stringify(historyEntry)], { type: "application/json" });
         let url = URL.createObjectURL(blob);
         let a = document.createElement('a');
         document.body.appendChild(a);
@@ -87,9 +84,7 @@ export default function HistoryResult(props) {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-      });
-    });
-    */
+    };
 
     const getMetricsResultValue = (resultMessage) => {
         try {
@@ -111,7 +106,7 @@ export default function HistoryResult(props) {
     };
     if (!show) {
         return (
-            <div className="border-l-4 border-yellow-400 bg-yellow-50 p-4">
+            <div className="border-l-4 border-yellow-400 bg-yellow-50 p-4 side_panel_no_result_display">
                 <div className="flex ml-3">
                     No results to display. Use the right click menu to analyze a webpage or input text manually and run analysis to begin.
                 </div>
@@ -169,23 +164,23 @@ export default function HistoryResult(props) {
                             </div>
                         ))}
                         <div className="flex flex-row justify-end gap-2 p-2 bg-gray-50 shadow-sm">
-                                <button type="button" className="btn-ts-secondary history_copy_url_btn text-xs px-2 py-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                                        stroke="currentColor" className="w-4 h-4">
-                                        <path strokeLinecap="round" nejoin="round"
-                                            d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
-                                    </svg> copy
-                                </button>
-                                <button className="download_compact_results_btn btn-ts-secondary text-xs px-2 py-1" data-historyindex={historyEntry.historyIndex}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                                    </svg> csv
-                                </button>
-                                <button className="download_full_results_btn btn-ts-secondary text-xs px-2 py-1" data-historyindex={historyEntry.historyIndex}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
-                                    </svg> json
-                                </button>
+                            <button type="button" className="btn-ts-secondary history_copy_url_btn text-xs px-2 py-1" onClick={copyCompactResultsToClipboard}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
+                                    stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" nejoin="round"
+                                        d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
+                                </svg> copy
+                            </button>
+                            <button className="download_compact_results_btn btn-ts-secondary text-xs px-2 py-1" onClick={downloadCompactResults}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
+                                </svg> csv
+                            </button>
+                            <button className="download_full_results_btn btn-ts-secondary text-xs px-2 py-1" onClick={downloadFullResults}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25" />
+                                </svg> json
+                            </button>
                         </div>
                     </div>
                 ))}
