@@ -8,7 +8,7 @@ export class MetricCommon {
     extCommon: AnalyzerExtensionCommon;
     activeTabsBeingScraped: any = [];
     metricTypes = ["score 0-10", "text", "json"];
-    generatePromptTemplate = `Edit the prompt example template based on the following description. Only return the new prompt template. Do not include the description or example template in the response.
+    generaticMetricPromptTemplate = `Edit the prompt example template based on the following description. Only return the new prompt template. Do not include the description or example template in the response.
 Description for new prompt template: 
 {{description}}
     
@@ -184,7 +184,7 @@ Example prompt template:
                 error: err,
             };
         }
-    } 
+    }
     async runBulkAnalysis(rows: any[]) {
         const isAlreadyRunning = await this.extCommon.setBulkRunning();
         if (isAlreadyRunning) {
@@ -388,9 +388,10 @@ Example prompt template:
         return Object.keys(analysisSets);
     }
     async generateMetricTemplate(exampleTemplate: string, description: string) {
-        
-        const result = Mustache.render(this.generatePromptTemplate, { exampleTemplate, description });
-        
+        let promptTemplate = await this.extCommon.getStorageField('generateMetricPromptTemplate') || "";
+        if (!promptTemplate) promptTemplate = this.generaticMetricPromptTemplate;
+
+        const result = Mustache.render(promptTemplate, { exampleTemplate, description });
         let newPromptContent = (await this.extCommon.processPromptUsingUnacogAPI(result)).resultMessage;
         return newPromptContent;
     }

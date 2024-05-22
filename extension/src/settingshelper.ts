@@ -1,10 +1,12 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
+import { MetricCommon } from './metriccommon';
 import MainPageApp from './mainpageapp';
 declare const chrome: any;
 
 export default class SettingsHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
+    metricCommon: MetricCommon;
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
@@ -18,10 +20,13 @@ export default class SettingsHelper {
     show_analyze_selection_in_context_menu = document.querySelector('.show_analyze_selection_in_context_menu') as HTMLInputElement;
     show_query_selection_in_context_menu = document.querySelector('.show_query_selection_in_context_menu') as HTMLInputElement;
     export_history = document.querySelector('.export_history') as HTMLButtonElement;
+    generate_metric_prompt_template_ta = document.querySelector('.generate_metric_prompt_template_ta') as HTMLTextAreaElement;
 
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
+        this.metricCommon = app.metricCommon;
+
         this.api_token_input.addEventListener('input', async (e) => {
             let apiToken = this.api_token_input.value;
             chrome.storage.local.set({ apiToken });
@@ -78,16 +83,20 @@ export default class SettingsHelper {
             let scrapedLengthCharacterLimit = this.scraped_length_character_limit.value;
             chrome.storage.local.set({ scrapedLengthCharacterLimit });
         });
+        this.generate_metric_prompt_template_ta.addEventListener('input', async () => {
+            const generateMetricPromptTemplate = this.generate_metric_prompt_template_ta.value;
+            chrome.storage.local.set({ generateMetricPromptTemplate });
+        });
 
         this.paintData();
     }
     async renderSettingsTab() {
-        let sessionConfig = await chrome.storage.local.get('sessionId');
-        if (sessionConfig && sessionConfig.sessionId) {
+        const sessionId = this.extCommon.getStorageField("sessionId") || "";;
+        if (sessionId) {
             (<any>document.querySelector('.no_session_key')).style.display = 'none';
             this.session_anchor_label.innerText = 'Use link to visit Unacog Session: ';
-            this.session_anchor.innerText = `Visit Session ${sessionConfig.sessionId}`;
-            this.session_anchor.href = `https://unacog.com/session/${sessionConfig.sessionId}`;
+            this.session_anchor.innerText = `Visit Session ${sessionId}`;
+            this.session_anchor.href = `https://unacog.com/session/${sessionId}`;
         } else {
             (<any>document.querySelector('.no_session_key')).style.display = 'block';
             this.session_anchor_label.innerText = 'Visit Unacog:';
@@ -95,13 +104,14 @@ export default class SettingsHelper {
             this.session_anchor.href = `https://unacog.com/klyde`;
         }
 
-        let sessionId = await chrome.storage.local.get('sessionId');
-        sessionId = sessionId.sessionId || '';
-        this.session_id_input.value = sessionId;
-
-        let apiToken = await chrome.storage.local.get('apiToken');
-        apiToken = apiToken.apiToken || '';
-        this.api_token_input.value = apiToken;
+        await this.extCommon.getFieldFromStorage(this.session_id_input, 'sessionId');
+        await this.extCommon.getFieldFromStorage(this.api_token_input, 'apiToken');
+        let generateMetricPromptTemplate = await this.extCommon.getStorageField('generateMetricPromptTemplate');
+        if (!generateMetricPromptTemplate) {
+            this.generate_metric_prompt_template_ta.value = this.metricCommon.generaticMetricPromptTemplate;
+        } else {
+            await this.extCommon.getFieldFromStorage(this.generate_metric_prompt_template_ta, 'generateMetricPromptTemplate');
+        }
     }
     async paintData() {
         this.renderSettingsTab();
