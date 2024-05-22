@@ -1,10 +1,9 @@
-
 .btn.open_main_feed_page_btn {
-    margin-bottom: 8px;  
-    position: relative;
-    top: 8px;
-    border: none;
-    left: -4px;
+  margin-bottom: 8px;
+  position: relative;
+  top: 8px;
+  border: none;
+  left: -4px;
 }
 
 .metrics_running .analysis_display {
@@ -29,7 +28,7 @@
 
 .side_panel .history_index {
   display: none;
-} 
+}
 
 .side_panel .history_entry_text {
   display: none;
@@ -41,4 +40,22 @@
 
 .side_panel .history_source_url {
   display: none;
+}
+
+.scrape_type_options_container,
+.url_source_input {
+  visibility: hidden;
+}
+
+.scrape_type_active .scrape_type_options_container,
+.scrape_type_active .url_source_input {
+  visibility: visible;
+}
+
+.html_element_selector_wrapper {
+  visibility: hidden;
+}
+
+.scrape_type_server_scrape .html_element_selector_wrapper {
+  visibility: visible;
 }

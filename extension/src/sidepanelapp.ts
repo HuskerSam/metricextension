@@ -1,6 +1,5 @@
 import { AnalyzerExtensionCommon } from './extensioncommon';
 import { MetricCommon } from './metriccommon';
-import Papa from 'papaparse';
 import SlimSelect from 'slim-select';
 import Split from 'split.js';
 import LastRunResult from './historyresult.jsx';
@@ -100,7 +99,7 @@ export default class SidePanelApp {
     this.tabs_input_textarea_tab.addEventListener('click', () => chrome.storage.local.set({ sidePanelSource: 'text' }));
     this.scrape_type_radios.forEach((radio) => radio.addEventListener('input', () => chrome.storage.local.set({ sidePanelScrapeType: radio.value })));
     this.copy_url_scrape.addEventListener('click', () => navigator.clipboard.writeText(this.url_scrape_results.value));
-    this.sidepanel_scrape_webpage_btn.addEventListener('click', () => this.metricCommon.sidePanelManualScrape());
+    this.sidepanel_scrape_webpage_btn.addEventListener('click', () => this.metricCommon.sidePanelScrapeUrl());
     this.sidepanel_dropdown_menu.addEventListener('click', (e: Event) => e.stopPropagation());
     createRoot(this.sidepanel_history_result_view).render(this.lastRunResult);
 
@@ -156,9 +155,16 @@ export default class SidePanelApp {
     if (isAlreadyRunning) {
       if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
         return;
-    }
+    }    
+    const sidePanelSource = await this.extCommon.getStorageField("sidePanelSource");
+
     let label = await this.extCommon.getStorageField("analysisRunLabel");
-    let text = await this.extCommon.getStorageField("sidePanelTextSource") || "";
+    let text = ""; 
+    if (sidePanelSource === 'scrape') {
+      text = await this.extCommon.getStorageField("sidePanelScrapeContent") || "";
+    } else {
+      text = this.user_text_content_field.value.trim();
+    }
     if (!label) label = await this.metricCommon.getURLContentSource();
     if (!label) label = "Manual Run";
     await this.metricCommon.runAnalysisPrompts(text, label);
@@ -227,12 +233,16 @@ export default class SidePanelApp {
     let text = "";
     if (sidePanelSource === 'scrape') {
       this.tabs_input_url_tab.classList.add('active');
+      document.body.classList.add('scrape_type_active');
+      document.body.classList.remove('manual_type_active');
       this.tabs_input_url_tab.checked = true;
       this.tabs_input_textarea_tab.classList.remove('active');
       this.tabs_input_url_panel.style.display = "";
       this.tabs_input_textarea_panel.style.display = "none";
       text = sidePanelScrapeContent;
     } else {
+      document.body.classList.add('manual_type_active');
+      document.body.classList.remove('scrape_type_active');
       this.tabs_input_url_tab.classList.remove('active');
       this.tabs_input_textarea_tab.classList.add('active');
       this.tabs_input_textarea_tab.checked = true;
