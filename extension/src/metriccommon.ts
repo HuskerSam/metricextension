@@ -27,11 +27,6 @@ Example prompt template:
             }
         );
     }
-    async getTextContentSource() {
-        let value = await this.chrome.storage.local.get("sidePanelTextSource");
-        value = value["sidePanelTextSource"] || '';
-        return value;
-    }
     async getURLContentSource() {
         let value = await this.chrome.storage.local.get("sidePanelUrlSource");
         value = value["sidePanelUrlSource"] || '';
@@ -190,7 +185,6 @@ Example prompt template:
             content = result.result.text;
             content = content.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
         } else {
-            content
         }
 
         await this.chrome.storage.local.set({ sidePanelScrapeContent: content });

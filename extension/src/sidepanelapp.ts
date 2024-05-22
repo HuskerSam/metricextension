@@ -16,8 +16,44 @@ declare const chrome: any;
 export default class SidePanelApp {
   extCommon = new AnalyzerExtensionCommon(chrome);
   metricCommon = new MetricCommon(chrome);
-  lastRunResult: React.ReactElement | null = null;
-  analysisSetsSlimSelect: any;
+  lastRunResult = React.createElement(LastRunResult, {
+    hooks: {},
+  });
+  analysisSetsSlimSelect = new SlimSelect({
+    select: '.analysis_set_select',
+    settings: {
+      showSearch: false,
+      placeholderText: 'Select Analysis Set(s)',
+      keepOrder: true,
+      hideSelected: true,
+      minSelected: 1,
+      closeOnSelect: false,
+    },
+    events: {
+      afterChange: async (newVal) => {
+        let selectedAnalysisSets: any[] = [];
+        this.analysisSetsSlimSelect.render.main.values.querySelectorAll('.ss-value')
+          .forEach((item: any) => {
+            selectedAnalysisSets.push(item.innerText);
+          });
+        if (selectedAnalysisSets.length <= 1) {
+          this.analysis_set_select.classList.add('slimselect_onevalue');
+        } else {
+          this.analysis_set_select.classList.remove('slimselect_onevalue');
+        }
+        await chrome.storage.local.set({ selectedAnalysisSets });
+      },
+    },
+  });
+  top_history_view_splitter = document.querySelector('.top_history_view_splitter') as HTMLDivElement;
+  bottom_history_view_splitter = document.querySelector('.bottom_history_view_splitter') as HTMLDivElement;
+  viewSplitter = Split([this.top_history_view_splitter, this.bottom_history_view_splitter],
+    {
+      sizes: [50, 50],
+      direction: 'vertical',
+      minSize: 100,
+      gutterSize: 8,
+    });
   analysis_set_select = document.querySelector('.analysis_set_select') as HTMLSelectElement;
   open_main_feed_page_btn = document.querySelector('.open_main_feed_page_btn') as HTMLButtonElement;
   open_main_activity_page_btn = document.querySelector('.open_main_activity_page_btn') as HTMLButtonElement;
@@ -30,146 +66,50 @@ export default class SidePanelApp {
   user_text_content_field = document.querySelector(".user_text_content_field") as HTMLTextAreaElement;
   source_text_length = document.querySelector('.source_text_length') as HTMLElement;
   source_tokens_length = document.querySelector('.source_tokens_length') as HTMLElement;
-  top_history_view_splitter = document.querySelector('.top_history_view_splitter') as HTMLDivElement;
-  bottom_history_view_splitter = document.querySelector('.bottom_history_view_splitter') as HTMLDivElement;
   analysis_run_label = document.querySelector('.analysis_run_label') as HTMLInputElement;
-  ["tabs-input-url-tab"] = document.querySelector('#tabs-input-url-tab') as HTMLInputElement;
-  ["tabs-input-textarea-tab"] = document.querySelector('#tabs-input-textarea-tab') as HTMLInputElement;
-  ["tabs-input-textarea-panel"] = document.querySelector('#tabs-input-textarea-panel') as HTMLDivElement;
-  ["tabs-input-url-panel"] = document.querySelector('#tabs-input-url-panel') as HTMLDivElement;
+  tabs_input_url_tab = document.querySelector('#tabs_input_url_tab') as HTMLInputElement;
+  tabs_input_textarea_tab = document.querySelector('#tabs_input_textarea_tab') as HTMLInputElement;
+  tabs_input_textarea_panel = document.querySelector('#tabs_input_textarea_panel') as HTMLDivElement;
+  tabs_input_url_panel = document.querySelector('#tabs_input_url_panel') as HTMLDivElement;
   url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
   url_source_options = document.querySelector('.url_source_options') as HTMLInputElement;
   url_scrape_results = document.querySelector('.url_scrape_results') as HTMLTextAreaElement;
-  scrape_type_radios = document.querySelectorAll('input[name="scrape_type"]') as NodeListOf<HTMLInputElement>;
+  scrape_type_radios = document.querySelectorAll('input[name="scrape_type') as NodeListOf<HTMLInputElement>;
   copy_url_scrape = document.querySelector('.copy_url_scrape') as HTMLButtonElement;
   sidepanel_history_result_view = document.querySelector('.sidepanel_history_result_view') as HTMLDivElement;
   sidepanel_scrape_webpage_btn = document.querySelector('.sidepanel_scrape_webpage_btn') as HTMLButtonElement;
   sidepanel_dropdown_menu = document.querySelector('.sidepanel_dropdown_menu') as HTMLDivElement;
   lastSlimSelections = "";
-  viewSplitter: Split.Instance;
   previousSlimOptions = '';
+  lastRenderedEntryCache = "";
+  sourceDetailsCache = "";
 
   constructor() {
-    this.load()
-    this.analysisSetsSlimSelect = new SlimSelect({
-      select: '.analysis_set_select',
-      settings: {
-        showSearch: false,
-        placeholderText: 'Select Analysis Set(s)',
-        keepOrder: true,
-        hideSelected: true,
-        minSelected: 1,
-        closeOnSelect: false,
-      },
-      events: {
-        afterChange: async (newVal) => {
-          let selectedAnalysisSets: any[] = [];
-          this.analysisSetsSlimSelect.render.main.values.querySelectorAll('.ss-value')
-            .forEach((item: any) => {
-              selectedAnalysisSets.push(item.innerText);
-            });
-          if (selectedAnalysisSets.length <= 1) {
-            this.analysis_set_select.classList.add('slimselect_onevalue');
-          } else {
-            this.analysis_set_select.classList.remove('slimselect_onevalue');
-          }
-          await chrome.storage.local.set({ selectedAnalysisSets });
-        },
-      },
-    });
-
-    this.viewSplitter = Split([this.top_history_view_splitter, this.bottom_history_view_splitter],
-      {
-        sizes: [50, 50],
-        direction: 'vertical',
-        minSize: 100,
-        gutterSize: 8,
-      });
-
-    this.open_main_feed_page_btn.addEventListener('click', () => {
-      this.extCommon.toggleExentionPage("main.html");
-    });
-    this.open_main_activity_page_btn.addEventListener('click', () => {
-      this.extCommon.toggleExentionPage("main.html#history");
-    });
-    this.open_main_prompts_page_btn.addEventListener('click', () => {
-      this.extCommon.toggleExentionPage("main.html#prompts");
-    });
-    this.open_main_semantic_page_btn.addEventListener('click', () => {
-      this.extCommon.toggleExentionPage("main.html#semantic");
-    });
-    this.open_main_batch_page_btn.addEventListener('click', () => {
-      this.extCommon.toggleExentionPage("main.html#bulk");
-    });
-    this.open_main_settings_page_btn.addEventListener('click', () => {
-      this.extCommon.toggleExentionPage("main.html#settings");
-    });
-
-    this.run_analysis_btn.addEventListener('click', async () => {
-      let isAlreadyRunning = await this.metricCommon.setMetricsRunning(true);
-      console.log("isAlreadyRunning", isAlreadyRunning);
-      if (isAlreadyRunning) {
-        if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
-          return;
-      }
-      let label = await this.extCommon.getStorageField("analysisRunLabel");
-      let text = await this.metricCommon.getTextContentSource();
-      let type = await this.metricCommon.getSourceType();
-      if (!label) label = await this.metricCommon.getURLContentSource();
-      if (!label) label = "Manual Run";
-      if (type === 'scrape') {
-        await chrome.storage.local.set({ sidePanelScrapeContent: text });
-      }
-
-      await this.metricCommon.runAnalysisPrompts(text, label);
-    });
-    this.user_text_content_field.addEventListener('input',
-      async () => this.extCommon.setFieldToStorage(this.user_text_content_field, "sidePanelTextSource"));
-    this.analysis_run_label.addEventListener('input',
-      async () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
-    this.url_source_input.addEventListener('input',
-      async () => this.extCommon.setFieldToStorage(this.url_source_input, "sidePanelUrlSource"));
-
-    this.url_source_options.addEventListener('input',
-      async () => this.extCommon.setFieldToStorage(this.url_source_options, "sidePanelUrlSourceOptions"));
-    this["tabs-input-url-tab"].addEventListener('click',
-      async () => chrome.storage.local.set({ sidePanelSource: 'scrape' }));
-    this["tabs-input-textarea-tab"].addEventListener('click',
-      async () => chrome.storage.local.set({ sidePanelSource: 'text' }));
-    this.scrape_type_radios.forEach((radio) => {
-      radio.addEventListener('input', async () => {
-        let type = radio.value;
-        await chrome.storage.local.set({ sidePanelScrapeType: type });
-      });
-    });
-    this.copy_url_scrape.addEventListener('click', async () => {
-      let text = this.url_scrape_results.value;
-      navigator.clipboard.writeText(text);
-    });
-
-    this.sidepanel_scrape_webpage_btn.addEventListener('click', async () => {
-      this.url_scrape_results.value = 'Getting content...'
-      this.metricCommon.sidePanelManualScrape();
-    });
-
-    this.sidepanel_dropdown_menu.addEventListener('click', async (e: any) => {
-      e.stopPropagation();
-    });
+    this.open_main_feed_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html"));
+    this.open_main_activity_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html#history"));
+    this.open_main_prompts_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html#prompts"));
+    this.open_main_semantic_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html#semantic"));
+    this.open_main_batch_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html#bulk"));
+    this.open_main_settings_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html#settings"));
+    this.run_analysis_btn.addEventListener('click', () => this.sidePanelRunAnalysis());
+    this.user_text_content_field.addEventListener('input', () => this.extCommon.setFieldToStorage(this.user_text_content_field, "sidePanelTextSource"));
+    this.analysis_run_label.addEventListener('input', () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
+    this.url_source_input.addEventListener('input', () => this.extCommon.setFieldToStorage(this.url_source_input, "sidePanelUrlSource"));
+    this.url_source_options.addEventListener('input', () => this.extCommon.setFieldToStorage(this.url_source_options, "sidePanelUrlSourceOptions"));
+    this.tabs_input_url_tab.addEventListener('click', () => chrome.storage.local.set({ sidePanelSource: 'scrape' }));
+    this.tabs_input_textarea_tab.addEventListener('click', () => chrome.storage.local.set({ sidePanelSource: 'text' }));
+    this.scrape_type_radios.forEach((radio) => radio.addEventListener('input', () => chrome.storage.local.set({ sidePanelScrapeType: radio.value })));
+    this.copy_url_scrape.addEventListener('click', () => navigator.clipboard.writeText(this.url_scrape_results.value));
+    this.sidepanel_scrape_webpage_btn.addEventListener('click', () => this.metricCommon.sidePanelManualScrape());
+    this.sidepanel_dropdown_menu.addEventListener('click', (e: Event) => e.stopPropagation());
+    createRoot(this.sidepanel_history_result_view).render(this.lastRunResult);
 
     setInterval(() => AnalyzerExtensionCommon.updateTimeSince(document.body), 500);
-
     // list for changes to local storage and update the UI
     chrome.storage.local.onChanged.addListener(() => {
       this.paint();
     });
     this.paint();
-  }
-  load() {
-    const sidepanel_history_result_view = document.querySelector('.sidepanel_history_result_view') as HTMLDivElement;
-    this.lastRunResult = React.createElement(LastRunResult, {
-      hooks: {},
-    });
-    createRoot(sidepanel_history_result_view).render(this.lastRunResult);
   }
   async paint() {
     let lastPanelToggleDate = await chrome.storage.local.get('lastPanelToggleDate');
@@ -209,6 +149,19 @@ export default class SidePanelApp {
     this.renderResultsPanel();
     this.renderSlimSelect();
     this.renderSourceDetails();
+  }
+  async sidePanelRunAnalysis() {
+    let isAlreadyRunning = await this.metricCommon.setMetricsRunning(true);
+    console.log("isAlreadyRunning", isAlreadyRunning);
+    if (isAlreadyRunning) {
+      if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
+        return;
+    }
+    let label = await this.extCommon.getStorageField("analysisRunLabel");
+    let text = await this.extCommon.getStorageField("sidePanelTextSource") || "";
+    if (!label) label = await this.metricCommon.getURLContentSource();
+    if (!label) label = "Manual Run";
+    await this.metricCommon.runAnalysisPrompts(text, label);
   }
   async renderSlimSelect() {
     const setNames = await this.metricCommon.getAnalysisSetNames();
@@ -259,22 +212,33 @@ export default class SidePanelApp {
     this.extCommon.getFieldFromStorage(this.url_scrape_results, "sidePanelScrapeContent");
     this.extCommon.getFieldFromStorage(this.user_text_content_field, "sidePanelTextSource");
 
-    let value = await this.extCommon.getStorageField("sidePanelSource");
+    const sidePanelScrapeContent = await this.extCommon.getStorageField("sidePanelScrapeContent");
+    const sidePanelTextSource = await this.extCommon.getStorageField("sidePanelTextSource");
+    const sidePanelSource = await this.extCommon.getStorageField("sidePanelSource");
+
+    const newSourceDetailsCache = JSON.stringify({
+      sidePanelScrapeContent,
+      sidePanelTextSource,
+      sidePanelSource,
+    });
+    if (newSourceDetailsCache === this.sourceDetailsCache) return;
+    this.sourceDetailsCache = newSourceDetailsCache;
+
     let text = "";
-    if (value === 'scrape') {
-      this["tabs-input-url-tab"].classList.add('active');
-      this["tabs-input-url-tab"].checked = true;
-      this["tabs-input-textarea-tab"].classList.remove('active');
-      this["tabs-input-url-panel"].style.display = "";
-      this["tabs-input-textarea-panel"].style.display = "none";
-      text = await this.extCommon.getStorageField("sidePanelScrapeContent");
+    if (sidePanelSource === 'scrape') {
+      this.tabs_input_url_tab.classList.add('active');
+      this.tabs_input_url_tab.checked = true;
+      this.tabs_input_textarea_tab.classList.remove('active');
+      this.tabs_input_url_panel.style.display = "";
+      this.tabs_input_textarea_panel.style.display = "none";
+      text = sidePanelScrapeContent;
     } else {
-      this["tabs-input-url-tab"].classList.remove('active');
-      this["tabs-input-textarea-tab"].classList.add('active');
-      this["tabs-input-textarea-tab"].checked = true;
-      this["tabs-input-url-panel"].style.display = "none";
-      this["tabs-input-textarea-panel"].style.display = "";
-      text = await this.extCommon.getStorageField("sidePanelTextSource");
+      this.tabs_input_url_tab.classList.remove('active');
+      this.tabs_input_textarea_tab.classList.add('active');
+      this.tabs_input_textarea_tab.checked = true;
+      this.tabs_input_url_panel.style.display = "none";
+      this.tabs_input_textarea_panel.style.display = "";
+      text = sidePanelTextSource;
     }
 
     this.source_text_length.innerText = text.length + ' characters';
@@ -292,8 +256,11 @@ export default class SidePanelApp {
     this.source_tokens_length.innerText = tokenCount;
   }
   async renderResultsPanel() {
-    let history = await this.extCommon.getStorageField("history") || [];
-    let entry = history[0];
+    const history = await this.extCommon.getStorageField("history") || [];
+    const entry = history[0];
+    const entryCache = JSON.stringify(entry);
+    if (entryCache === this.lastRenderedEntryCache) return;
+    this.lastRenderedEntryCache = entryCache;
 
     if (entry) {
       entry.historyIndex = 0;
@@ -302,40 +269,5 @@ export default class SidePanelApp {
     } else {
       this.lastRunResult?.props.hooks.setShow(false);
     }
-
-    this.sidepanel_history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
-      btn.addEventListener('click', async (e: any) => {
-        e.preventDefault();
-        const historyIndex = Number(btn.dataset.historyindex);
-        const entry = history[historyIndex];
-        let compactData = this.extCommon.processRawResultstoCompact(entry.results);
-        let csvData = Papa.unparse(compactData);
-        let blob = new Blob([csvData], { type: "text/csv" });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        a.href = url;
-        a.download = 'results.csv';
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      });
-    });
-    this.sidepanel_history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
-      btn.addEventListener('click', async (e: any) => {
-        e.preventDefault();
-        const historyIndex = Number(btn.dataset.historyindex);
-        const entry = history[historyIndex];
-        let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        document.body.appendChild(a);
-        a.href = url;
-        a.download = 'results.json';
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      });
-    });
   }
 }

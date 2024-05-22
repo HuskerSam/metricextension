@@ -399,6 +399,8 @@ export class AnalyzerExtensionCommon {
   }
   async getFieldFromStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string, defaultStorageKey = "") {
     clearTimeout(this.debouncedInputTimeouts[storageKey]);
+    let value = await this.chrome.storage.local.get(storageKey);
+    if (value === domInput.value) return;
     this.debouncedInputTimeouts[storageKey] = setTimeout(async () => {
       let value = await this.chrome.storage.local.get(storageKey);
       value = value[storageKey] || '';

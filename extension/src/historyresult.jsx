@@ -53,6 +53,44 @@ export default function HistoryResult(props) {
     }); 
     */
 
+    /*
+    
+    this.sidepanel_history_result_view.querySelectorAll('.download_compact_results_btn').forEach((btn: any) => {
+      btn.addEventListener('click', async (e: any) => {
+        e.preventDefault();
+        const historyIndex = Number(btn.dataset.historyindex);
+        const entry = history[historyIndex];
+        let compactData = this.extCommon.processRawResultstoCompact(entry.results);
+        let csvData = Papa.unparse(compactData);
+        let blob = new Blob([csvData], { type: "text/csv" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = url;
+        a.download = 'results.csv';
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    });
+    this.sidepanel_history_result_view.querySelectorAll('.download_full_results_btn').forEach((btn: any) => {
+      btn.addEventListener('click', async (e: any) => {
+        e.preventDefault();
+        const historyIndex = Number(btn.dataset.historyindex);
+        const entry = history[historyIndex];
+        let blob = new Blob([JSON.stringify(entry)], { type: "application/json" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        document.body.appendChild(a);
+        a.href = url;
+        a.download = 'results.json';
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    });
+    */
+
     const getMetricsResultValue = (resultMessage) => {
         try {
             let json = JSON.parse(resultMessage);
