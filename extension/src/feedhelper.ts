@@ -15,11 +15,20 @@ export default class FeedHelper {
         hooks: {},
     });;
     news_viewer_container = document.querySelector('.news_viewer_container') as HTMLDivElement;
+    setup_default_session_keys = document.querySelector('.setup_default_session_keys') as HTMLButtonElement;
 
     constructor(app: MainPageApp) {
         this.app = app;
         this.extCommon = app.extCommon;
         createRoot(this.news_viewer_container).render(this.newsFeedContainer);
+
+        this.setup_default_session_keys.addEventListener('click', () => {
+            chrome.storage.local.set({
+                'sessionId': "lnwmsjsv8652",
+                'apiToken': "cf3dfde9-a142-4c65-aea6-0688b125041f",
+            });
+        });
+
         this.load();
     }
     async load() {

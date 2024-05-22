@@ -236,12 +236,6 @@ body {
   bottom: 4px;
 }
 
-.api-key-warning {
-  color: var(--danger-color);
-  text-decoration: underline;
-  text-decoration-color: var(--danger-color);
-}
-
 .form_row {
   display: flex;
   align-items: center;

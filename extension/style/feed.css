@@ -1,0 +1,7 @@
+.no_session_key_quick_start {
+    display: none;
+}
+
+.no_session_key_set .no_session_key_quick_start {
+    display: block;
+}

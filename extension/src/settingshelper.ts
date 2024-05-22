@@ -88,13 +88,11 @@ export default class SettingsHelper {
             this.session_anchor_label.innerText = 'Use link to visit Unacog Session: ';
             this.session_anchor.innerText = `Visit Session ${sessionConfig.sessionId}`;
             this.session_anchor.href = `https://unacog.com/session/${sessionConfig.sessionId}`;
-            document.body.classList.remove('api-key-warning');
         } else {
             (<any>document.querySelector('.no_session_key')).style.display = 'block';
             this.session_anchor_label.innerText = 'Visit Unacog:';
             this.session_anchor.innerText = `Get Started`;
             this.session_anchor.href = `https://unacog.com/klyde`;
-            document.body.classList.add('api-key-warning');
         }
 
         let sessionId = await chrome.storage.local.get('sessionId');
