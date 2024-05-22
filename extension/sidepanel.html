@@ -12,27 +12,6 @@
 
 <body class="side_panel">
   <div class="flex flex-col h-full">
-    <div
-      class="no_session_key_sidepanel no_session_key hidden relative  bg-yellow-400 border border-yellow-400 rounded p-2 m-2">
-      <div className="border-l-4 border-yellow-400 bg-yellow-50 p-4">
-        <div className="flex">
-          <div className="ml-3">
-            <p className="text-sm text-yellow-700">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-6 h-6 inline-block">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-              </svg> No session key. Please visit
-              <a href="https://unacog.com" className="font-medium text-yellow-700 underline hover:text-yellow-600">
-                unacog.com
-              </a>
-              to get
-              started.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="header_action_bar flex justify-between mx-2 mt-2 mb-1">
       <div class="dropdown inline-block pr-1">
         <button class="btn-ts-secondary dropdown-toggle" type="button" id="sidepanelOptionsMenu"
@@ -148,6 +127,21 @@
       </div>
       <div class="bottom_history_view_splitter flex flex-col overflow-hidden border-b border-slate-300 m-2">
         <div class="flex flex-col flex-1 overflow-hidden">
+          <div
+          class="no_session_key_sidepanel no_session_key hidden relative  bg-yellow-400 border border-yellow-400 rounded p-2 m-2">
+                <p class="text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-6 h-6 inline-block">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg> No session key. Please visit
+                  <a href="https://unacog.com" class="font-medium text-yellow-700 underline hover:text-yellow-600">
+                    unacog.com
+                  </a>
+                  to get
+                  started.
+                </p>
+        </div>
           <div class="history_display_results_running flex flex-col justify-center flex-1">
             <lottie-player src="media/lottie.json" background="transparent" speed="1"
               style="height:100px;width:100px;align-self:center;" loop autoplay></lottie-player>
