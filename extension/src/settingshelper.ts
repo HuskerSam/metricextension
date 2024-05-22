@@ -107,8 +107,8 @@ export default class SettingsHelper {
     }
     async paintData() {
         this.renderSettingsTab();
-        let historyRangeLimit = await chrome.storage.local.get('historyRangeLimit');
-        historyRangeLimit = historyRangeLimit.historyRangeLimit || 20;
+
+        let historyRangeLimit = await this.extCommon.getStorageField('historyRangeLimit') || 20;
         this.history_range_amount_select.value = historyRangeLimit;
 
         let hideAnalyzeInPageContextMenu = await this.extCommon.getStorageField('hideAnalyzeInPageContextMenu');
@@ -118,12 +118,8 @@ export default class SettingsHelper {
         this.show_query_text_in_context_menu.checked = showQueryInPageContextMenu;
         
         this.extCommon.getFieldFromStorage(this.scraped_length_character_limit, 'scrapedLengthCharacterLimit');
-
-        let hideAnalyzeInSelectionContextMenu = await this.extCommon.getStorageField('hideAnalyzeInSelectionContextMenu');
-        this.show_analyze_selection_in_context_menu.checked = !hideAnalyzeInSelectionContextMenu;
-
-        let showQueryInSelectionContextMenu = await this.extCommon.getStorageField('showQueryInSelectionContextMenu');
-        this.show_query_selection_in_context_menu.checked = showQueryInSelectionContextMenu;
+        this.show_analyze_selection_in_context_menu.checked = !(await this.extCommon.getStorageField('hideAnalyzeInSelectionContextMenu'));
+        this.show_query_selection_in_context_menu.checked = await this.extCommon.getStorageField('showQueryInSelectionContextMenu');
         this.extCommon.updateBrowserContextMenus();
     }
 }

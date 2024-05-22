@@ -310,7 +310,7 @@ export class AnalyzerExtensionCommon {
       day: "numeric",
     });
   }
-   static timeSince(date: Date, showSeconds = false): string {
+  static timeSince(date: Date, showSeconds = false): string {
     let seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
     seconds = Math.max(seconds, 0);
 
@@ -355,11 +355,11 @@ export class AnalyzerExtensionCommon {
       lastFocusedWindow: true,
     });
     const urlHashtag = url.split("#")[1] || "";
-    
+
     if (extensionTab) {
       await this.chrome.tabs.update(extensionTab.id, {
         active: true,
-        url: `chrome-extension://${this.chrome.runtime.id}/main.html#${urlHashtag}` 
+        url: `chrome-extension://${this.chrome.runtime.id}/main.html#${urlHashtag}`
       });
     } else {
       await this.chrome.tabs.create({
@@ -399,15 +399,18 @@ export class AnalyzerExtensionCommon {
   }
   async getFieldFromStorage(domInput: HTMLInputElement | HTMLTextAreaElement, storageKey: string, defaultStorageKey = "") {
     clearTimeout(this.debouncedInputTimeouts[storageKey]);
-    let value = await this.chrome.storage.local.get(storageKey);
+    const getFieldValue = async () => {
+      let value = await this.getStorageField(storageKey);
+      if (!value && defaultStorageKey) value = await this.getStorageField(defaultStorageKey);
+      return value;
+    }
+    const value = await getFieldValue();
     if (value === domInput.value) return;
+    if (!this.debouncedInputTimeouts[storageKey] && !domInput.value && value) {
+      domInput.value = value;
+    }
     this.debouncedInputTimeouts[storageKey] = setTimeout(async () => {
-      let value = await this.chrome.storage.local.get(storageKey);
-      value = value[storageKey] || '';
-      if (!value && defaultStorageKey) {
-        value = await this.chrome.storage.local.get(defaultStorageKey);
-        value = value[defaultStorageKey] || '';
-      }
+      const value = await getFieldValue();
       if (domInput.value !== value) domInput.value = value;
     }, 500);
   }
@@ -450,10 +453,10 @@ export class AnalyzerExtensionCommon {
     return optionsMap;
   }
   async updateBrowserContextMenus() {
-    let hideAnalyzeInPageContextMenu = await this.getStorageField('hideAnalyzeInPageContextMenu');
-    let showQueryInPageContextMenu = await this.getStorageField('showQueryInPageContextMenu');
-    let hideAnalyzeInSelectionContextMenu = await this.getStorageField('hideAnalyzeInSelectionContextMenu');
-    let showQueryInSelectionContextMenu = await this.getStorageField('showQueryInSelectionContextMenu');
+    const hideAnalyzeInPageContextMenu = await this.getStorageField('hideAnalyzeInPageContextMenu');
+    const showQueryInPageContextMenu = await this.getStorageField('showQueryInPageContextMenu');
+    const hideAnalyzeInSelectionContextMenu = await this.getStorageField('hideAnalyzeInSelectionContextMenu');
+    const showQueryInSelectionContextMenu = await this.getStorageField('showQueryInSelectionContextMenu');
 
     let updateContextMenu = false;
     if (this.lastSeenContextMenuSettings.hideAnalyzeInSelectionContextMenu !== hideAnalyzeInSelectionContextMenu) {

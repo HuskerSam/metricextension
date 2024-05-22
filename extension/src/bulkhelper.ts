@@ -48,6 +48,7 @@ export default class BulkHelper {
     lastSlimSelections = "";
     previousSlimOptions = "";
     lastRenderedUrlListCache = "";
+    bulkHistoryCache = "";
     lastTableEdit = new Date("1900-01-01");
 
     constructor(app: MainPageApp) {
@@ -462,11 +463,20 @@ export default class BulkHelper {
         await chrome.storage.local.set({ bulkUrlList });
     }
     async paintAnalysisHistory() {
-        let bulkHistory = await chrome.storage.local.get('bulkHistory');
-        bulkHistory = bulkHistory.bulkHistory || [];
+        const bulkHistory = await this.extCommon.getStorageField('bulkHistory') || [];
+        const bulkRunning = await this.extCommon.getStorageField('bulk_running');
+        const newCache = JSON.stringify({
+            bulkHistory,
+            bulkRunning,
+            selectedIndex: this.bulkSelectedIndex, 
+            pageIndex: this.currentPageIndex,
+        });
+        if (newCache === this.bulkHistoryCache) return;
+        this.bulkHistoryCache = newCache;
+        let paginationHtml = this.extCommon
+            .generatePagination(bulkHistory.length, this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
 
-        let bulk_running = await chrome.storage.local.get('bulk_running');
-        if (bulk_running && bulk_running.bulk_running) {
+        if (bulkRunning) {
             document.body.classList.add("extension_bulk_running");
             document.body.classList.remove("extension_not_bulk_running");
         } else {
@@ -484,8 +494,6 @@ export default class BulkHelper {
             document.body.classList.remove("bulk_history_item_selected");
             this.bulk_selected_last_run_date.innerText = "No selected entry";
         }
-        let paginationHtml = this.extCommon
-            .generatePagination(bulkHistory.length, this.bulkSelectedIndex, this.itemsPerView, this.currentPageIndex);
         this.bulk_history_pagination.innerHTML = paginationHtml;
 
         this.bulkHistoryEntryListItems = document.querySelectorAll('.bulk_history_pagination li a') as NodeListOf<HTMLLIElement>;

@@ -39,6 +39,8 @@ export default class SemanticHelper {
     promptSubSplitter: Split.Instance;
     chunksTabulator: TabulatorFull;
     lastRenderedChunkCache = "";
+    metadataFilterCache = "";
+    semanticDetailsCache = "";
 
     constructor(app: MainPageApp) {
         this.app = app;
@@ -153,24 +155,45 @@ export default class SemanticHelper {
 
     }
     async paintData() {
+        await this.extCommon.getFieldFromStorage(this.semantic_query_textarea, "semanticQueryText");
+        await this.extCommon.getFieldFromStorage(this.semantic_top_k_input, "semanticTopK");
+        await this.extCommon.getFieldFromStorage(this.semantic_include_k_input, "semanticIncludeK");
+        await this.extCommon.getFieldFromStorage(this.semantic_context_k_input, "semanticContextK");
+        await this.extCommon.getFieldFromStorage(this.llm_prompt_template_text_area, "semanticQueryMainPromptTemplate");
+        await this.extCommon.getFieldFromStorage(this.llm_document_template_text_area, "semanticQueryDocumentPromptTemplate");
+
         this.renderFilters();
         this.renderSearchChunks();
-
+        await this.semanticCommon.getPromptTemplates();
+        await this.paintSemanticDetails();
+    }
+    async paintSemanticDetails() {
         const uniqueSemanticDocs = await this.extCommon.getStorageField("uniqueSemanticDocs");
-        this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
-
-
         const semanticViewEmbeddedPrompt = await this.extCommon.getStorageField("semanticViewEmbeddedPrompt");
+        const embeddedHTMLDisplay = await this.semanticCommon.getEmbeddedPromptText(true);
+        const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
+        const semanticDisplayMonospace = await this.extCommon.getStorageField("semanticDisplayMonospace");
+        const semantic_running = await this.extCommon.getStorageField('semantic_running');
+
+        const newSemanticCache = JSON.stringify({
+            uniqueSemanticDocs,
+            semanticViewEmbeddedPrompt,
+            embeddedHTMLDisplay,
+            llmResponse,
+            semanticDisplayMonospace,
+            semantic_running
+        });
+        if (newSemanticCache === this.semanticDetailsCache) return;
+        this.semanticDetailsCache = newSemanticCache;
+
+        this.uniqueDocsCheck.checked = uniqueSemanticDocs === true;
         this.view_embedded_prompt_toggle.checked = semanticViewEmbeddedPrompt;
         if (semanticViewEmbeddedPrompt) {
-            const embeddedHTMLDisplay = await this.semanticCommon.getEmbeddedPromptText(true);
             this.semantic_embedded_llm_response.innerHTML = embeddedHTMLDisplay;
         } else {
-            const llmResponse = await this.extCommon.getStorageField("semanticLLMQueryResultText");
             this.semantic_embedded_llm_response.innerText = llmResponse;
         }
 
-        const semanticDisplayMonospace = await this.extCommon.getStorageField("semanticDisplayMonospace");
         if (semanticDisplayMonospace === true) {
             this.semantic_display_monospace_checkbox.checked = true;
             document.body.classList.add("semantic_display_monospace");
@@ -179,16 +202,7 @@ export default class SemanticHelper {
             document.body.classList.remove("semantic_display_monospace");
         }
 
-        await this.extCommon.getFieldFromStorage(this.semantic_query_textarea, "semanticQueryText");
-        await this.extCommon.getFieldFromStorage(this.semantic_top_k_input, "semanticTopK");
-        await this.extCommon.getFieldFromStorage(this.semantic_include_k_input, "semanticIncludeK");
-        await this.extCommon.getFieldFromStorage(this.semantic_context_k_input, "semanticContextK");
-        await this.semanticCommon.getPromptTemplates();
-        await this.extCommon.getFieldFromStorage(this.llm_prompt_template_text_area, "semanticQueryMainPromptTemplate");
-        await this.extCommon.getFieldFromStorage(this.llm_document_template_text_area, "semanticQueryDocumentPromptTemplate");
-
-        const semantic_running = await chrome.storage.local.get('semantic_running');
-        if (semantic_running && semantic_running.semantic_running) {
+        if (semantic_running) {
             document.body.classList.add("semantic_running");
         } else {
             document.body.classList.remove("semantic_running");
@@ -215,8 +229,12 @@ export default class SemanticHelper {
         });
     }
     async renderFilters() {
-        this.filter_container.innerHTML = "";
         const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
+        const newSemanticCache = JSON.stringify(selectedSemanticFilters);
+        if (newSemanticCache === this.metadataFilterCache) return;
+        this.metadataFilterCache = newSemanticCache;
+
+        this.filter_container.innerHTML = "";
         selectedSemanticFilters.forEach((filter: any, filterIndex: number) => {
             let filterDiv = document.createElement("div");
             filterDiv.classList.add("filter_chips");
