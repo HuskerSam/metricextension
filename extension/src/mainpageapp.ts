@@ -6,9 +6,8 @@ import MetricHelper from './metrichelper';
 import HistoryHelper from './historyhelper';
 import SettingsHelper from './settingshelper';
 import SemanticHelper from './semantichelper';
-import NewsFeedView from "./newsfeed.jsx";
+import FeedHelper from './feedhelper';
 import HistoryResult from './historyresult.jsx';
-import Papa from 'papaparse';
 import {
     createRoot,
 } from "react-dom/client";
@@ -24,7 +23,7 @@ export default class MainPageApp {
     historyHelper: HistoryHelper | null = null;
     settingsHelper: SettingsHelper | null = null;
     dataMillHelper: SemanticHelper | null = null;
-    newsFeedContainer: React.ReactElement | null = null;
+    feedHelper: FeedHelper | null = null;
     historyResult: React.ReactElement | null = null;
     historyResultPrevious: React.ReactElement | null = null;
     open_side_panel_from_main = document.querySelector('.open_side_panel_from_main') as HTMLButtonElement;
@@ -40,7 +39,6 @@ export default class MainPageApp {
     main_datamill_tab_btn = document.querySelector('#main_datamill_tab_btn') as HTMLButtonElement;
     main_bulk_tab_btn = document.querySelector('#main_bulk_tab_btn') as HTMLButtonElement;
     main_options_tab_btn = document.querySelector('#main_options_tab_btn') as HTMLButtonElement;
-
 
     constructor() {
         this.load();
@@ -66,37 +64,8 @@ export default class MainPageApp {
         this.metricHelper = new MetricHelper(this);
         this.historyHelper = new HistoryHelper(this);
         this.dataMillHelper = new SemanticHelper(this);
+        this.feedHelper = new FeedHelper(this);
         this.initEventHandlers();
-
-        this.newsFeedContainer = React.createElement(NewsFeedView, {
-            hooks: {},
-        });
-        createRoot(this.main_feed_tab_view).render(this.newsFeedContainer);
-
-        let query = await fetch('https://firebasestorage.googleapis.com/v0/b/promptplusai.appspot.com/o/KlydeNews%2Fnewsfeed.json?alt=media');
-        let json = await query.json();
-        let compactCSV = json.newsItems[0].csvDocPath;
-        let fullJSON = json.newsItems[0].jsonDocPath;
-        let csvQuery = await fetch(compactCSV);
-        let fullJsonQuery = await fetch(fullJSON);
-        json.newsItems[0].compactCSVData = await csvQuery.text();
-        let columnMaps: any[] = [];
-        json.newsItems[0].csvResultData = Papa.parse(json.newsItems[0].compactCSVData, { header: true });
-        let columnNames = Object.keys(json.newsItems[0].csvResultData.data[0]);
-        columnNames.forEach((col, index) => {
-            const [metricName, metricSetName] = col.split('_');
-            columnMaps.push({
-                name: metricName,
-                type: 'string',
-                key: index,
-                setName: metricSetName
-            });
-        });
-        json.newsItems[0].columnMaps = columnMaps;
-        json.newsItems[0].fullJSONData = await fullJsonQuery.json();
-
-        this.newsFeedContainer.props.hooks.setNewsItem(json.newsItems);
-        this.newsFeedContainer.props.hooks.setShow(true);
 
         const history_result_view = document.querySelector('.history_result_view') as HTMLDivElement;
         const history_result_previous_view = document.querySelector('.history_result_previous_view') as HTMLDivElement;

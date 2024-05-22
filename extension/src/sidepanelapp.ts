@@ -260,21 +260,23 @@ export default class SidePanelApp {
     this.extCommon.getFieldFromStorage(this.user_text_content_field, "sidePanelTextSource");
 
     let value = await this.extCommon.getStorageField("sidePanelSource");
+    let text = "";
     if (value === 'scrape') {
       this["tabs-input-url-tab"].classList.add('active');
       this["tabs-input-url-tab"].checked = true;
       this["tabs-input-textarea-tab"].classList.remove('active');
       this["tabs-input-url-panel"].style.display = "";
       this["tabs-input-textarea-panel"].style.display = "none";
+      text = await this.extCommon.getStorageField("sidePanelScrapeContent");
     } else {
       this["tabs-input-url-tab"].classList.remove('active');
       this["tabs-input-textarea-tab"].classList.add('active');
       this["tabs-input-textarea-tab"].checked = true;
       this["tabs-input-url-panel"].style.display = "none";
       this["tabs-input-textarea-panel"].style.display = "";
+      text = await this.extCommon.getStorageField("sidePanelTextSource");
     }
 
-    let text = await this.metricCommon.getTextContentSource();
     this.source_text_length.innerText = text.length + ' characters';
 
     let tokenCount = "N/A";
