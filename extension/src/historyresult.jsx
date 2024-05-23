@@ -44,16 +44,19 @@ export default function HistoryResult(props) {
         });
     }
 
-    /*
-    let promptSetResults = setBasedResults[setName];
-    promptSetResults.forEach((result: any) => {
-      try {
-        usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
-      } catch (err: any) {
-        console.log("Usage total credit summming error", err);
-      }
-    }); 
-    */
+    const getSetUsageTotal = (setName) => {
+        let usageCreditTotal = 0;
+        let promptSetResults = setBasedResults[setName];
+        promptSetResults.forEach((result) => {
+          try {
+            usageCreditTotal += result.result.promptResult.ticketResults.usage_credits;
+          } catch (err) {
+            console.log("Usage total credit summming error", err);
+          }
+        }); 
+        return usageCreditTotal.toFixed();
+    };
+
     const copyCompactResultsToClipboard = async () => {
         let compactData = extCommon.processRawResultstoCompact([historyEntry]);
         let csvData = Papa.unparse(compactData);
@@ -129,9 +132,10 @@ export default function HistoryResult(props) {
                 {setNamesArray && setNamesArray.length > 0 && setNamesArray.map((promptSet, setIndex) => (
                     <div key={promptSet.id} className="flex flex-col shadow-md rounded-b-md mb-3">
                         <div className='flex flex-col bg-gray-50 text-gray-800 mb-1'>
-                            <div className="flex justify-between">
+                            <div className="flex flex-row">
                                 <h3 className="p-2 flex-1 fs-5 rounded-md">{promptSet.setName}</h3>
-                                <span className="history_index pr-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
+                                <span className="usage_credits inline-block pt-3 pr-1 text-xs">{getSetUsageTotal(promptSet.setName)} credits </span>
+                                <span className="history_index px-2 font-bold inline-block w-[30px] text-right text-slate-500 self-center">{getHistoryIndexDisplay(historyEntry.historyIndex, setIndex, setNamesArray)}</span>
                             </div>
                         </div>
                         {setBasedResults[promptSet.setName].length > 0 && setBasedResults[promptSet.setName].map((result, resultIndex) => (
