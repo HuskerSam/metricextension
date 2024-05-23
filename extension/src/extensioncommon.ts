@@ -15,6 +15,20 @@ export class AnalyzerExtensionCommon {
     if (!limit) limit = this.defaultScrapedLengthCharacterLimit;
     return limit;
   }
+  async testSessionKeys(showPrompt = true) {
+    let apiToken = await this.getStorageField('apiToken');
+    let sessionId = await this.getStorageField('sessionId');
+
+    if (!apiToken || !sessionId) {
+      if (showPrompt) {
+        alert("Please set your session keys in the extension settings page");
+      }
+      return false;
+    }
+      
+    
+    return true;
+  }
   generatePagination(totalItems: number, currentEntryIndex: number, itemsPerPage: number, currentPageIndex: number) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 

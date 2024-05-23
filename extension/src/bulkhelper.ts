@@ -242,6 +242,7 @@ export default class BulkHelper {
             e.preventDefault();
         });
         this.run_bulk_analysis_btn.addEventListener('click', async () => {
+            if (await this.extCommon.testSessionKeys() === false) return;
             let emptyRows = await this.checkForEmptyRows();
             if (emptyRows) {
                 if (confirm("Empty rows detected. Do you want to remove them and continue?") === true) {
@@ -422,6 +423,7 @@ export default class BulkHelper {
         this.bdModal.show();
     }
     async scrapeModalBulkUrl() {
+        if (await this.extCommon.testSessionKeys() === false) return;
         let url = this.bulk_modal_input_url.value;
         if (!url) {
             alert("Please enter a URL to scrape");

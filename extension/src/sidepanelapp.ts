@@ -31,7 +31,7 @@ export default class SidePanelApp {
     events: {
       afterChange: async (newVal) => {
         let selectedAnalysisSets: any[] = [];
-        this.analysisSetsSlimSelect.render.main.values.querySelectorAll('.ss-value')
+        this.analysisSetsSlimSelect.render?.main.values.querySelectorAll('.ss-value')
           .forEach((item: any) => {
             selectedAnalysisSets.push(item.innerText);
           });
@@ -150,6 +150,7 @@ export default class SidePanelApp {
     this.renderSourceDetails();
   }
   async sidePanelRunAnalysis() {
+    if (await this.extCommon.testSessionKeys() === false) return;
     let isAlreadyRunning = await this.metricCommon.setMetricsRunning(true);
     console.log("isAlreadyRunning", isAlreadyRunning);
     if (isAlreadyRunning) {
@@ -193,7 +194,7 @@ export default class SidePanelApp {
       if (setCache !== this.lastSlimSelections || dataChange) {
         this.lastSlimSelections = setCache;
         this.analysisSetsSlimSelect?.setSelected(selectedAnalysisSets.selectedAnalysisSets);
-        let domSelections = this.analysisSetsSlimSelect?.render.main.values.querySelectorAll('.ss-value') as NodeListOf<HTMLElement>;
+        let domSelections = this.analysisSetsSlimSelect?.render?.main.values.querySelectorAll('.ss-value') as NodeListOf<HTMLElement>;
         let indexMap: any = {};
         domSelections.forEach((item: any, index: any) => {
           indexMap[item.innerText] = index;
@@ -202,7 +203,7 @@ export default class SidePanelApp {
         setOrder.forEach((setName: any, index: any) => {
           let domIndex = indexMap[setName];
           if (domSelections[domIndex]) {
-            this.analysisSetsSlimSelect?.render.main.values.appendChild(domSelections[domIndex]);
+            this.analysisSetsSlimSelect?.render?.main.values.appendChild(domSelections[domIndex]);
           }
         });
       }

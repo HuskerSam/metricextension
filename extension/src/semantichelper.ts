@@ -51,15 +51,18 @@ export default class SemanticHelper {
             await chrome.storage.local.set({ uniqueSemanticDocs: this.uniqueDocsCheck.checked });
         });
         this.run_semantic_search_query_button.addEventListener("click", async () => {
+            if (await this.extCommon.testSessionKeys() === false) return;
             this.semantic_query_textarea.select();
             await this.runSemanticQuery();
         });
         this.dmtab_change_session_select.addEventListener("input", async () => {
+            if (await this.extCommon.testSessionKeys() === false) return;
             const selectedValue = this.dmtab_change_session_select.value;
             await this.semanticCommon.selectSemanticSource(selectedValue, true);
         });
 
-        this.dmtab_add_meta_filter_button.addEventListener("click", () => {
+        this.dmtab_add_meta_filter_button.addEventListener("click", async () => {
+            if (await this.extCommon.testSessionKeys() === false) return;
             this.addMetaFilter();
         });
 
@@ -76,6 +79,7 @@ export default class SemanticHelper {
         });
 
         this.semantic_analyze_embedded_prompt_btn.addEventListener("click", async () => {
+            if (await this.extCommon.testSessionKeys() === false) return;
             this.semantic_query_textarea.select();
             await this.sendPromptToLLM()
         });

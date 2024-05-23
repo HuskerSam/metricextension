@@ -42,6 +42,7 @@ Example prompt template:
         }
     }
     async sidePanelScrapeUrl() {
+        if (await this.extCommon.testSessionKeys() === false) return;
         const url = await this.getURLContentSource();
         let sidePanelScrapeType = await this.extCommon.getStorageField("sidePanelScrapeType");
         const options = await this.extCommon.getStorageField("sidePanelUrlSourceOptions");
