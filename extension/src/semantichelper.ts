@@ -9,7 +9,6 @@ export default class SemanticHelper {
     app: MainPageApp;
     extCommon: AnalyzerExtensionCommon;
     semanticCommon: SemanticCommon;
-    promptUrl = `https://us-central1-promptplusai.cloudfunctions.net/lobbyApi/session/external/message`;
     semantic_analyze_embedded_prompt_btn = document.querySelector('.semantic_analyze_embedded_prompt_btn') as HTMLButtonElement;
     semantic_query_textarea = document.querySelector('.semantic_query_textarea') as HTMLTextAreaElement;
     summary_details = document.querySelector('.summary_details') as HTMLDivElement;
@@ -25,7 +24,7 @@ export default class SemanticHelper {
     semantic_chunk_results_container = document.querySelector(".semantic_chunk_results_container") as HTMLDivElement;
     run_semantic_search_query_button = document.querySelector(".run_semantic_search_query_button") as HTMLButtonElement;
     filter_container = document.body.querySelector(".filter_container") as HTMLDivElement;
-    dmtab_add_meta_filter_button = document.body.querySelector(".dmtab_add_meta_filter_button") as HTMLButtonElement;
+    dmtab_add_meta_filter_select = document.body.querySelector(".dmtab_add_meta_filter_select") as HTMLSelectElement;
     top_semantic_view_splitter = document.body.querySelector(".top_semantic_view_splitter") as HTMLDivElement;
     bottom_semantic_view_splitter = document.body.querySelector(".bottom_semantic_view_splitter") as HTMLDivElement;
     prompt_view_top_splitter = document.body.querySelector(".prompt_view_top_splitter") as HTMLDivElement;
@@ -61,7 +60,7 @@ export default class SemanticHelper {
             await this.semanticCommon.selectSemanticSource(selectedValue, true);
         });
 
-        this.dmtab_add_meta_filter_button.addEventListener("click", async () => {
+        this.dmtab_add_meta_filter_select.addEventListener("change", async () => {
             if (await this.extCommon.testSessionKeys() === false) return;
             this.addMetaFilter();
         });
@@ -168,7 +167,7 @@ export default class SemanticHelper {
 
         this.renderFilters();
         this.renderSearchChunks();
-        await this.semanticCommon.getPromptTemplates();
+        await this.semanticCommon.getPromptTemplates(); // this inits some defaults
         await this.paintSemanticDetails();
     }
     async paintSemanticDetails() {
@@ -262,15 +261,7 @@ export default class SemanticHelper {
                 chrome.storage.local.set({ selectedSemanticFilters });
             });
         });
-        this.filter_container.querySelectorAll(".filter-input-value").forEach((ele: Element) => {
-            ele.addEventListener("input", async () => {
-                let filterIndex = Number(ele.getAttribute("data-filterindex"));
-                const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
-                selectedSemanticFilters[filterIndex].value = (ele as HTMLInputElement).value;
-                chrome.storage.local.set({ selectedSemanticFilters });
-            });
-        });
-        this.filter_container.querySelectorAll(".filter-select select").forEach((select: Element) => {
+        this.filter_container.querySelectorAll(".metafilter_operator").forEach((select: Element) => {
             select.addEventListener("input", async () => {
                 let filterIndex = Number(select.getAttribute("data-filterindex"));
                 const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
@@ -318,30 +309,45 @@ export default class SemanticHelper {
                 row.select();
             }
         });
+
+        const metaFieldList: string[] = [];
+        let selectHTML = "<option value='noaction'>Add Filter</option><option value=''>Custom</option>";
+        const dontInclude = ["id", "title", "include", "text"];
+        semanticChunkData.forEach((row: any) => {
+            Object.keys(row).forEach((key) => {
+                if (!metaFieldList.includes(key) && !dontInclude.includes(key)) {
+                    metaFieldList.push(key);
+                    selectHTML += `<option value="${key}">${key}</option>`;
+                }
+            });
+        }); 
+        this.dmtab_add_meta_filter_select.innerHTML = selectHTML;
     }
-    async addMetaFilter(metaField = "") {
+    async addMetaFilter() {
+        let metaField = this.dmtab_add_meta_filter_select.value;
+        if (metaField === "noaction") return;
         if (!metaField) {
-            let newValue = prompt("Enter a metric name");
+            let newValue = prompt("Enter a metadata field name to filter on:");
             if (!newValue) return;
             metaField = newValue;
         }
 
         const selectedSemanticFilters = await this.semanticCommon.getSemanticFilters();
-        selectedSemanticFilters.push({ metaField, value: "", operator: "$se" });
+        selectedSemanticFilters.push({ metaField, value: "", operator: "$lte" });
         await chrome.storage.local.set({ selectedSemanticFilters });
     }
     selectedFilterTemplate(filter: any, filterIndex: number): string {
         const title = filter.metaField;
         const lessThan = filter.operator === "$lte" ? "selected" : "";
         const greaterThan = filter.operator === "$gte" ? "selected" : "";
-        const numberEqual = filter.operation === "$e" ? "selected" : "";
-        const stringEqual = filter.operation === "$se" ? "selected" : "";
+        const numberEqual = filter.operator === "$e" ? "selected" : "";
+        const stringEqual = filter.operator === "$se" ? "selected" : "";
         return `<div class="filter-header">
                    <span class="metric-filter-title">${title}</span>
                 </div>
                 <div class="flex flex-row gap-1">
                     <div>
-                        <select class="form-select-ts h-8 text-sm w-16" data-filterindex="${filterIndex}">
+                        <select class="metafilter_operator form-select-ts h-8 text-sm w-16" data-filterindex="${filterIndex}">
                             <option value="$lte" ${lessThan}>&#8804;</option>
                             <option value="$gte" ${greaterThan}>&#8805</option>
                             <option value="$e" ${numberEqual}># number</option>

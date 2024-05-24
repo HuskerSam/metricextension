@@ -119,6 +119,7 @@ export class SemanticCommon {
         }
         const filter: any = {};
         const selectedSemanticMetaFilters = await this.getSemanticFilters();
+        console.log(selectedSemanticMetaFilters);
         selectedSemanticMetaFilters.forEach((selectedFilter: any) => {
             if (selectedFilter.operator === "$se") {
                 filter[selectedFilter.metaField] = { ["$eq"]: selectedFilter.value };
@@ -129,7 +130,7 @@ export class SemanticCommon {
                 filter[selectedFilter.metaField] = { [selectedFilter.operator]: Number(selectedFilter.value) };
             }
         });
-
+        console.log(filter);
         const body = {
             message,
             apiToken,
