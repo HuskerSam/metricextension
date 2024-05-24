@@ -10,7 +10,6 @@ export default class SettingsHelper {
     api_token_input = document.querySelector('.api_token_input') as HTMLInputElement;
     session_id_input = document.querySelector('.session_id_input') as HTMLInputElement;
     clearStorageButton = document.querySelector('.reset_chrome_storage') as HTMLButtonElement;
-    session_anchor_label = document.querySelector('.session_anchor_label') as HTMLDivElement;
     session_anchor = document.querySelector('.session_anchor') as HTMLAnchorElement;
     clear_history = document.querySelector('.clear_history') as HTMLButtonElement;
     history_range_amount_select = document.querySelector('.history_range_amount_select') as HTMLSelectElement;
@@ -91,15 +90,13 @@ export default class SettingsHelper {
         this.paintData();
     }
     async renderSettingsTab() {
-        const sessionId = this.extCommon.getStorageField("sessionId") || "";;
+        const sessionId = await this.extCommon.getStorageField("sessionId") || "";
         if (sessionId) {
             (<any>document.querySelector('.no_session_key')).style.display = 'none';
-            this.session_anchor_label.innerText = 'Use link to visit Unacog Session: ';
             this.session_anchor.innerText = `Visit Session ${sessionId}`;
             this.session_anchor.href = `https://unacog.com/session/${sessionId}`;
         } else {
             (<any>document.querySelector('.no_session_key')).style.display = 'block';
-            this.session_anchor_label.innerText = 'Visit Unacog:';
             this.session_anchor.innerText = `Get Started`;
             this.session_anchor.href = `https://unacog.com/klyde`;
         }
@@ -124,8 +121,14 @@ export default class SettingsHelper {
 
         let showQueryInPageContextMenu = await this.extCommon.getStorageField('showQueryInPageContextMenu');
         this.show_query_text_in_context_menu.checked = showQueryInPageContextMenu;
-        
-        this.extCommon.getFieldFromStorage(this.scraped_length_character_limit, 'scrapedLengthCharacterLimit');
+
+        let scrapeLimit = await this.extCommon.getStorageField('scrapedLengthCharacterLimit');
+        if (!scrapeLimit) {
+            this.scraped_length_character_limit.value = '20000';
+        } else {
+            this.extCommon.getFieldFromStorage(this.scraped_length_character_limit, 'scrapedLengthCharacterLimit');
+        }
+
         this.show_analyze_selection_in_context_menu.checked = !(await this.extCommon.getStorageField('hideAnalyzeInSelectionContextMenu'));
         this.show_query_selection_in_context_menu.checked = await this.extCommon.getStorageField('showQueryInSelectionContextMenu');
         this.extCommon.updateBrowserContextMenus();
