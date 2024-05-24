@@ -1,9 +1,11 @@
-<div class="prompt_helper_tab_panel_wrapper flex-1 flex overflow-hidden lg:px-2">
-  <div class="prompt_manager_left_pane overflow-hidden flex flex-col sm:pl-5 lg:pl-7 pr-2">
+<div class="prompt_helper_tab_panel_wrapper flex-1 flex overflow-hidden">
+  <div class="prompt_manager_left_pane overflow-hidden flex flex-col px-2">
     <div class="flex items-start space-x-5 w-full">
-      <div class="pt-1.5">
-        <h2 class="text-2xl font-bold text-gray-900">Analysis Sets</h2>
-        <p class="text-sm font-medium text-gray-500">Create or edit prompts and add them to a metric set.</p>
+      <div class="flex flex-1 items-start space-x-5 pt-1.5">
+        <div class="pt-1.5">
+          <h2 class="text-2xl font-bold text-gray-900">Analysis Sets</h2>
+          <p class="text-sm font-medium text-gray-500">Metric prompts for content</p>
+        </div>
       </div>
       <div
         class="inline-flex flex-1 flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:flex-row md:space-x-3"
@@ -31,18 +33,17 @@
       class="tabulator_prompt_list_manager prompt_list_editor_style custom_tabulator_styles rounded my-2 border flex-1 overflow-hidden">
     </div>
   </div>
-  <div class="prompt_manager_right_pane overflow-hidden flex flex-col sm:pr-5 lg:pr-7 pl-2">
+  <div class="prompt_manager_right_pane overflow-hidden flex flex-col px-2">
     <div class="flex items-start space-x-5 w-full">
-      <div class="pt-1.5">
-        <h2 class="text-2xl font-bold text-gray-900">Metric Creation</h2>
-        <p class="text-sm font-medium text-gray-500">Adjust prompts and create new ones using the wizard.</p>
+      <div class="flex flex-1 items-start space-x-5 pt-1.5">
+        <div class="pt-1.5">
+          <h2 class="text-2xl font-bold text-gray-900">Metric Creation</h2>
+          <p class="text-sm font-medium text-gray-500">Edit or use AI to adjust an example</p>
+        </div>
       </div>
     </div>
     <div id="metric_prompt_create_splitter" class="flex flex-col flex-1 my-2 overflow-hidden">
       <div class="metric_prompt_create_upper_panel flex flex-col overflow-hidden">
-        <div class="flex justify-between">
-          <h3 class="text-lg font-bold mb-2">Examples</h3>
-        </div>
         <div class="flex flex-row">
           <div class="flex-1">
             <select class="form-select-ts example_template_type p-2" name="example_template_type"></select>
@@ -51,7 +52,8 @@
             Use Template
           </button>
           <div class="inline-flex mt-1">
-            <label class="form-input-label-ts leading-4 text-xs w-20 text-center">Metric Type:<br><span class="example_metric_type font-bold"></span>
+            <label class="form-input-label-ts leading-4 text-xs w-20 text-center">Metric Type:<br><span
+                class="example_metric_type font-bold"></span>
             </label>
           </div>
         </div>
@@ -59,8 +61,7 @@
         </div>
         <div class="flex flex-row my-2">
           <div class="flex-1">
-            <textarea name="wizard_prompt" rows="3"
-              class="wizard_input_prompt flex-1 form-input-ts resize-none"
+            <textarea name="wizard_prompt" rows="3" class="wizard_input_prompt flex-1 form-input-ts resize-none"
               placeholder="using example make these adjustments..."></textarea>
           </div>
           <div class="ml-2">

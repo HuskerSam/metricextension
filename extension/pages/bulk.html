@@ -1,4 +1,4 @@
-<div class="top_bulk_view_splitter overflow-hidden flex flex-col sm:px-5 lg:px-7">
+<div class="top_bulk_view_splitter overflow-hidden flex flex-col px-2">
   <div class="flex flex-row">
     <div class="flex flex-1 items-start space-x-5 pt-1.5">
       <div class="pt-1.5">
@@ -17,8 +17,8 @@
       <div>
         <button class="run_bulk_analysis_btn btn-ts-primary">
           Bulk&nbsp;
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="w-5 h-5">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
           </svg>
@@ -88,22 +88,8 @@
   </div>
   <div class="flex-1 my-2 bulk_url_list_tabulator custom_tabulator_styles rounded"></div>
 </div>
-<div class="bottom_bulk_view_splitter flex flex-col overflow-hidden sm:px-5 lg:px-7">
+<div class="bottom_bulk_view_splitter flex flex-col overflow-hidden px-2 pb-2">
   <div class="bulk_result_display_container flex-1 overflow-hidden flex-col mt-2">
-    <div class="tab-content flex-1 flex flex-col">
-      <div id="bulk-csv-tab-view" class="tab-pane fade show active flex-1 overflow-hidden flex-col"
-        aria-labelledby="bulk-csv-tab-btn" role="tabpanel" tabindex="0" aria-selected="true">
-        <div class="flex-1 bulk_analysis_results_tabulator custom_tabulator_styles rounded"></div>
-      </div>
-      <div id="bulk-json-log-view" class="tab-pane fade flex-1 overflow-hidden flex-col"
-        aria-labelledby="bulk-json-log-btn" role="tabpanel" tabindex="0">
-        <div class="flex-1 overflow-auto jsonformat border border-gray-300 rounded me-1">
-          <pre>
-            <div class="json_display_modal_content"></div>
-          </pre>
-        </div>
-      </div>
-    </div>
     <div class="flex-column justify-end items-center mr-3 my-2">
       <div class="flex flex-row justify-between items-center">
         <ul class="nav gap-1">
@@ -157,6 +143,20 @@
         <div class="inline-flex bulk_history_pagination"></div>
       </div>
     </div>
+    <div class="tab-content flex-1 flex flex-col">
+      <div id="bulk-csv-tab-view" class="tab-pane fade show active flex-1 overflow-hidden flex-col"
+        aria-labelledby="bulk-csv-tab-btn" role="tabpanel" tabindex="0" aria-selected="true">
+        <div class="flex-1 bulk_analysis_results_tabulator custom_tabulator_styles rounded"></div>
+      </div>
+      <div id="bulk-json-log-view" class="tab-pane fade flex-1 overflow-hidden flex-col"
+        aria-labelledby="bulk-json-log-btn" role="tabpanel" tabindex="0">
+        <div class="flex-1 overflow-auto jsonformat border border-gray-300 rounded me-1">
+          <pre>
+            <div class="json_display_modal_content"></div>
+          </pre>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="no_bulk_result_history_entry flex-2 flex-column">
     <div class="flex flex-col justify-center items-center h-full">
@@ -164,35 +164,37 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="bulkScrapeURLModal" tabindex="-1"">
-  <div class=" modal-dialog modal-xl">
-  <div class="modal-content h-[80vh] flex flex-col overflow-hidden">
-    <div class="modal-body flex flex-1 flex-col overflow-hidden">
-      <div>
-        <label class="form-input-label-ts">Site URL:
-          <input type="text" class="form-input-ts bulk_modal_input_url" spellcheck="false">
-        </label>
-        <label class="form-input-label-ts">Scrape Options:
-          <input type="text" class="bulk_url_modal_source_options form-input-ts"
-            placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
-        </label>
-        <div class="mt-2 text-right">
-          <button class="scrape_url_button btn-ts-primary">Scrape</button>
+
+<div class="modal fade" id="bulkScrapeURLModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content h-[80vh] flex flex-col overflow-hidden">
+      <div class="modal-body flex flex-1 flex-col overflow-hidden">
+        <div>
+          <label class="form-input-label-ts">Site URL:
+            <input type="text" class="form-input-ts bulk_modal_input_url" spellcheck="false">
+          </label>
+          <label class="form-input-label-ts">Scrape Options:
+            <input type="text" class="bulk_url_modal_source_options form-input-ts"
+              placeholder="Scrape Options (optional)..." list="server_scrape_options_list" spellcheck="false">
+          </label>
+          <div class="mt-2 text-right">
+            <button class="scrape_url_button btn-ts-primary">Scrape</button>
+          </div>
+          <br>
         </div>
-        <br>
+        <div class="flex-1 mt-2 url_result_list p-1 m-1 border border-gray-300 rounded overflow-hidden"></div>
+        <hr>
+        <div class="p-2">
+          <div class="url_results_selected float-end"></div>
+        </div>
       </div>
-      <div class="flex-1 mt-2 url_result_list p-1 m-1 border border-gray-300 rounded overflow-hidden"></div>
-      <hr>
-      <div class="p-2">
-        <div class="url_results_selected float-end"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        &nbsp;
+        <button type="button" class="overwrite_urls_button btn btn-secondary">Overwrite List</button>
+        &nbsp;
+        <button type="button" class="append_urls_button btn btn-primary">Append URLs</button>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-      &nbsp;
-      <button type="button" class="overwrite_urls_button btn btn-secondary">Overwrite List</button>
-      &nbsp;
-      <button type="button" class="append_urls_button btn btn-primary">Append URLs</button>
     </div>
   </div>
 </div>

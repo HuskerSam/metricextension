@@ -1,11 +1,16 @@
 <div class="flex-1 flex flew-col overflow-hidden lg:px-2">
   <div class="top_semantic_view_splitter overflow-hidden flex flex-col">
     <div class="flex flex-row justify-between">
-      <span class="font-semibold text-lg text-gray-400 self-center">Semantic Query Results</span>
+      <div class="flex flex-1 items-start space-x-5 pt-1.5">
+        <div class="pt-1.5">
+          <h2 class="text-2xl font-bold text-gray-900">Semantic Results</h2>
+          <p class="text-sm font-medium text-gray-500">Select chunks for embedding</p>
+        </div>
+      </div>
       <div class="dropdown pr-1">
         <button class="btn-ts-secondary dropdown-toggle mt-0.5" type="button" id="semanticSearchOptionsMenu"
           data-bs-toggle="dropdown" aria-expanded="false">
-          Query
+          Source
         </button>
         <div class="semantic_dropdown_menu dropdown-menu w-[400px] overflow-y-auto shadow-xl border-gray-300 border-2">
           <div class="p-2">
@@ -35,7 +40,7 @@
               stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>  
+            </svg>
           </button>
           <select class="dmtab_add_meta_filter_select float-end form-select-ts w-auto"></select>
           <div class="hidden flex-col semantic_display_results_running mt-[-8px] text-right">
@@ -49,7 +54,12 @@
   <div class="bottom_semantic_view_splitter">
     <div class="flex flex-1 flex-col prompt_view_top_splitter">
       <div class="flex justify-between">
-        <span class="ml-3 font-semibold text-lg  text-gray-400 self-center">Prompt and Document Templates</span>
+        <div class="flex flex-1 items-start space-x-5 pt-1.5">
+          <div class="pt-1.5 ml-2">
+            <h2 class="text-2xl font-bold text-gray-900">Document Embedding</h2>
+            <p class="text-sm font-medium text-gray-500">Edit prompt template</p>
+          </div>
+        </div>
         <div class="dropdown pr-1">
           <button class="btn-ts-secondary dropdown-toggle mt-0.5" type="button" id="promptTemplateOptionsMenu"
             data-bs-toggle="dropdown" aria-expanded="false">
@@ -94,7 +104,6 @@
       </div>
       <textarea
         class="llm_prompt_template_text_area w-auto form-textarea-ts flex-2 p-2 my-2 ml-2 resize-none"></textarea>
-        <p class="form-input-label-ts pr-3 text-end text-gray-400 text-xs">Use {{{ }}} to embed raw html. Use {{ }} to embed encoded html.</p>
       <textarea
         class="llm_document_template_text_area form-textarea-ts flex-1 w-auto p-2 my-2 ml-2 resize-none"></textarea>
     </div>
@@ -106,14 +115,14 @@
       <div class="py-2 px-1 text-right border-t border-gray-400 mx-2">
         <label class="form-input-label-ts float-start">
           <input type="checkbox" class="view_embedded_prompt_toggle form-input-checkbox-ts">&nbsp;
-          <span>View Embedded Prompt</span>
+          <span>Show prompt for LLM</span>
         </label>
         <button class="semantic_analyze_embedded_prompt_btn btn-ts-primary" type="button">
           Run &nbsp;<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
             stroke="currentColor" class="w-4 h-4">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-          </svg> 
+          </svg>
         </button>
       </div>
     </div>

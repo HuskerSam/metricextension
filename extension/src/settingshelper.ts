@@ -93,11 +93,11 @@ export default class SettingsHelper {
         const sessionId = await this.extCommon.getStorageField("sessionId") || "";
         if (sessionId) {
             (<any>document.querySelector('.no_session_key')).style.display = 'none';
-            this.session_anchor.innerText = `Visit Session ${sessionId}`;
+            this.session_anchor.innerText = `Visit Unacog for usage details`;
             this.session_anchor.href = `https://unacog.com/session/${sessionId}`;
         } else {
             (<any>document.querySelector('.no_session_key')).style.display = 'block';
-            this.session_anchor.innerText = `Get Started`;
+            this.session_anchor.innerText = `Visit Unacog to Get Started`;
             this.session_anchor.href = `https://unacog.com/klyde`;
         }
 
