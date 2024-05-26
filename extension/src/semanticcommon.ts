@@ -309,10 +309,7 @@ export class SemanticCommon {
         return documentsEmbedText;
     }
     async getEmbeddedPromptText(includeSpanTags = false): Promise<string> {
-        const message = await this.extCommon.getStorageField("semanticQueryText") || "";
-        if (!message) {
-            console.log("getEmbeddedPromptText: no message found in storage");
-        }
+        const message = await this.extCommon.getStorageField("semanticQueryText") || "MESSAGE PLACEHOLDER";
         const semanticChunkRows = await this.extCommon.getStorageField("semanticChunkRows") || [];
         let documentsEmbedText = await this.buildChunkEmbedText(message, semanticChunkRows, includeSpanTags);
 

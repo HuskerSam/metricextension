@@ -42,16 +42,6 @@
   display: none;
 }
 
-.scrape_type_options_container,
-.url_source_input {
-  visibility: hidden;
-}
-
-.scrape_type_active .scrape_type_options_container,
-.scrape_type_active .url_source_input {
-  visibility: visible;
-}
-
 .html_element_selector_wrapper {
   visibility: hidden;
 }

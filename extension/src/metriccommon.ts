@@ -27,23 +27,14 @@ Example prompt template:
             }
         );
     }
-    async getURLContentSource() {
-        let value = await this.chrome.storage.local.get("sidePanelUrlSource");
-        value = value["sidePanelUrlSource"] || '';
-        return value;
-    }
-    async getSourceType() {
-        let value = await this.chrome.storage.local.get("sidePanelSource");
-        value = value["sidePanelSource"] || '';
-        if (value === 'scrape') {
-            return 'scrape';
-        } else {
-            return 'text';
-        }
-    }
     async sidePanelScrapeUrl() {
         if (await this.extCommon.testSessionKeys() === false) return;
-        const url = await this.getURLContentSource();
+        if (await this.setMetricsRunning()) {
+            if (confirm("Scrape is already running. Do you want to restart?") === false) {
+                return;
+            }
+        }
+        const url = await this.extCommon.getStorageField("sidePanelUrlSource") || "";
         let sidePanelScrapeType = await this.extCommon.getStorageField("sidePanelScrapeType");
         const options = await this.extCommon.getStorageField("sidePanelUrlSourceOptions");
         let bulkUrl = {
@@ -61,15 +52,18 @@ Example prompt template:
         if (result && result.length > 0 && result[0].result) text = result[0].result;
         if (!text) text = result.result.text || "";
         text = text.slice(0, await this.extCommon.getEmbeddingCharacterLimit());
-        await this.chrome.storage.local.set({ sidePanelScrapeContent: text });
+        await this.chrome.storage.local.set({ 
+            sidePanelScrapeContent: text,
+            metrics_running: false,
+         });
     }
     async detectTabLoaded(tabId: number) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.activeTabsBeingScraped[tabId] = resolve;
         });
     }
     async scrapeTabPage(url: any, tabId: string | null) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
 
             let tab = await this.chrome.tabs.create({
                 url
@@ -332,7 +326,7 @@ Example prompt template:
           }`;
         }
     }
-    async setMetricsRunning(prompt = false) {
+    async setMetricsRunning() {
         let running = await this.chrome.storage.local.get('metrics_running');
         if (running && running.running) {
             return true;

@@ -62,12 +62,10 @@ export default class SidePanelApp {
   open_main_batch_page_btn = document.querySelector('.open_main_batch_page_btn') as HTMLButtonElement;
   lastPanelToggleDate = new Date().toISOString();
   run_analysis_btn = document.querySelector('.run_analysis_btn') as HTMLButtonElement;
-  user_text_content_field = document.querySelector(".user_text_content_field") as HTMLTextAreaElement;
   source_text_length = document.querySelector('.source_text_length') as HTMLElement;
   source_tokens_length = document.querySelector('.source_tokens_length') as HTMLElement;
   analysis_run_label = document.querySelector('.analysis_run_label') as HTMLInputElement;
   tabs_input_url_tab = document.querySelector('#tabs_input_url_tab') as HTMLInputElement;
-  tabs_input_textarea_tab = document.querySelector('#tabs_input_textarea_tab') as HTMLInputElement;
   tabs_input_textarea_panel = document.querySelector('#tabs_input_textarea_panel') as HTMLDivElement;
   tabs_input_url_panel = document.querySelector('#tabs_input_url_panel') as HTMLDivElement;
   url_source_input = document.querySelector('.url_source_input') as HTMLInputElement;
@@ -91,12 +89,10 @@ export default class SidePanelApp {
     this.open_main_batch_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html#bulk"));
     this.open_main_settings_page_btn.addEventListener('click', () => this.extCommon.toggleExentionPage("main.html#settings"));
     this.run_analysis_btn.addEventListener('click', () => this.sidePanelRunAnalysis());
-    this.user_text_content_field.addEventListener('input', () => this.extCommon.setFieldToStorage(this.user_text_content_field, "sidePanelTextSource"));
     this.analysis_run_label.addEventListener('input', () => this.extCommon.setFieldToStorage(this.analysis_run_label, "analysisRunLabel"));
     this.url_source_input.addEventListener('input', () => this.extCommon.setFieldToStorage(this.url_source_input, "sidePanelUrlSource"));
     this.url_source_options.addEventListener('input', () => this.extCommon.setFieldToStorage(this.url_source_options, "sidePanelUrlSourceOptions"));
-    this.tabs_input_url_tab.addEventListener('click', () => chrome.storage.local.set({ sidePanelSource: 'scrape' }));
-    this.tabs_input_textarea_tab.addEventListener('click', () => chrome.storage.local.set({ sidePanelSource: 'text' }));
+    this.url_scrape_results.addEventListener('input', () => this.extCommon.setFieldToStorage(this.url_scrape_results, "sidePanelScrapeContent"));
     this.scrape_type_radios.forEach((radio) => radio.addEventListener('input', () => chrome.storage.local.set({ sidePanelScrapeType: radio.value })));
     this.copy_url_scrape.addEventListener('click', () => navigator.clipboard.writeText(this.url_scrape_results.value));
     this.sidepanel_scrape_webpage_btn.addEventListener('click', () => this.metricCommon.sidePanelScrapeUrl());
@@ -151,22 +147,14 @@ export default class SidePanelApp {
   }
   async sidePanelRunAnalysis() {
     if (await this.extCommon.testSessionKeys() === false) return;
-    let isAlreadyRunning = await this.metricCommon.setMetricsRunning(true);
-    console.log("isAlreadyRunning", isAlreadyRunning);
+    let isAlreadyRunning = await this.metricCommon.setMetricsRunning();
     if (isAlreadyRunning) {
       if (confirm("A previous analysis is still running. Do you want to cancel it and start a new one?") === false)
         return;
     }    
-    const sidePanelSource = await this.extCommon.getStorageField("sidePanelSource");
-
     let label = await this.extCommon.getStorageField("analysisRunLabel");
-    let text = ""; 
-    if (sidePanelSource === 'scrape') {
-      text = await this.extCommon.getStorageField("sidePanelScrapeContent") || "";
-    } else {
-      text = this.user_text_content_field.value.trim();
-    }
-    if (!label) label = await this.metricCommon.getURLContentSource();
+    let text = await this.extCommon.getStorageField("sidePanelScrapeContent") || "";
+    if (!label) label = await this.extCommon.getStorageField("sidePanelUrlSource");
     if (!label) label = "Manual Run";
     await this.metricCommon.runAnalysisPrompts(text, label);
   }
@@ -217,43 +205,19 @@ export default class SidePanelApp {
     this.extCommon.getFieldFromStorage(this.url_source_input, "sidePanelUrlSource");
     this.extCommon.getFieldFromStorage(this.url_source_options, "sidePanelUrlSourceOptions");
     this.extCommon.getFieldFromStorage(this.url_scrape_results, "sidePanelScrapeContent");
-    this.extCommon.getFieldFromStorage(this.user_text_content_field, "sidePanelTextSource");
 
     const sidePanelScrapeContent = await this.extCommon.getStorageField("sidePanelScrapeContent");
     const sidePanelTextSource = await this.extCommon.getStorageField("sidePanelTextSource");
-    const sidePanelSource = await this.extCommon.getStorageField("sidePanelSource");
 
     const newSourceDetailsCache = JSON.stringify({
       sidePanelScrapeContent,
       sidePanelTextSource,
-      sidePanelSource,
     });
     if (newSourceDetailsCache === this.sourceDetailsCache) return;
     this.sourceDetailsCache = newSourceDetailsCache;
 
-    let text = "";
-    if (sidePanelSource === 'scrape') {
-      this.tabs_input_url_tab.classList.add('active');
-      document.body.classList.add('scrape_type_active');
-      document.body.classList.remove('manual_type_active');
-      this.tabs_input_url_tab.checked = true;
-      this.tabs_input_textarea_tab.classList.remove('active');
-      this.tabs_input_url_panel.style.display = "";
-      this.tabs_input_textarea_panel.style.display = "none";
-      text = sidePanelScrapeContent;
-    } else {
-      document.body.classList.add('manual_type_active');
-      document.body.classList.remove('scrape_type_active');
-      this.tabs_input_url_tab.classList.remove('active');
-      this.tabs_input_textarea_tab.classList.add('active');
-      this.tabs_input_textarea_tab.checked = true;
-      this.tabs_input_url_panel.style.display = "none";
-      this.tabs_input_textarea_panel.style.display = "";
-      text = sidePanelTextSource;
-    }
-
+    let text = sidePanelScrapeContent;
     this.source_text_length.innerText = text.length + ' characters';
-
     let tokenCount = "N/A";
     try {
       tokenCount = encode(text).length.toString() + " tokens";

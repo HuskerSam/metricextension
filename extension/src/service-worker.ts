@@ -89,15 +89,14 @@ chrome.runtime.onMessageExternal.addListener(
 async function processAnalysisContextMenuAction(text: string, url: string) {
     const metricCommon = new MetricCommon(chrome);
     const extCommon = new AnalyzerExtensionCommon(chrome);
-    let isAlreadyRunning = await metricCommon.setMetricsRunning(true);
+    let isAlreadyRunning = await metricCommon.setMetricsRunning();
     if (isAlreadyRunning) return;
 
     text = text.slice(0, await extCommon.getEmbeddingCharacterLimit());
     await chrome.storage.local.set({
         sidePanelScrapeContent: text,
-        sidePanelSource: 'scrape',
         sidePanelUrlSource: url,
-        sidePanelScrapeType: "cache"
+        sidePanelScrapeType: "browser scrape"
     });
 
     await metricCommon.runAnalysisPrompts(text, url);
@@ -113,7 +112,7 @@ async function processSemanticContextMenuAction(text: string, url: string) {
     await chrome.storage.local.set({
         semanticQueryText: text,
         semanticUrlSource: url,
-        semanticScrapeType: "cache"
+        semanticScrapeType: "browser scrape"
     });
     let selectedSemanticSource = await semanticCommon.getSelectedSemanticSource();
     await semanticCommon.selectSemanticSource(selectedSemanticSource, true);
