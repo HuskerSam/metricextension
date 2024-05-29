@@ -150,7 +150,6 @@
 }
 
 .ss-main .ss-values .ss-value .ss-value-text {
-    font-size: 12px;
     color: var(--ss-bg-color);
     line-height: 1;
     padding: var(--ss-spacing-s) var(--ss-spacing-m)

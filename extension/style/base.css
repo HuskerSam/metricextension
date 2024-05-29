@@ -428,10 +428,6 @@ body {
   display: none;
 }
 
-.ss-main .ss-values .ss-value .ss-value-text {
-  font-size: var(--font-size-large);
-}
-
 .prompt_list_editor_style .tabulator-tableholder {
   overflow-x: hidden;
 }
@@ -686,4 +682,16 @@ body {
 #main_datamill_tab_view .gutter.gutter-horizontal {
   margin-top: 52px;
   margin-bottom: 56px;
+}
+
+:root {
+  --ss-primary-color: rgb(50, 240, 50);
+}
+
+.ss-main .ss-values .ss-value .ss-value-text {
+  color: var(--ss-font-color);
+}
+
+.ss-main .ss-values .ss-value .ss-value-delete {
+  border-left: none;
 }
